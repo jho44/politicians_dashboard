@@ -1,15 +1,17 @@
 import React, { useEffect, useCallback, useState } from "react";
-import logo from './logo.svg';
 import "./Timeline.css";
 const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
 const Timeline = ({ type }) => {
-  const graphRef = React.useRef(null);
-  const svgRef = React.useRef(null);
-  let width, height, chartWidth, chartHeight;
+  const width = window.innerWidth;
+  const height = window.innerHeight / 2;
+
   const margin = { top:0, left:20, bottom:0, right:20 };
+
+  const chartWidth = width - (margin.left+margin.right);
+  const chartHeight = height - (margin.top+margin.bottom);
 
   let simulation, node, link, labels;
 
@@ -165,24 +167,6 @@ const Timeline = ({ type }) => {
     }
   }
 
-  const setSize = useCallback(() => {
-    width = document.querySelector("#graph").clientWidth
-    height = document.querySelector("#graph").clientHeight
-
-    chartWidth = width - (margin.left+margin.right)
-    chartHeight = height - (margin.top+margin.bottom)
-
-    d3.select(".chart")
-      .attr("width", chartWidth)
-      .attr("height", chartHeight)
-      .attr("transform", "translate("+[margin.left, margin.top]+")");
-
-    // d3.select(".chartLayer")
-    //     .attr("width", chartWidth)
-    //     .attr("height", chartHeight)
-    //     .attr("transform", "translate("+[margin.left, margin.top]+")")
-  }, []);
-
   const drawChart = useCallback((activeNodes, activeLinks) => {
     simulation = d3.forceSimulation(activeNodes)
     .force("link", d3.forceLink(activeLinks).id(function(d) { return d.index }).distance(200))
@@ -191,7 +175,7 @@ const Timeline = ({ type }) => {
 
     // https://bl.ocks.org/d3noob/5141278
     // build the arrow.
-    d3.select(svgRef.current).append("svg:defs").selectAll("marker")
+    d3.select(".chart").append("svg:defs").selectAll("marker")
         .data(["end"])      // Different link/path types can be defined here
         .enter().append("svg:marker")    // This section adds in the arrows
         .attr("id", String)
@@ -355,7 +339,7 @@ const Timeline = ({ type }) => {
       }
     }
 
-    link = d3.select(svgRef.current)
+    link = d3.select(".chart")
       .attr("marker-end", "url(#end)")
       .selectAll("line.link")
       .data(activeLinks);
@@ -368,7 +352,7 @@ const Timeline = ({ type }) => {
 
     link = linkEnter.merge(link);
 
-    node = d3.select(svgRef.current)
+    node = d3.select(".chart")
       .selectAll(".nodes")
       .data(activeNodes, function(d) { return `${d.label}.${d.time}`; });
 
@@ -416,7 +400,7 @@ const Timeline = ({ type }) => {
       .attr('class', 'mylabel')
       .style("visibility", "hidden");
 
-    labels = d3.select(svgRef.current).selectAll("text.mylabel");
+    labels = d3.select(".chart").selectAll("text.mylabel");
 
     node = nodeEnter.merge(node);
     simulation.nodes(activeNodes);
@@ -424,20 +408,29 @@ const Timeline = ({ type }) => {
   }
 
   useEffect(() => {
-    setSize();
     drawSlider();
     drawChart([], []);
-  }, [setSize, drawSlider, drawChart]); // Redraw chart if data changes
+  }, [drawSlider, drawChart]); // Redraw chart if data changes
 
   return (
-    <div id="graph" ref={graphRef}>
+    <div id="graph">
       <div id="btn-section">
         <button id="play-button">Play</button>
       </div>
-      <svg id="slider-section"></svg>
-      <svg className="chart" ref={svgRef}>
-        {/* <g className="chartLayer"></g> */}
+      <svg
+        id="slider-section"
+        preserveAspectRatio="xMinYMin meet"
+        viewBox={`0 0 ${width} ${height}`}
+      >
       </svg>
+
+      <div className="chart-container" id="container">
+        <svg
+          className="chart"
+          preserveAspectRatio="xMinYMin meet"
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+        ></svg>
+      </div>
     </div>
   );
 };

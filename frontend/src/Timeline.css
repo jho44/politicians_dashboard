@@ -119,12 +119,22 @@ text {
 }
 
 .chart {
+  display: inline-block;
+  position: absolute;
+  top: 80vh;
+  left: 0;
+  margin: 20px;
   background-color: #e8fffd;
   border-radius: 5px;
   border-style: solid;
   border-color: #0EB0E6;
 }
 
-.slider {
-  overflow: scroll;
+.svg-container {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  vertical-align: top;
+  overflow: hidden;
 }
