@@ -13,7 +13,7 @@ ul.horizontal {
 }
 
 ul.horizontal li a.active {
-  background-color: #04AA6D;
+  background-color: #04aa6d;
 }
 
 ul {
@@ -34,15 +34,16 @@ ul.horizontal li a {
   font-size: 1.2rem;
 }
 
-#graph, #slider-section {
+#graph,
+#slider-section {
   min-width: 100%;
   height: 50vh;
-  background-color: #A4EBE5;
+  background-color: #a4ebe5;
   font-family: sans-serif;
 }
 
 body {
-  background-color: #A4EBE5;
+  background-color: #a4ebe5;
 }
 
 #slider-section {
@@ -66,7 +67,7 @@ text {
 }
 
 #play-button {
-  background: #18C5D9;
+  background: #18c5d9;
   border-radius: 3px;
   border: none;
   color: white;
@@ -83,7 +84,7 @@ text {
 }
 
 #play-button:hover {
-  background-color: #0EAAE6;
+  background-color: #0eaae6;
 }
 
 .track,
@@ -127,7 +128,7 @@ text {
   background-color: #e8fffd;
   border-radius: 5px;
   border-style: solid;
-  border-color: #0EB0E6;
+  border-color: #0eb0e6;
 }
 
 .chart-container {
@@ -141,7 +142,7 @@ text {
 #graph {
   position: relative;
   top: calc(-1 * var(--drawer-height));
-  transition: top .5s ease-out;
+  transition: top 0.5s ease-out;
 }
 
 #graph.moveup {

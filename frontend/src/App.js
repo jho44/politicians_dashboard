@@ -1,6 +1,6 @@
-import './App.css';
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
+import "./App.css";
+import React, { useEffect, useState } from "react";
+import classNames from "classnames";
 import Timeline from "./Timeline";
 
 function App() {
@@ -25,7 +25,7 @@ function App() {
   // });
 
   const handleClick = () => {
-    setOpenDrawer(!openDrawer)
+    setOpenDrawer(!openDrawer);
   };
 
   return (
@@ -33,9 +33,7 @@ function App() {
       <header className="App-header">
         <p>React + Flask Tutorial</p>
       </header>
-      <button onClick={handleClick}>
-        Open Drawer
-      </button>
+      <button onClick={handleClick}>Open Drawer</button>
       <div id="drawer-wrapper">
         <div className={classNames("drawer", openDrawer && "open")}>
           Dummy Drawer
