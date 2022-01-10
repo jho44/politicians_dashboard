@@ -41,3 +41,25 @@
     transform: rotate(360deg);
   }
 }
+
+#drawer-wrapper {
+  min-height: calc(100vh + var(--drawer-height));
+  margin-bottom: 10vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+.drawer {
+  background-color: black;
+  width: 100%;
+  height: var(--drawer-height);
+  position: relative;
+  top: calc(-1 * var(--drawer-height));
+  left: 0;
+  transition: top .5s ease-out;
+}
+
+.drawer.open {
+  top: 0;
+}

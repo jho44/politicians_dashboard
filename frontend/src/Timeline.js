@@ -1,10 +1,11 @@
 import React, { useEffect, useCallback, useState } from "react";
+import classNames from 'classnames';
 import "./Timeline.css";
 const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ type }) => {
+const Timeline = ({ openDrawer }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -206,6 +207,7 @@ const Timeline = ({ type }) => {
   }, []);
 
   const drawSlider = useCallback(async () => {
+    console.log('draw slider')
     const {nodes, links} = await Singleton.getInstance();
     var moving = false;
     var timer = null;
@@ -222,7 +224,7 @@ const Timeline = ({ type }) => {
         .clamp(true);
 
     var slider = d3.select("#slider-section").append("g")
-        .attr("class", "slider")
+        .attr("class", "slider");
 
     async function update(h) {
       // update position and text of label according to slider scale
@@ -408,12 +410,13 @@ const Timeline = ({ type }) => {
   }
 
   useEffect(() => {
-    drawSlider();
+    if (!d3.select("#slider-section > g")._groups[0][0])
+      drawSlider();
     drawChart([], []);
   }, [drawSlider, drawChart]); // Redraw chart if data changes
 
   return (
-    <div id="graph">
+    <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>
       <div id="btn-section">
         <button id="play-button">Play</button>
       </div>
