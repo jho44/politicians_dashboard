@@ -51,7 +51,7 @@
 }
 
 .drawer {
-  background-color: black;
+  background-color: rgb(14, 176, 230, 0.5);
   width: 100%;
   height: var(--drawer-height);
   position: relative;
@@ -62,4 +62,26 @@
 
 .drawer.open {
   top: 0;
+}
+
+.line {
+  fill: none;
+  stroke: #ffab00;
+  stroke-width: 3;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+/* Style the dots by assigning a fill and stroke */
+.dot {
+  fill: #ffab00;
+  stroke: #fff;
+}
+
+.focus {
+  fill: none;
+  stroke: steelblue;
 }

@@ -1,5 +1,6 @@
-from flask import send_file
+from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
+import pandas as pd
 
 class Server(Resource):
   '''
@@ -12,7 +13,28 @@ class Server(Resource):
     input: relationship
   '''
   def get(self):
-    return send_file('api/politicians.csv')
+    parser = reqparse.RequestParser()
+    parser.add_argument('type', type=str)
+    parser.add_argument('account_id', type=int)
+
+    args = parser.parse_args()
+
+    type = args['type']
+    if type == 'num_posts_over_time':
+      data = pd.read_csv("api/politicians.csv", dtype={'full_text': str, 'mention': object, 'liked_by': object})
+      data = data[data['account_id'] == args['account_id']]
+      data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms')
+
+      grps = data.groupby(pd.Grouper(key='datetime', freq='T'))
+      grp_sizes = grps.size()
+
+      return jsonify({
+        "times": grp_sizes.index.strftime("%m/%d/%Y, %H:%M:%S").tolist(),
+        "sizes": grp_sizes.values.tolist(),
+        "range": [int(grp_sizes.values.min()), int(grp_sizes.values.max())],
+      })
+    else:
+      return send_file('api/politicians.csv')
 
   def post(self):
     parser = reqparse.RequestParser()

@@ -5,7 +5,7 @@ const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ openDrawer }) => {
+const Timeline = ({ openDrawer, handleNodeClick }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -227,7 +227,6 @@ const Timeline = ({ openDrawer }) => {
   }, []);
 
   const drawSlider = useCallback(async () => {
-    console.log("draw slider");
     const { nodes, links } = await Singleton.getInstance();
     var moving = false;
     var timer = null;
@@ -375,6 +374,7 @@ const Timeline = ({ openDrawer }) => {
     async function click(d) {
       if (d3.event.defaultPrevented) return; // ignore drag
 
+      handleNodeClick(d.label);
       if (d.liked_by) {
         const adaptor = await GlobalAdaptor.getInstance();
         if (d.collapsed) {
@@ -476,8 +476,10 @@ const Timeline = ({ openDrawer }) => {
   }
 
   useEffect(() => {
-    if (!d3.select("#slider-section > g")._groups[0][0]) drawSlider();
-    drawChart([], []);
+    if (!d3.select("#slider-section > g")._groups[0][0]) {
+      drawSlider();
+      drawChart([], []);
+    }
   }, [drawSlider, drawChart]); // Redraw chart if data changes
 
   return (
