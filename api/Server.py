@@ -28,10 +28,17 @@ class Server(Resource):
       grps = data.groupby(pd.Grouper(key='datetime', freq='T'))
       grp_sizes = grps.size()
 
+      try:
+        min_range = int(grp_sizes.values.min())
+        max_range = int(grp_sizes.values.max())
+      except ValueError:
+        min_range = 0
+        max_range = 10
+
       return jsonify({
         "times": grp_sizes.index.strftime("%m/%d/%Y, %H:%M:%S").tolist(),
         "sizes": grp_sizes.values.tolist(),
-        "range": [int(grp_sizes.values.min()), int(grp_sizes.values.max())],
+        "range": [min_range, max_range],
       })
     else:
       return send_file('api/politicians.csv')

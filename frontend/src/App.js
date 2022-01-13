@@ -1,11 +1,12 @@
 import "./App.css";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
 import { drawNumPostsOverTime } from "./drawerFuncs";
 import Timeline from "./Timeline";
+import { RELATIONSHIPS } from "./constants";
 
 function App() {
-  const [timelineData, setTimelineData] = useState(null);
+  const [timelineRelation, setTimelineRelation] = useState(RELATIONSHIPS[0]);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [accId, setAccId] = useState();
 
@@ -60,12 +61,35 @@ function App() {
       .catch((err) => console.error(err));
   };
 
+  const handleRelationshipChange = useCallback(
+    (e) => setTimelineRelation(e.target.value),
+    []
+  );
+
+  useEffect(() => {
+    document
+      .getElementById("relationship")
+      .addEventListener("change", handleRelationshipChange);
+    return () => {
+      document
+        .getElementById("relationship")
+        .removeEventListener("change", handleRelationshipChange);
+    };
+  }, [handleRelationshipChange]);
+
   return (
     <div className="App">
       <header className="App-header">
         <p>React + Flask Tutorial</p>
       </header>
       <button onClick={handleCloseClick}>Close Drawer</button>
+      <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
+        {RELATIONSHIPS.map((x) => (
+          <option value={x} key={x}>
+            {x}
+          </option>
+        ))}
+      </select>
       <div id="drawer-wrapper">
         <div className={classNames("drawer", openDrawer && "open")}>
           <h2 style={{ marginTop: 0 }}>
@@ -75,8 +99,11 @@ function App() {
             <h3>Number of Posts over Time</h3>
           </div>
         </div>
-        <Timeline openDrawer={openDrawer} handleNodeClick={handleNodeClick} />
-        {/* <div className="timeline" style={{backgroundColor: "white"}}>Timeline</div> */}
+        <Timeline
+          openDrawer={openDrawer}
+          handleNodeClick={handleNodeClick}
+          timelineRelation={timelineRelation}
+        />
       </div>
     </div>
   );

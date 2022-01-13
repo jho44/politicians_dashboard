@@ -1,11 +1,13 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React, { useEffect, useCallback, useMemo, useRef } from "react";
 import classNames from "classnames";
 import "./Timeline.css";
+import { RELATIONSHIPS } from "./constants";
+
 const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ openDrawer, handleNodeClick }) => {
+const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -16,158 +18,181 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
 
   let simulation, node, link, labels;
 
-  // https://www.dofactory.com/javascript/design-patterns/singleton
-  const Singleton = (function () {
-    let instance;
+  const GlobalAdaptor = useRef();
+  const propertyName = useRef("retweet_from");
 
-    async function createInstance() {
-      const nodes = {};
+  const inst = useMemo(() => {
+    const nodes = {};
 
-      return d3
-        .csv(`http://localhost:5000/flask`)
-        .then(function (rows) {
-          return rows.map((d) => {
-            const thisMinute = Math.round(d.timestamp / COEFF) * COEFF;
-            nodes[`${d.account_id}.${thisMinute}`] = {
-              label: +d.account_id,
-              time: thisMinute,
-            };
+    return d3
+      .csv(`http://localhost:5000/flask`)
+      .then(function (rows) {
+        rows.forEach((d) => {
+          const thisMinute = Math.round(d.timestamp / COEFF) * COEFF;
+          nodes[`${d.account_id}.${thisMinute}`] = {
+            label: d.account_id,
+            time: thisMinute,
+          };
 
-            // link with whom they're liked by
-            if (d.liked_by) {
-              nodes[`${+d.liked_by}.${thisMinute}`] = {
-                label: +d.liked_by,
+          // link with whom they have a certain relationship with
+          const relationship = d[propertyName.current];
+
+          if (relationship) {
+            const relations = relationship.split(",");
+
+            /**
+             * different csvs have different dtypes for the same columns
+             * specifically, some are ints while others are floats that look like xxxx.0
+             * and others are strings meant to rep lists of ints
+             * doing this mapping to int_relations just standardizes everything
+             */
+            const int_relations = relations.map((relator) => {
+              nodes[`${+relator}.${thisMinute}`] = {
+                label: +relator,
                 time: thisMinute,
               };
+              return +relator;
+            });
 
-              nodes[`${d.account_id}.${thisMinute}`].collapsed = true;
-              nodes[`${d.account_id}.${thisMinute}`].liked_by = +d.liked_by;
-
-              return {
-                time: thisMinute,
-                source: nodes[`${d.account_id}.${thisMinute}`],
-                target: nodes[`${d.liked_by}.${thisMinute}`],
-              };
-            }
-            return null;
-          });
-        })
-        .then(function (links) {
-          return { nodes: Object.values(nodes), nodeKeys: Object.keys(nodes) };
+            nodes[`${d.account_id}.${thisMinute}`].collapsed = true;
+            nodes[`${d.account_id}.${thisMinute}`][propertyName.current] =
+              int_relations;
+          }
         });
-    }
-
-    return {
-      getInstance: async function () {
-        if (!instance) {
-          instance = await createInstance();
-        }
-        return instance;
-      },
-    };
-  })();
-
-  const GlobalAdaptor = (function () {
-    let instance;
-
-    async function createInstance() {
-      const instance1 = await Singleton.getInstance();
-      const { links, nodes } = instance1;
-      return new Adaptor(links, nodes);
-    }
-
-    return {
-      getInstance: async function () {
-        if (!instance) {
-          instance = await createInstance();
-        }
-        return instance;
-      },
-    };
-  })();
-
-  class Adaptor {
-    constructor(links, nodes) {
-      this.activeChildLinks = {};
-      this.activeChildNodes = {};
-      this.parentNodes = [];
-      this.parentLabels = new Set();
-    }
-
-    get nodes() {
-      const kids = new Set(Object.values(this.activeChildNodes).flat());
-      return this.parentNodes.concat(Array.from(kids));
-    }
-
-    get links() {
-      return Object.values(this.activeChildLinks);
-    }
-
-    /*
-      Upon moving slider, finds posts created at the nearest minute to the
-      slider's current time h.
-    */
-    async update(h) {
-      const nearestMin = Math.round(h / COEFF) * COEFF;
-      console.log(nearestMin);
-
-      const instance = await Singleton.getInstance();
-
-      this.parentNodes = instance.nodes.filter(function (d) {
-        return d.time == nearestMin && d.liked_by; // only show nodes that have a liked_by
+      })
+      .then(function () {
+        return { nodes: Object.values(nodes), nodeKeys: Object.keys(nodes) };
       });
+  }, [timelineRelation]);
 
-      this.parentLabels = new Set(this.parentNodes.map((x) => x.label));
-
-      this.activeChildNodes = {};
-      this.activeChildLinks = {};
-
-      return { nodes: this.parentNodes, links: [] };
-    }
-
-    async addChildrenOf(d) {
-      const { nodes, nodeKeys } = await Singleton.getInstance();
-      console.log(d.label, d.liked_by);
-
-      if (d.label == d.liked_by) {
-        this.activeChildLinks[d.label] = {
-          source: d,
-          target: d,
-        };
-        return;
+  useEffect(() => {
+    class Adaptor {
+      constructor() {
+        this.activeChildLinks = {};
+        this.activeChildNodes = {};
+        this.parentNodes = [];
+        this.parentLabels = new Set();
       }
 
-      const childIndex = nodeKeys.indexOf(`${d.liked_by}.${d.time}`);
+      get nodes() {
+        const kids = new Set(Object.values(this.activeChildNodes).flat());
+        return this.parentNodes.concat(Array.from(kids));
+      }
+
+      get links() {
+        return Object.values(this.activeChildLinks).flat();
+      }
+
       /*
-        problem when the liked_by node is a parent node with a liked_by of its own in the same time step
-        a
-          liked_by: b
-        b
-          liked_by: a
-        only if the liked_by node isn't already existing in this current instance of time as a parent node
-        do we want to create a new node
+        Upon moving slider, finds posts created at the nearest minute to the
+        slider's current time h.
       */
+      async update(h) {
+        const nearestMin = Math.round(h / COEFF) * COEFF;
+        console.log(nearestMin);
 
-      if (!this.activeChildNodes[d.liked_by]) {
-        this.activeChildNodes[d.label] = nodes[childIndex];
+        const instance = await inst;
 
-        this.activeChildLinks[d.label] = {
-          source: d,
-          target: nodes[childIndex],
-        };
-      } else {
-        this.activeChildLinks[d.label] = {
-          source: d,
-          target: this.activeChildNodes[d.liked_by],
-        };
+        this.parentNodes = instance.nodes.filter(function (d) {
+          const relation = d[propertyName.current];
+          return d.time == nearestMin && relation; // only show nodes that have a liked_by
+        });
+
+        this.parentLabels = new Set(this.parentNodes.map((x) => x.label));
+
+        this.activeChildNodes = {};
+        this.activeChildLinks = {};
+
+        return { nodes: this.parentNodes, links: [] };
+      }
+
+      async addChildrenOf(d) {
+        const { nodes, nodeKeys } = await inst;
+        const relation = d[propertyName.current];
+        console.log(d.label, relation);
+
+        if (d.label == relation) {
+          this.activeChildLinks[d.label] = {
+            source: d,
+            target: d,
+          };
+          return;
+        }
+
+        relation.forEach((childId) => {
+          const childIndex = nodeKeys.indexOf(`${childId}.${d.time}`);
+
+          /*
+            problem when the liked_by node is a parent node with a liked_by of its own in the same time step
+            a
+              liked_by: b
+            b
+              liked_by: a
+            only if the liked_by node isn't already existing in this current instance of time as a parent node
+            do we want to create a new node
+          */
+
+          if (!this.activeChildNodes[childId]) {
+            if (!this.activeChildNodes[d.label])
+              this.activeChildNodes[d.label] = [nodes[childIndex]];
+            else this.activeChildNodes[d.label].push(nodes[childIndex]);
+
+            if (!this.activeChildLinks[d.label]) {
+              this.activeChildLinks[d.label] = [
+                {
+                  source: d,
+                  target: nodes[childIndex],
+                },
+              ];
+            } else {
+              this.activeChildLinks[d.label].push({
+                source: d,
+                target: nodes[childIndex],
+              });
+            }
+          } else {
+            if (!this.activeChildLinks[d.label]) {
+              this.activeChildLinks[d.label] = [
+                {
+                  source: d,
+                  target: this.activeChildNodes[childId],
+                },
+              ];
+            } else {
+              this.activeChildLinks[d.label].push({
+                source: d,
+                target: this.activeChildNodes[childId],
+              });
+            }
+          }
+        });
+      }
+
+      removeChildrenOf(nodeLabel) {
+        delete this.activeChildNodes[nodeLabel];
+        delete this.activeChildLinks[nodeLabel];
       }
     }
 
-    removeChildrenOf(nodeLabel) {
-      delete this.activeChildNodes[nodeLabel];
-      delete this.activeChildLinks[nodeLabel];
-    }
-  }
+    GlobalAdaptor.current = (function () {
+      let instance;
+
+      async function createInstance() {
+        const instance1 = await inst;
+        const { nodes } = instance1;
+        return new Adaptor(nodes);
+      }
+
+      return {
+        getInstance: async function () {
+          if (!instance) {
+            instance = await createInstance();
+          }
+          return instance;
+        },
+      };
+    })();
+  }, [inst, timelineRelation]);
 
   const drawChart = useCallback((activeNodes, activeLinks) => {
     simulation = d3
@@ -184,7 +209,7 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
       .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
       .on("tick", ticked);
 
-    // https://bl.ocks.org/d3noob/5141278
+    // http://bl.ocks.org/d3noob/5141278
     // build the arrow.
     d3.select(".chart")
       .append("svg:defs")
@@ -227,7 +252,7 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
   }, []);
 
   const drawSlider = useCallback(async () => {
-    const { nodes, links } = await Singleton.getInstance();
+    const { nodes } = await inst;
     var moving = false;
     var timer = null;
     var currentValue = 0;
@@ -243,6 +268,7 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
       .range([0, targetValue])
       .clamp(true);
 
+    d3.select("#slider-section > g").remove();
     var slider = d3
       .select("#slider-section")
       .append("g")
@@ -253,7 +279,7 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
       handle.attr("cx", x(h));
       label.attr("x", x(h)).text(d3.timeFormat("%b %d %Y")(h));
 
-      const adaptor = await GlobalAdaptor.getInstance();
+      const adaptor = await GlobalAdaptor.current.getInstance();
       const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
       // redraw plot
       drawChart(nodes, links);
@@ -351,7 +377,7 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
         playButton.text("Play");
       }
     }
-  }, [GlobalAdaptor, Singleton, drawChart, height, margin.left, width]);
+  }, [drawChart, height, width, margin.right, inst]);
 
   function updateChart(activeNodes, activeLinks) {
     function dragstarted(d) {
@@ -369,24 +395,6 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
       if (!d3.event.active) simulation.alphaTarget(0);
       d.fx = null;
       d.fy = null;
-    }
-
-    async function click(d) {
-      if (d3.event.defaultPrevented) return; // ignore drag
-
-      handleNodeClick(d.label);
-      if (d.liked_by) {
-        const adaptor = await GlobalAdaptor.getInstance();
-        if (d.collapsed) {
-          // want to show its neighbors
-          await adaptor.addChildrenOf(d);
-        } else {
-          // want to hide its neighbors
-          adaptor.removeChildrenOf(d.label);
-        }
-        d.collapsed = !d.collapsed;
-        updateChart(adaptor.nodes, adaptor.links);
-      }
     }
 
     link = d3
@@ -475,12 +483,44 @@ const Timeline = ({ openDrawer, handleNodeClick }) => {
     simulation.force("link").links(activeLinks);
   }
 
+  async function click(d) {
+    if (d3.event.defaultPrevented) return; // ignore drag
+    handleNodeClick(d.label);
+
+    const relation = d[propertyName.current];
+    if (relation) {
+      const adaptor = await GlobalAdaptor.current.getInstance();
+      if (d.collapsed) {
+        // want to show its neighbors
+        await adaptor.addChildrenOf(d);
+      } else {
+        // want to hide its neighbors
+        adaptor.removeChildrenOf(d.label);
+      }
+      d.collapsed = !d.collapsed;
+      updateChart(adaptor.nodes, adaptor.links);
+    }
+  }
+
   useEffect(() => {
-    if (!d3.select("#slider-section > g")._groups[0][0]) {
+    const relation =
+      timelineRelation === RELATIONSHIPS[0]
+        ? "mention"
+        : timelineRelation === RELATIONSHIPS[1]
+        ? "retweet_from"
+        : "liked_by";
+
+    if (relation != propertyName.current) {
+      propertyName.current = relation;
       drawSlider();
       drawChart([], []);
+    } else {
+      if (!d3.select("#slider-section > g")._groups[0][0]) {
+        drawSlider();
+        drawChart([], []);
+      }
     }
-  }, [drawSlider, drawChart]); // Redraw chart if data changes
+  }, [drawSlider, drawChart, timelineRelation]); // Redraw chart if data changes
 
   return (
     <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>
