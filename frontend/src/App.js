@@ -1,6 +1,7 @@
 import "./App.css";
 import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
+import Select from "react-select";
 import { drawNumPostsOverTime } from "./drawerFuncs";
 import Timeline from "./Timeline";
 import { RELATIONSHIPS } from "./constants";
@@ -77,12 +78,47 @@ function App() {
     };
   }, [handleRelationshipChange]);
 
+  const [options, setOptions] = useState([]);
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/flask?type=account_ids")
+      .then((response) => response.json())
+      .then((res) => {
+        setOptions(
+          res.account_ids.map((accId) => ({
+            value: accId,
+            label: accId,
+          }))
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
         <p>React + Flask Tutorial</p>
       </header>
       <button onClick={handleCloseClick}>Close Drawer</button>
+      <Select
+        isMulti
+        name="colors"
+        id="desired-users-input"
+        options={options}
+        className="basic-multi-select"
+        classNamePrefix="select"
+        value={selectedOptions}
+        onChange={(newSelectedOptions) => {
+          setSelectedOptions(newSelectedOptions);
+        }}
+      />
+      {selectedOptions.map((o) => (
+        <p>{o.value}</p>
+      ))}
       <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
         {RELATIONSHIPS.map((x) => (
           <option value={x} key={x}>
@@ -103,6 +139,7 @@ function App() {
           openDrawer={openDrawer}
           handleNodeClick={handleNodeClick}
           timelineRelation={timelineRelation}
+          users={new Set(selectedOptions.map((x) => x.label))}
         />
       </div>
     </div>

@@ -19,10 +19,15 @@ class Server(Resource):
 
     args = parser.parse_args()
 
-    type = args['type']
-    if type == 'num_posts_over_time':
-      data = pd.read_csv("api/politicians.csv", dtype={'full_text': str, 'mention': object, 'liked_by': object})
-      data = data[data['account_id'] == args['account_id']]
+    arg_type = args['type']
+
+    if arg_type == 'whole':
+      return send_file('api/politicians.csv')
+
+    data = pd.read_csv("api/politicians.csv", dtype={'full_text': str, 'mention': object, 'liked_by': object, 'account_id': str})
+
+    if arg_type == 'num_posts_over_time':
+      data = data[data['account_id'] == str(args['account_id'])]
       data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms')
 
       grps = data.groupby(pd.Grouper(key='datetime', freq='T'))
@@ -40,8 +45,10 @@ class Server(Resource):
         "sizes": grp_sizes.values.tolist(),
         "range": [min_range, max_range],
       })
-    else:
-      return send_file('api/politicians.csv')
+    else: # arg_type == 'account_ids'
+      return jsonify({
+        "account_ids": data['account_id'].unique().tolist()
+      })
 
   def post(self):
     parser = reqparse.RequestParser()

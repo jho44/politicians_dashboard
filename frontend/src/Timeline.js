@@ -7,7 +7,7 @@ const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
+const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -20,12 +20,20 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
 
   const GlobalAdaptor = useRef();
   const propertyName = useRef("retweet_from");
+  const usersSize = useRef(0);
+
+  // for keeping track of nodes and links between user input changes
+  const activeChildLinks = useRef({});
+  const activeChildNodes = useRef({});
+  const parentNodes = useRef([]);
+  const parentLabels = useRef(new Set());
+  const currTime = useRef(0);
 
   const inst = useMemo(() => {
     const nodes = {};
 
     return d3
-      .csv(`http://localhost:5000/flask`)
+      .csv("http://localhost:5000/flask?type=whole")
       .then(function (rows) {
         rows.forEach((d) => {
           const thisMinute = Math.round(d.timestamp / COEFF) * COEFF;
@@ -47,11 +55,12 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
              * doing this mapping to int_relations just standardizes everything
              */
             const int_relations = relations.map((relator) => {
-              nodes[`${+relator}.${thisMinute}`] = {
-                label: +relator,
+              const relation = relator.split(".")[0];
+              nodes[`${relation}.${thisMinute}`] = {
+                label: relation,
                 time: thisMinute,
               };
-              return +relator;
+              return relation;
             });
 
             nodes[`${d.account_id}.${thisMinute}`].collapsed = true;
@@ -68,10 +77,15 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
   useEffect(() => {
     class Adaptor {
       constructor() {
-        this.activeChildLinks = {};
-        this.activeChildNodes = {};
-        this.parentNodes = [];
-        this.parentLabels = new Set();
+        this.activeChildLinks = activeChildLinks.current;
+        this.activeChildNodes = activeChildNodes.current;
+        this.parentNodes = parentNodes.current;
+        this.parentLabels = parentLabels.current;
+        this.time = currTime.current;
+      }
+
+      get currTime() {
+        return this.time;
       }
 
       get nodes() {
@@ -89,19 +103,31 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
       */
       async update(h) {
         const nearestMin = Math.round(h / COEFF) * COEFF;
+        this.time = nearestMin;
+        currTime.current = nearestMin;
         console.log(nearestMin);
 
         const instance = await inst;
 
         this.parentNodes = instance.nodes.filter(function (d) {
           const relation = d[propertyName.current];
-          return d.time == nearestMin && relation; // only show nodes that have a liked_by
+          const currNodesWithRelation = d.time == nearestMin && relation; // only show nodes that have a relationship
+
+          if (users.size) {
+            // filter users
+            return currNodesWithRelation && users.has(d.label);
+          } else return currNodesWithRelation;
         });
 
         this.parentLabels = new Set(this.parentNodes.map((x) => x.label));
 
         this.activeChildNodes = {};
         this.activeChildLinks = {};
+
+        parentNodes.current = this.parentNodes;
+        parentLabels.current = this.parentLabels;
+        activeChildLinks.current = this.activeChildLinks;
+        activeChildNodes.current = this.activeChildNodes;
 
         return { nodes: this.parentNodes, links: [] };
       }
@@ -111,15 +137,20 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
         const relation = d[propertyName.current];
         console.log(d.label, relation);
 
-        if (d.label == relation) {
-          this.activeChildLinks[d.label] = {
-            source: d,
-            target: d,
-          };
-          return;
-        }
-
         relation.forEach((childId) => {
+          if (d.label == childId) {
+            const newLink = {
+              source: d,
+              target: d,
+            };
+
+            if (!this.activeChildLinks[d.label]) {
+              this.activeChildLinks[d.label] = [newLink];
+            } else {
+              this.activeChildLinks[d.label].push(newLink);
+            }
+            return;
+          }
           const childIndex = nodeKeys.indexOf(`${childId}.${d.time}`);
 
           /*
@@ -137,40 +168,39 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
               this.activeChildNodes[d.label] = [nodes[childIndex]];
             else this.activeChildNodes[d.label].push(nodes[childIndex]);
 
+            const newLink = {
+              source: d,
+              target: nodes[childIndex],
+            };
+
             if (!this.activeChildLinks[d.label]) {
-              this.activeChildLinks[d.label] = [
-                {
-                  source: d,
-                  target: nodes[childIndex],
-                },
-              ];
+              this.activeChildLinks[d.label] = [newLink];
             } else {
-              this.activeChildLinks[d.label].push({
-                source: d,
-                target: nodes[childIndex],
-              });
+              this.activeChildLinks[d.label].push(newLink);
             }
           } else {
+            const newLink = {
+              source: d,
+              target: this.activeChildNodes[childId],
+            };
+
             if (!this.activeChildLinks[d.label]) {
-              this.activeChildLinks[d.label] = [
-                {
-                  source: d,
-                  target: this.activeChildNodes[childId],
-                },
-              ];
+              this.activeChildLinks[d.label] = [newLink];
             } else {
-              this.activeChildLinks[d.label].push({
-                source: d,
-                target: this.activeChildNodes[childId],
-              });
+              this.activeChildLinks[d.label].push(newLink);
             }
           }
         });
+
+        activeChildLinks.current = this.activeChildLinks;
+        activeChildNodes.current = this.activeChildNodes;
       }
 
       removeChildrenOf(nodeLabel) {
         delete this.activeChildNodes[nodeLabel];
         delete this.activeChildLinks[nodeLabel];
+        activeChildLinks.current = this.activeChildLinks;
+        activeChildNodes.current = this.activeChildNodes;
       }
     }
 
@@ -192,64 +222,67 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
         },
       };
     })();
-  }, [inst, timelineRelation]);
+  }, [inst, timelineRelation, users.size]);
 
-  const drawChart = useCallback((activeNodes, activeLinks) => {
-    simulation = d3
-      .forceSimulation(activeNodes)
-      .force(
-        "link",
-        d3
-          .forceLink(activeLinks)
-          .id(function (d) {
-            return d.index;
+  const drawChart = useCallback(
+    (activeNodes, activeLinks) => {
+      simulation = d3
+        .forceSimulation(activeNodes)
+        .force(
+          "link",
+          d3
+            .forceLink(activeLinks)
+            .id(function (d) {
+              return d.index;
+            })
+            .distance(200)
+        )
+        .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
+        .on("tick", ticked);
+
+      // http://bl.ocks.org/d3noob/5141278
+      // build the arrow.
+      d3.select(".chart")
+        .append("svg:defs")
+        .selectAll("marker")
+        .data(["end"]) // Different link/path types can be defined here
+        .enter()
+        .append("svg:marker") // This section adds in the arrows
+        .attr("id", String)
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 10)
+        .attr("refY", 0)
+        .attr("markerWidth", 6)
+        .attr("markerHeight", 6)
+        .attr("orient", "auto")
+        .attr("fill", "#999")
+        .append("svg:path")
+        .attr("d", "M0,-5L10,0L0,5");
+
+      updateChart(activeNodes, activeLinks);
+
+      function ticked() {
+        link
+          .attr("x1", function (d) {
+            return d.source.x;
           })
-          .distance(200)
-      )
-      .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
-      .on("tick", ticked);
+          .attr("y1", function (d) {
+            return d.source.y;
+          })
+          .attr("x2", function (d) {
+            return d.target.x;
+          })
+          .attr("y2", function (d) {
+            return d.target.y;
+          });
 
-    // http://bl.ocks.org/d3noob/5141278
-    // build the arrow.
-    d3.select(".chart")
-      .append("svg:defs")
-      .selectAll("marker")
-      .data(["end"]) // Different link/path types can be defined here
-      .enter()
-      .append("svg:marker") // This section adds in the arrows
-      .attr("id", String)
-      .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 10)
-      .attr("refY", 0)
-      .attr("markerWidth", 6)
-      .attr("markerHeight", 6)
-      .attr("orient", "auto")
-      .attr("fill", "#999")
-      .append("svg:path")
-      .attr("d", "M0,-5L10,0L0,5");
-
-    updateChart(activeNodes, activeLinks);
-
-    function ticked() {
-      link
-        .attr("x1", function (d) {
-          return d.source.x;
-        })
-        .attr("y1", function (d) {
-          return d.source.y;
-        })
-        .attr("x2", function (d) {
-          return d.target.x;
-        })
-        .attr("y2", function (d) {
-          return d.target.y;
+        node.attr("transform", function (d) {
+          return "translate(" + d.x + "," + d.y + ")";
         });
-
-      node.attr("transform", function (d) {
-        return "translate(" + d.x + "," + d.y + ")";
-      });
-    }
-  }, []);
+      }
+    },
+    [users.size]
+  );
 
   const drawSlider = useCallback(async () => {
     const { nodes } = await inst;
@@ -282,6 +315,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
       const adaptor = await GlobalAdaptor.current.getInstance();
       const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
       // redraw plot
+      console.log("draw D");
       drawChart(nodes, links);
     }
 
@@ -513,14 +547,29 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation }) => {
     if (relation != propertyName.current) {
       propertyName.current = relation;
       drawSlider();
+      console.log("draw A");
       drawChart([], []);
+    } else if (users.size != usersSize.current) {
+      usersSize.current = users.size;
+      GlobalAdaptor.current
+        .getInstance()
+        .then((adaptor) => {
+          const time = adaptor.currTime;
+          return adaptor.update(time); // have adaptor return the new nodes and new links
+        })
+        .then(({ nodes, links }) => {
+          // redraw plot
+          console.log("draw B");
+          drawChart(nodes, links);
+        });
     } else {
       if (!d3.select("#slider-section > g")._groups[0][0]) {
         drawSlider();
+        console.log("draw C");
         drawChart([], []);
       }
     }
-  }, [drawSlider, drawChart, timelineRelation]); // Redraw chart if data changes
+  }, [drawSlider, drawChart, timelineRelation, users.size]); // Redraw chart if data changes
 
   return (
     <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>
