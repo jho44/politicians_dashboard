@@ -7,7 +7,7 @@ const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
+const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDateRange }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -292,6 +292,10 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
     var targetValue = width;
     var startDate = new Date(nodes[nodes.length - 1].time),
       endDate = new Date(nodes[0].time);
+    setDateRange({
+      start: startDate,
+      end: endDate,
+    });
 
     var playButton = d3.select("#play-button");
 
@@ -315,7 +319,6 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
       const adaptor = await GlobalAdaptor.current.getInstance();
       const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
       // redraw plot
-      console.log("draw D");
       drawChart(nodes, links);
     }
 
@@ -411,7 +414,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
         playButton.text("Play");
       }
     }
-  }, [drawChart, height, width, margin.right, inst]);
+  }, [drawChart, height, width, margin.right, inst, setDateRange]);
 
   function updateChart(activeNodes, activeLinks) {
     function dragstarted(d) {
@@ -547,7 +550,6 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
     if (relation != propertyName.current) {
       propertyName.current = relation;
       drawSlider();
-      console.log("draw A");
       drawChart([], []);
     } else if (users.size != usersSize.current) {
       usersSize.current = users.size;
@@ -559,13 +561,11 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users }) => {
         })
         .then(({ nodes, links }) => {
           // redraw plot
-          console.log("draw B");
           drawChart(nodes, links);
         });
     } else {
       if (!d3.select("#slider-section > g")._groups[0][0]) {
         drawSlider();
-        console.log("draw C");
         drawChart([], []);
       }
     }

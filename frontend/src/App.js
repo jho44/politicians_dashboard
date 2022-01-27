@@ -2,6 +2,10 @@ import "./App.css";
 import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
 import Select from "react-select";
+import { DateRange } from 'react-date-range';
+import { addYears } from 'date-fns';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css'; // theme css file
 import { drawLeftRightPie, drawNumPostsOverTime } from "./drawerFuncs";
 import Timeline from "./Timeline";
 import { RELATIONSHIPS } from "./constants";
@@ -10,6 +14,18 @@ function App() {
   const [timelineRelation, setTimelineRelation] = useState(RELATIONSHIPS[0]);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [accId, setAccId] = useState();
+
+  const [dates, setDates] = useState([
+    {
+      startDate: new Date(),
+      endDate: null,
+      key: 'selection'
+    }
+  ]);
+  const [dateRange, setDateRange] = useState({
+    start: null,
+    end: null,
+  });
 
   // // for getting attention weights
   // fetch('http://localhost:5000/flask', {
@@ -110,7 +126,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <p>React + Flask Tutorial</p>
+        <p>Politician Twitter Activity</p>
       </header>
       <button onClick={handleCloseClick}>Close Drawer</button>
       <Select
@@ -125,9 +141,18 @@ function App() {
           setSelectedOptions(newSelectedOptions);
         }}
       />
-      {selectedOptions.map((o) => (
-        <p>{o.value}</p>
-      ))}
+      {
+        dateRange.start &&
+        <DateRange
+          onChange={item => setDates([item.selection])}
+          date={dateRange.start}
+          ranges={dates}
+          minDate={dateRange.start}
+          maxDate={dateRange.end}
+          shownDate={dateRange.start}
+          date={dateRange.start}
+        />
+      }
       <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
         {RELATIONSHIPS.map((x) => (
           <option value={x} key={x}>
@@ -154,6 +179,7 @@ function App() {
           </div>
         </div>
         <Timeline
+          setDateRange={setDateRange}
           openDrawer={openDrawer}
           handleNodeClick={handleNodeClick}
           timelineRelation={timelineRelation}
