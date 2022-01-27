@@ -2,7 +2,7 @@ import "./App.css";
 import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
 import Select from "react-select";
-import { drawNumPostsOverTime } from "./drawerFuncs";
+import { drawLeftRightPie, drawNumPostsOverTime } from "./drawerFuncs";
 import Timeline from "./Timeline";
 import { RELATIONSHIPS } from "./constants";
 
@@ -58,6 +58,15 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         drawNumPostsOverTime(res);
+      })
+      .catch((err) => console.error(err));
+
+    fetch(
+      `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        drawLeftRightPie(res);
       })
       .catch((err) => console.error(err));
   };
@@ -132,7 +141,10 @@ function App() {
             {accId}'s Summarized Twitter Activity
           </h2>
           <div id="num-posts">
-            <h3>Number of Posts over Time</h3>
+            <h3>Number of Tweets over Time</h3>
+          </div>
+          <div id="num-left-right-posts">
+            <h3>Number of Left vs Right Tweets</h3>
           </div>
         </div>
         <Timeline
