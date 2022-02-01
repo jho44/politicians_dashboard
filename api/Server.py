@@ -47,12 +47,23 @@ class Server(Resource):
       mean_polarities = grps.mean()["polarity"].reset_index(drop=True)
       mean_polarities = mean_polarities[mean_polarities.notnull()]
 
-      # -13 -> liberal leaning, blue (0, 0, 255)
-      # +13 -> conservative leaning, right (255, 0, 0)
-      # R (-13, 0), (13, 255): y = mx + b -> y = 255x/26 + 255/2
-      # B (-13, 255), (13, 0): y = -255x/26 + 255/2
-      red_comps = mean_polarities.values * 255/26 + 255/2
-      blue_comps = mean_polarities.values * (-255)/26 + 255/2
+      # liberal leaning,      B (0, 0, 255)       -- lambda = -13
+      # neutral leaning,      W (255, 255, 255)   -- lambda = 0
+      # conservative leaning, R (255, 0, 0)       -- lambda = 13
+
+      def get_color(polarity):
+        if polarity > 0:
+          # white FFFFFF -> red FF0000 interpolation
+          # (0, 255), (13, 0)  -- y = -255x/13 + 255
+          GB = hex(round(-255 * polarity / 13 + 255)).lstrip("0x")
+          return f'#FF{GB}{GB}'
+        else:
+          # blue 0000FF -> white FFFFFF interpolation
+          # (-13, 0), (0, 255) -- y = 255x/13 + 255
+          RG = hex(round(255 * polarity / 13 + 255)).lstrip("0x")
+          return f'#{RG}{RG}FF'
+      # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
+      colors = mean_polarities.apply(get_color).tolist()
 
       not_null_indices = mean_polarities.index
       stops = not_null_indices / not_null_indices[-1] * 100
@@ -61,8 +72,7 @@ class Server(Resource):
         'times': grp_sizes.index.strftime('%m/%d/%Y, %H:%M:%S').tolist(),
         'sizes': grp_sizes.values.tolist(),
         'range': [min_range, max_range],
-        'red_comps': red_comps.tolist(),
-        'blue_comps': blue_comps.tolist(),
+        'colors': colors,
         'stops': stops.tolist()
       })
     elif arg_type == 'num_left_right_posts':

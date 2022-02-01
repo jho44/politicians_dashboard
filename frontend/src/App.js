@@ -142,6 +142,12 @@ function App() {
           </h2>
           <div id="num-posts">
             <h3>Number of Tweets over Time</h3>
+            <p>
+              The color of the line corresponds to the polarity of posts at that
+              point in time. The bluer it is, the more liberal-leaning the posts
+              there were. The redder it is, the more conservative-leaning the
+              posts there were. White signifies a more neutral position.
+            </p>
           </div>
           <div id="num-left-right-posts">
             <h3>Number of Left vs Right Tweets</h3>

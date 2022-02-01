@@ -74,7 +74,7 @@ export const drawNumPostsOverTime = (data) => {
 
   const stops = data.stops.map((stop, ind) => ({
     offset: `${stop}%`,
-    color: `rgba(${data.red_comps[ind]}, 0, ${data.blue_comps[ind]})`,
+    color: data.colors[ind],
   }));
 
   // Set the gradient
