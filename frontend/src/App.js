@@ -3,7 +3,6 @@ import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
 import Select from "react-select";
 import { DateRange } from 'react-date-range';
-import { addYears } from 'date-fns';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css'; // theme css file
 import { drawLeftRightPie, drawNumPostsOverTime } from "./drawerFuncs";
@@ -107,6 +106,12 @@ function App() {
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
+  const [timelineAux, setTimelineAux] = useState({
+    selectedDates: dates,
+    timelineRelation,
+    users: new Set(selectedOptions.map((x) => x.label))
+  });
+
   useEffect(() => {
     fetch("http://localhost:5000/flask?type=account_ids")
       .then((response) => response.json())
@@ -150,7 +155,6 @@ function App() {
           minDate={dateRange.start}
           maxDate={dateRange.end}
           shownDate={dateRange.start}
-          date={dateRange.start}
         />
       }
       <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
@@ -160,6 +164,25 @@ function App() {
           </option>
         ))}
       </select>
+
+      <button onClick={() => {
+        setTimelineAux((prevState) => {
+        const latestUsers = new Set(selectedOptions.map((x) => x.label));
+        if (prevState.selectedDates[0].startDate != dates[0].startDate || prevState.selectedDates[0].endDate != dates[0].endDate || prevState.timelineRelation != timelineRelation || prevState.users.size != latestUsers.size) {
+          console.log('diff detected')
+          return ({
+            selectedDates: dates,
+            timelineRelation,
+            users: latestUsers,
+          });
+        }
+        console.log('no diff')
+        return prevState;
+      })
+      }
+      }>
+        Update Settings
+      </button>
       <div id="drawer-wrapper">
         <div className={classNames("drawer", openDrawer && "open")}>
           <h2 style={{ marginTop: 0 }}>
@@ -179,11 +202,10 @@ function App() {
           </div>
         </div>
         <Timeline
+          timelineAux={timelineAux}
           setDateRange={setDateRange}
           openDrawer={openDrawer}
           handleNodeClick={handleNodeClick}
-          timelineRelation={timelineRelation}
-          users={new Set(selectedOptions.map((x) => x.label))}
         />
       </div>
     </div>

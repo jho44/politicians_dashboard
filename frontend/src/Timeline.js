@@ -7,7 +7,7 @@ const d3 = window.d3;
 
 const COEFF = 1000 * 60; // for time step
 
-const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDateRange }) => {
+const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -20,7 +20,10 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
 
   const GlobalAdaptor = useRef();
   const propertyName = useRef("retweet_from");
-  const usersSize = useRef(0);
+  const localUsers = useRef(new Set());
+  const innerDateRange = useRef(timelineAux.selectedDates[0]);
+  const globalStartTime = useRef();
+  const globalEndTime = useRef();
 
   // for keeping track of nodes and links between user input changes
   const activeChildLinks = useRef({});
@@ -70,9 +73,18 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         });
       })
       .then(function () {
-        return { nodes: Object.values(nodes), nodeKeys: Object.keys(nodes) };
+        const nodeVals = Object.values(nodes);
+        globalStartTime.current = new Date(nodeVals[nodeVals.length - 1].time);
+        globalEndTime.current = new Date(nodeVals[0].time);
+        console.log("start: ", +globalStartTime.current)
+        console.log("end: ", +globalEndTime.current);
+        setDateRange({
+          start: globalStartTime.current,
+          end: globalEndTime.current,
+        });
+        return { nodes: nodeVals, nodeKeys: Object.keys(nodes) };
       });
-  }, [timelineRelation]);
+  }, [timelineAux, setDateRange]);
 
   useEffect(() => {
     class Adaptor {
@@ -113,9 +125,9 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
           const relation = d[propertyName.current];
           const currNodesWithRelation = d.time == nearestMin && relation; // only show nodes that have a relationship
 
-          if (users.size) {
-            // filter users
-            return currNodesWithRelation && users.has(d.label);
+          if (localUsers.current.size) {
+            // filter localUsers
+            return currNodesWithRelation && localUsers.current.has(d.label);
           } else return currNodesWithRelation;
         });
 
@@ -222,7 +234,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         },
       };
     })();
-  }, [inst, timelineRelation, users.size]);
+  }, [inst, timelineAux]);
 
   const drawChart = useCallback(
     (activeNodes, activeLinks) => {
@@ -281,21 +293,23 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         });
       }
     },
-    [users.size]
+    [localUsers.current.size]
   );
 
-  const drawSlider = useCallback(async () => {
-    const { nodes } = await inst;
+  const drawSlider = useCallback(async (dates) => {
     var moving = false;
     var timer = null;
     var currentValue = 0;
     var targetValue = width;
-    var startDate = new Date(nodes[nodes.length - 1].time),
-      endDate = new Date(nodes[0].time);
-    setDateRange({
-      start: startDate,
-      end: endDate,
-    });
+    let startDate, endDate;
+
+    if (dates && dates.trueEnd) {
+      startDate = dates.trueStart;
+      endDate = dates.trueEnd;
+    } else { // global start time
+      startDate = +globalStartTime.current;
+      endDate = +globalEndTime.current;
+    }
 
     var playButton = d3.select("#play-button");
 
@@ -414,7 +428,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         playButton.text("Play");
       }
     }
-  }, [drawChart, height, width, margin.right, inst, setDateRange]);
+  }, [drawChart, height, width, margin.right]);
 
   function updateChart(activeNodes, activeLinks) {
     function dragstarted(d) {
@@ -540,6 +554,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
   }
 
   useEffect(() => {
+    const {timelineRelation, users, selectedDates} = timelineAux;
     const relation =
       timelineRelation === RELATIONSHIPS[0]
         ? "mention"
@@ -547,20 +562,27 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         ? "retweet_from"
         : "liked_by";
 
-    if (relation != propertyName.current) {
+    const {startDate, endDate} = selectedDates[0];
+    if (relation != propertyName.current || users.size != localUsers.current.size || innerDateRange.current.startDate != startDate || innerDateRange.current.endDate != endDate) {
       propertyName.current = relation;
-      drawSlider();
-      drawChart([], []);
-    } else if (users.size != usersSize.current) {
-      usersSize.current = users.size;
+      localUsers.current = users;
+      innerDateRange.current = selectedDates[0];
+
+      // special case when user selects just one day -- might needa change when bring time of day filter in
+      let trueStart, trueEnd;
+      if (+startDate == +endDate) {
+        trueStart = Math.max(+globalStartTime.current, +startDate);
+        trueEnd = Math.min(+globalStartTime.current + 8.64e+7, +globalEndTime.current);
+      } else {
+        // checking for endDate b/c it's initialized to null, which indicates the user hasn't set their own date range yet
+        trueStart = endDate && +globalStartTime.current < +startDate ? +startDate : +globalStartTime.current;
+        trueEnd = endDate && +endDate < +globalEndTime.current ? +endDate : +globalEndTime.current;
+      }
       GlobalAdaptor.current
         .getInstance()
-        .then((adaptor) => {
-          const time = adaptor.currTime;
-          return adaptor.update(time); // have adaptor return the new nodes and new links
-        })
+        .then((adaptor) => adaptor.update(trueStart)) // have adaptor return the new nodes and new links
         .then(({ nodes, links }) => {
-          // redraw plot
+          drawSlider({ trueStart, trueEnd });
           drawChart(nodes, links);
         });
     } else {
@@ -569,7 +591,7 @@ const Timeline = ({ openDrawer, handleNodeClick, timelineRelation, users, setDat
         drawChart([], []);
       }
     }
-  }, [drawSlider, drawChart, timelineRelation, users.size]); // Redraw chart if data changes
+  }, [drawSlider, drawChart, timelineAux]); // Redraw chart if data changes
 
   return (
     <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>
