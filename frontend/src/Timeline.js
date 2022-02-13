@@ -5,9 +5,14 @@ import { RELATIONSHIPS } from "./constants";
 
 const d3 = window.d3;
 
-const COEFF = 1000 * 60; // for time step
+const COEFF = 8.64e7; // for time step
 
-const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) => {
+const Timeline = ({
+  openDrawer,
+  handleNodeClick,
+  setDateRange,
+  timelineAux,
+}) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
 
@@ -24,6 +29,8 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
   const innerDateRange = useRef(timelineAux.selectedDates[0]);
   const globalStartTime = useRef();
   const globalEndTime = useRef();
+  const trueStart = useRef();
+  const trueEnd = useRef();
 
   // for keeping track of nodes and links between user input changes
   const activeChildLinks = useRef({});
@@ -39,10 +46,10 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
       .csv("http://localhost:5000/flask?type=whole")
       .then(function (rows) {
         rows.forEach((d) => {
-          const thisMinute = Math.round(d.timestamp / COEFF) * COEFF;
-          nodes[`${d.account_id}.${thisMinute}`] = {
+          const thisDay = Math.round(d.timestamp / COEFF) * COEFF;
+          nodes[`${d.account_id}.${thisDay}`] = {
             label: d.account_id,
-            time: thisMinute,
+            time: thisDay,
           };
 
           // link with whom they have a certain relationship with
@@ -59,15 +66,15 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
              */
             const int_relations = relations.map((relator) => {
               const relation = relator.split(".")[0];
-              nodes[`${relation}.${thisMinute}`] = {
+              nodes[`${relation}.${thisDay}`] = {
                 label: relation,
-                time: thisMinute,
+                time: thisDay,
               };
               return relation;
             });
 
-            nodes[`${d.account_id}.${thisMinute}`].collapsed = true;
-            nodes[`${d.account_id}.${thisMinute}`][propertyName.current] =
+            nodes[`${d.account_id}.${thisDay}`].collapsed = true;
+            nodes[`${d.account_id}.${thisDay}`][propertyName.current] =
               int_relations;
           }
         });
@@ -76,7 +83,7 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
         const nodeVals = Object.values(nodes);
         globalStartTime.current = new Date(nodeVals[nodeVals.length - 1].time);
         globalEndTime.current = new Date(nodeVals[0].time);
-        console.log("start: ", +globalStartTime.current)
+        console.log("start: ", +globalStartTime.current);
         console.log("end: ", +globalEndTime.current);
         setDateRange({
           start: globalStartTime.current,
@@ -110,20 +117,20 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
       }
 
       /*
-        Upon moving slider, finds posts created at the nearest minute to the
+        Upon moving slider, finds posts created at the nearest day to the
         slider's current time h.
       */
       async update(h) {
-        const nearestMin = Math.round(h / COEFF) * COEFF;
-        this.time = nearestMin;
-        currTime.current = nearestMin;
-        console.log(nearestMin);
+        const nearestDay = Math.round(h / COEFF) * COEFF;
+        this.time = nearestDay;
+        currTime.current = nearestDay;
+        console.log(nearestDay);
 
         const instance = await inst;
 
         this.parentNodes = instance.nodes.filter(function (d) {
           const relation = d[propertyName.current];
-          const currNodesWithRelation = d.time == nearestMin && relation; // only show nodes that have a relationship
+          const currNodesWithRelation = d.time == nearestDay && relation; // only show nodes that have a relationship
 
           if (localUsers.current.size) {
             // filter localUsers
@@ -296,139 +303,143 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
     [localUsers.current.size]
   );
 
-  const drawSlider = useCallback(async (dates) => {
-    var moving = false;
-    var timer = null;
-    var currentValue = 0;
-    var targetValue = width;
-    let startDate, endDate;
+  const drawSlider = useCallback(
+    async (dates) => {
+      var moving = false;
+      var timer = null;
+      var currentValue = 0;
+      var targetValue = width;
+      let startDate, endDate;
 
-    if (dates && dates.trueEnd) {
-      startDate = dates.trueStart;
-      endDate = dates.trueEnd;
-    } else { // global start time
-      startDate = +globalStartTime.current;
-      endDate = +globalEndTime.current;
-    }
+      if (dates && dates.trueEnd) {
+        startDate = trueStart.current;
+        endDate = trueEnd.current;
+      } else {
+        // global start time
+        startDate = +globalStartTime.current;
+        endDate = +globalEndTime.current;
+      }
 
-    var playButton = d3.select("#play-button");
+      var playButton = d3.select("#play-button");
 
-    var x = d3
-      .scaleTime()
-      .domain([startDate, endDate])
-      .range([0, targetValue])
-      .clamp(true);
+      var x = d3
+        .scaleTime()
+        .domain([startDate, endDate])
+        .range([0, targetValue])
+        .clamp(true);
 
-    d3.select("#slider-section > g").remove();
-    var slider = d3
-      .select("#slider-section")
-      .append("g")
-      .attr("class", "slider");
+      d3.select("#slider-section > g").remove();
+      var slider = d3
+        .select("#slider-section")
+        .append("g")
+        .attr("class", "slider");
 
-    async function update(h) {
-      // update position and text of label according to slider scale
-      handle.attr("cx", x(h));
-      label.attr("x", x(h)).text(d3.timeFormat("%b %d %Y")(h));
+      async function update(h) {
+        // update position and text of label according to slider scale
+        handle.attr("cx", x(h));
+        label.attr("x", x(h)).text(d3.timeFormat("%b %d %Y")(h));
 
-      const adaptor = await GlobalAdaptor.current.getInstance();
-      const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
-      // redraw plot
-      drawChart(nodes, links);
-    }
+        const adaptor = await GlobalAdaptor.current.getInstance();
+        const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
+        // redraw plot
+        drawChart(nodes, links);
+      }
 
-    slider
-      .append("line")
-      .attr("class", "track")
-      .attr("x1", x.range()[0])
-      .attr("x2", x.range()[1])
-      .select(function () {
-        return this.parentNode.appendChild(this.cloneNode(true));
-      })
-      .attr("class", "track-inset")
-      .select(function () {
-        return this.parentNode.appendChild(this.cloneNode(true));
-      })
-      .attr("class", "track-overlay")
-      .call(
-        d3
-          .drag()
-          .on("start.interrupt", function () {
-            slider.interrupt();
-          })
-          .on("start drag", function () {
-            currentValue = d3.event.x;
-            update(x.invert(currentValue));
-          })
+      slider
+        .append("line")
+        .attr("class", "track")
+        .attr("x1", x.range()[0])
+        .attr("x2", x.range()[1])
+        .select(function () {
+          return this.parentNode.appendChild(this.cloneNode(true));
+        })
+        .attr("class", "track-inset")
+        .select(function () {
+          return this.parentNode.appendChild(this.cloneNode(true));
+        })
+        .attr("class", "track-overlay")
+        .call(
+          d3
+            .drag()
+            .on("start.interrupt", function () {
+              slider.interrupt();
+            })
+            .on("start drag", function () {
+              currentValue = d3.event.x;
+              update(x.invert(currentValue));
+            })
+        );
+
+      slider
+        .insert("g", ".track-overlay")
+        .attr("class", "ticks")
+        .attr("transform", "translate(0," + 18 + ")")
+        .selectAll("text")
+        .data(x.ticks(10))
+        .enter()
+        .append("text")
+        .attr("x", x)
+        .attr("y", 10)
+        .attr("text-anchor", "middle")
+        .text(function (d) {
+          return d3.timeFormat("%m/%d %H:%M")(d);
+        });
+
+      var handle = slider
+        .insert("circle", ".track-overlay")
+        .attr("class", "handle")
+        .attr("r", 9);
+
+      var label = slider
+        .append("text")
+        .attr("class", "label")
+        .attr("text-anchor", "middle")
+        .text(d3.timeFormat("%b %d %Y")(startDate))
+        .attr("transform", "translate(0," + -25 + ")");
+
+      const sliderWidth = d3
+        .select(".slider")
+        .node()
+        .getBoundingClientRect().width;
+      slider.attr(
+        "transform",
+        `translate(${(width - sliderWidth * 0.8) / 2 + margin.right},${
+          height / 5
+        }) scale(0.8)`
       );
 
-    slider
-      .insert("g", ".track-overlay")
-      .attr("class", "ticks")
-      .attr("transform", "translate(0," + 18 + ")")
-      .selectAll("text")
-      .data(x.ticks(10))
-      .enter()
-      .append("text")
-      .attr("x", x)
-      .attr("y", 10)
-      .attr("text-anchor", "middle")
-      .text(function (d) {
-        return d3.timeFormat("%m/%d %H:%M")(d);
-      });
+      playButton.on(
+        "click",
+        function () {
+          var button = d3.select(this);
+          if (button.text() == "Pause") {
+            moving = false;
+            clearInterval(timer);
+            // timer = 0;
+            button.text("Play");
+          } else {
+            moving = true;
+            timer = setInterval(step, 100);
+            button.text("Pause");
+          }
+        },
+        []
+      );
 
-    var handle = slider
-      .insert("circle", ".track-overlay")
-      .attr("class", "handle")
-      .attr("r", 9);
-
-    var label = slider
-      .append("text")
-      .attr("class", "label")
-      .attr("text-anchor", "middle")
-      .text(d3.timeFormat("%b %d %Y")(startDate))
-      .attr("transform", "translate(0," + -25 + ")");
-
-    const sliderWidth = d3
-      .select(".slider")
-      .node()
-      .getBoundingClientRect().width;
-    slider.attr(
-      "transform",
-      `translate(${(width - sliderWidth * 0.8) / 2 + margin.right},${
-        height / 5
-      }) scale(0.8)`
-    );
-
-    playButton.on(
-      "click",
-      function () {
-        var button = d3.select(this);
-        if (button.text() == "Pause") {
+      function step() {
+        update(x.invert(currentValue));
+        currentValue = currentValue + targetValue / 151;
+        if (currentValue > targetValue) {
           moving = false;
+          currentValue = 0;
           clearInterval(timer);
           // timer = 0;
-          button.text("Play");
-        } else {
-          moving = true;
-          timer = setInterval(step, 100);
-          button.text("Pause");
+          playButton.text("Play");
         }
-      },
-      []
-    );
-
-    function step() {
-      update(x.invert(currentValue));
-      currentValue = currentValue + targetValue / 151;
-      if (currentValue > targetValue) {
-        moving = false;
-        currentValue = 0;
-        clearInterval(timer);
-        // timer = 0;
-        playButton.text("Play");
       }
-    }
-  }, [drawChart, height, width, margin.right]);
+    },
+    [drawChart, height, width, margin.right]
+  );
 
   function updateChart(activeNodes, activeLinks) {
     function dragstarted(d) {
@@ -536,7 +547,7 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
 
   async function click(d) {
     if (d3.event.defaultPrevented) return; // ignore drag
-    handleNodeClick(d.label);
+    handleNodeClick(d.label, trueStart.current, trueEnd.current);
 
     const relation = d[propertyName.current];
     if (relation) {
@@ -554,7 +565,7 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
   }
 
   useEffect(() => {
-    const {timelineRelation, users, selectedDates} = timelineAux;
+    const { timelineRelation, users, selectedDates } = timelineAux;
     const relation =
       timelineRelation === RELATIONSHIPS[0]
         ? "mention"
@@ -562,27 +573,42 @@ const Timeline = ({ openDrawer, handleNodeClick, setDateRange, timelineAux }) =>
         ? "retweet_from"
         : "liked_by";
 
-    const {startDate, endDate} = selectedDates[0];
-    if (relation != propertyName.current || users.size != localUsers.current.size || innerDateRange.current.startDate != startDate || innerDateRange.current.endDate != endDate) {
+    const { startDate, endDate } = selectedDates[0];
+    if (
+      relation != propertyName.current ||
+      users.size != localUsers.current.size ||
+      innerDateRange.current.startDate != startDate ||
+      innerDateRange.current.endDate != endDate
+    ) {
       propertyName.current = relation;
       localUsers.current = users;
       innerDateRange.current = selectedDates[0];
 
       // special case when user selects just one day -- might needa change when bring time of day filter in
-      let trueStart, trueEnd;
       if (+startDate == +endDate) {
-        trueStart = Math.max(+globalStartTime.current, +startDate);
-        trueEnd = Math.min(+globalStartTime.current + 8.64e+7, +globalEndTime.current);
+        trueStart.current = Math.max(+globalStartTime.current, +startDate);
+        const dayEnd = new Date(trueStart.current);
+        dayEnd.setHours(23, 59, 59, 59);
+        trueEnd.current = Math.min(+dayEnd, +globalEndTime.current);
       } else {
         // checking for endDate b/c it's initialized to null, which indicates the user hasn't set their own date range yet
-        trueStart = endDate && +globalStartTime.current < +startDate ? +startDate : +globalStartTime.current;
-        trueEnd = endDate && +endDate < +globalEndTime.current ? +endDate : +globalEndTime.current;
+        trueStart.current =
+          endDate && +globalStartTime.current < +startDate
+            ? +startDate
+            : +globalStartTime.current;
+        trueEnd.current =
+          endDate && +endDate + COEFF < +globalEndTime.current
+            ? +endDate + COEFF
+            : +globalEndTime.current;
       }
       GlobalAdaptor.current
         .getInstance()
-        .then((adaptor) => adaptor.update(trueStart)) // have adaptor return the new nodes and new links
+        .then((adaptor) => adaptor.update(trueStart.current)) // have adaptor return the new nodes and new links
         .then(({ nodes, links }) => {
-          drawSlider({ trueStart, trueEnd });
+          drawSlider({
+            trueStart: trueStart.current,
+            trueEnd: trueEnd.current,
+          });
           drawChart(nodes, links);
         });
     } else {

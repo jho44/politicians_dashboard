@@ -2,9 +2,10 @@ import "./App.css";
 import React, { useEffect, useState, useCallback } from "react";
 import classNames from "classnames";
 import Select from "react-select";
-import { DateRange } from 'react-date-range';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css'; // theme css file
+import { DateRange } from "react-date-range";
+import "react-date-range/dist/styles.css"; // main style file
+import "react-date-range/dist/theme/default.css"; // theme css file
+import TimeRangeSlider from "react-time-range-slider";
 import { drawLeftRightPie, drawNumPostsOverTime } from "./drawerFuncs";
 import Timeline from "./Timeline";
 import { RELATIONSHIPS } from "./constants";
@@ -18,8 +19,8 @@ function App() {
     {
       startDate: new Date(),
       endDate: null,
-      key: 'selection'
-    }
+      key: "selection",
+    },
   ]);
   const [dateRange, setDateRange] = useState({
     start: null,
@@ -63,12 +64,15 @@ function App() {
    *
    *  (to come) attention weights of posts in this time step / user-specified time range
    */
-  const handleNodeClick = (accountId) => {
+  // const handleNodeClick = useCallback((accountId, ) => {
+  const handleNodeClick = (accountId, start, end) => {
     setAccId(accountId);
     setOpenDrawer(true);
 
     fetch(
-      `http://localhost:5000/flask?type=num_posts_over_time&account_id=${accountId}`
+      start && end
+        ? `http://localhost:5000/flask?type=num_posts_over_time&account_id=${accountId}&start_date=${start}&end_date=${end}`
+        : `http://localhost:5000/flask?type=num_posts_over_time&account_id=${accountId}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -77,7 +81,9 @@ function App() {
       .catch((err) => console.error(err));
 
     fetch(
-      `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}`
+      start && end
+        ? `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}&start_date=${start}&end_date=${end}`
+        : `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -109,8 +115,17 @@ function App() {
   const [timelineAux, setTimelineAux] = useState({
     selectedDates: dates,
     timelineRelation,
-    users: new Set(selectedOptions.map((x) => x.label))
+    users: new Set(selectedOptions.map((x) => x.label)),
   });
+
+  const [selectedTime, setSelectedTime] = useState({
+    start: "00:00",
+    end: "23:59",
+  });
+
+  const handleTimeChange = useCallback((time) => {
+    setSelectedTime(time);
+  }, []);
 
   useEffect(() => {
     fetch("http://localhost:5000/flask?type=account_ids")
@@ -146,17 +161,32 @@ function App() {
           setSelectedOptions(newSelectedOptions);
         }}
       />
-      {
-        dateRange.start &&
+      {dateRange.start && (
         <DateRange
-          onChange={item => setDates([item.selection])}
+          onChange={(item) => setDates([item.selection])}
           date={dateRange.start}
           ranges={dates}
           minDate={dateRange.start}
           maxDate={dateRange.end}
           shownDate={dateRange.start}
         />
-      }
+      )}
+      <TimeRangeSlider
+        disabled={
+          !dates[0].startDate ||
+          !dates[0].endDate ||
+          dates[0].startDate.getFullYear() != dates[0].endDate.getFullYear() ||
+          dates[0].startDate.getMonth() != dates[0].endDate.getMonth() ||
+          dates[0].startDate.getDay() != dates[0].endDate.getDay()
+        }
+        format={24}
+        maxValue={"23:59"}
+        minValue={"00:00"}
+        name={"time_range"}
+        onChange={handleTimeChange}
+        step={15}
+        value={selectedTime}
+      />
       <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
         {RELATIONSHIPS.map((x) => (
           <option value={x} key={x}>
@@ -165,22 +195,28 @@ function App() {
         ))}
       </select>
 
-      <button onClick={() => {
-        setTimelineAux((prevState) => {
-        const latestUsers = new Set(selectedOptions.map((x) => x.label));
-        if (prevState.selectedDates[0].startDate != dates[0].startDate || prevState.selectedDates[0].endDate != dates[0].endDate || prevState.timelineRelation != timelineRelation || prevState.users.size != latestUsers.size) {
-          console.log('diff detected')
-          return ({
-            selectedDates: dates,
-            timelineRelation,
-            users: latestUsers,
+      <button
+        onClick={() => {
+          setTimelineAux((prevState) => {
+            const latestUsers = new Set(selectedOptions.map((x) => x.label));
+            if (
+              prevState.selectedDates[0].startDate != dates[0].startDate ||
+              prevState.selectedDates[0].endDate != dates[0].endDate ||
+              prevState.timelineRelation != timelineRelation ||
+              prevState.users.size != latestUsers.size
+            ) {
+              console.log("diff detected");
+              return {
+                selectedDates: dates,
+                timelineRelation,
+                users: latestUsers,
+              };
+            }
+            console.log("no diff");
+            return prevState;
           });
-        }
-        console.log('no diff')
-        return prevState;
-      })
-      }
-      }>
+        }}
+      >
         Update Settings
       </button>
       <div id="drawer-wrapper">

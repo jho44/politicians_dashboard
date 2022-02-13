@@ -1,3 +1,4 @@
+import datetime
 from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
 import pandas as pd
@@ -16,6 +17,8 @@ class Server(Resource):
     parser = reqparse.RequestParser()
     parser.add_argument('type', type=str)
     parser.add_argument('account_id', type=int)
+    parser.add_argument('start_date', type=int, required=False)
+    parser.add_argument('end_date', type=int, required=False)
 
     args = parser.parse_args()
 
@@ -28,10 +31,12 @@ class Server(Resource):
 
     if arg_type == 'num_posts_over_time':
       data = data[data['account_id'] == str(args['account_id'])][['polarity', 'timestamp']]
+      if args['start_date']:
+        data = data[(data['timestamp'] >= args['start_date']) & (data['timestamp'] <= args['end_date'])]
       data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms')
       data.drop('timestamp', axis=1, inplace=True)
 
-      grps = data.groupby(pd.Grouper(key='datetime', freq='T'))
+      grps = data.groupby(pd.Grouper(key='datetime', freq='D'))
       grp_sizes = grps.size()
 
       try:
@@ -77,6 +82,8 @@ class Server(Resource):
       })
     elif arg_type == 'num_left_right_posts':
       data = data[data['account_id'] == str(args['account_id'])]
+      if args['start_date']:
+        data = data[(data['timestamp'] >= args['start_date']) & (data['timestamp'] <= args['end_date'])]
       num_left = len(data[data['polarity'] < 0]) # number of posts that were overall left-leaning
       return jsonify({
         'num_left': num_left,
