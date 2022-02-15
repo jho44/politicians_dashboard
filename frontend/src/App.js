@@ -64,7 +64,6 @@ function App() {
    *
    *  (to come) attention weights of posts in this time step / user-specified time range
    */
-  // const handleNodeClick = useCallback((accountId, ) => {
   const handleNodeClick = (accountId, start, end) => {
     setAccId(accountId);
     setOpenDrawer(true);
@@ -113,7 +112,7 @@ function App() {
   const [selectedOptions, setSelectedOptions] = useState([]);
 
   const [timelineAux, setTimelineAux] = useState({
-    selectedDates: dates,
+    selectedDateTimes: dates,
     timelineRelation,
     users: new Set(selectedOptions.map((x) => x.label)),
   });
@@ -200,14 +199,32 @@ function App() {
           setTimelineAux((prevState) => {
             const latestUsers = new Set(selectedOptions.map((x) => x.label));
             if (
-              prevState.selectedDates[0].startDate != dates[0].startDate ||
-              prevState.selectedDates[0].endDate != dates[0].endDate ||
+              prevState.selectedDateTimes[0].startDate != dates[0].startDate ||
+              prevState.selectedDateTimes[0].endDate != dates[0].endDate ||
               prevState.timelineRelation != timelineRelation ||
               prevState.users.size != latestUsers.size
             ) {
               console.log("diff detected");
+              const datetimes = dates;
+              // if TimeRangeSlider enabled
+              if (
+                dates[0].startDate &&
+                dates[0].endDate &&
+                dates[0].startDate.getFullYear() ==
+                  dates[0].endDate.getFullYear() &&
+                dates[0].startDate.getMonth() == dates[0].endDate.getMonth() &&
+                dates[0].startDate.getDay() == dates[0].endDate.getDay()
+              ) {
+                const startTime = selectedTime.start.split(":");
+                datetimes[0].startDate.setHours(startTime[0]);
+                datetimes[0].startDate.setMinutes(startTime[1]);
+
+                const endTime = selectedTime.end.split(":");
+                datetimes[0].endDate.setHours(endTime[0]);
+                datetimes[0].endDate.setMinutes(endTime[1]);
+              }
               return {
-                selectedDates: dates,
+                selectedDateTimes: dates,
                 timelineRelation,
                 users: latestUsers,
               };
@@ -225,7 +242,7 @@ function App() {
             {accId}'s Summarized Twitter Activity
           </h2>
           <div id="num-posts">
-            <h3>Number of Tweets over Time</h3>
+            <h3>Number of Tweets over Specified Time Frame</h3>
             <p>
               The color of the line corresponds to the polarity of posts at that
               point in time. The bluer it is, the more liberal-leaning the posts
@@ -234,7 +251,7 @@ function App() {
             </p>
           </div>
           <div id="num-left-right-posts">
-            <h3>Number of Left vs Right Tweets</h3>
+            <h3>Number of Left vs Right Tweets over Specified Time Frame</h3>
           </div>
         </div>
         <Timeline

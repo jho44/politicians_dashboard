@@ -5,7 +5,7 @@ import { RELATIONSHIPS } from "./constants";
 
 const d3 = window.d3;
 
-const COEFF = 8.64e7; // for time step
+const COEFF = 3.6e6; // milliseconds in one time step
 
 const Timeline = ({
   openDrawer,
@@ -26,7 +26,7 @@ const Timeline = ({
   const GlobalAdaptor = useRef();
   const propertyName = useRef("retweet_from");
   const localUsers = useRef(new Set());
-  const innerDateRange = useRef(timelineAux.selectedDates[0]);
+  const innerDateRange = useRef(timelineAux.selectedDateTimes[0]);
   const globalStartTime = useRef();
   const globalEndTime = useRef();
   const trueStart = useRef();
@@ -565,7 +565,7 @@ const Timeline = ({
   }
 
   useEffect(() => {
-    const { timelineRelation, users, selectedDates } = timelineAux;
+    const { timelineRelation, users, selectedDateTimes } = timelineAux;
     const relation =
       timelineRelation === RELATIONSHIPS[0]
         ? "mention"
@@ -573,7 +573,7 @@ const Timeline = ({
         ? "retweet_from"
         : "liked_by";
 
-    const { startDate, endDate } = selectedDates[0];
+    const { startDate, endDate } = selectedDateTimes[0];
     if (
       relation != propertyName.current ||
       users.size != localUsers.current.size ||
@@ -582,7 +582,7 @@ const Timeline = ({
     ) {
       propertyName.current = relation;
       localUsers.current = users;
-      innerDateRange.current = selectedDates[0];
+      innerDateRange.current = selectedDateTimes[0];
 
       // special case when user selects just one day -- might needa change when bring time of day filter in
       if (+startDate == +endDate) {
