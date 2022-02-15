@@ -1,3 +1,4 @@
+import makeDistroChart from "./distrochart";
 const d3 = window.d3;
 
 export const drawNumPostsOverTime = (data) => {
@@ -6,7 +7,7 @@ export const drawNumPostsOverTime = (data) => {
   var margin = { top: 50, right: 50, bottom: 150, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight / 2 -
+      document.querySelector(".drawer").clientHeight / 3.5 -
       margin.top -
       margin.bottom; // Use the window's height
   var parseTime = d3.timeParse("%m/%d/%Y, %H:%M:%S");
@@ -132,10 +133,10 @@ export const drawNumPostsOverTime = (data) => {
 
 export const drawLeftRightPie = (data) => {
   // https://www.d3-graph-gallery.com/graph/pie_basic.html
-  var margin = { top: 50, right: 50, bottom: 150, left: 50 },
+  var margin = { top: 50, right: 50, bottom: 50, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight / 2 -
+      document.querySelector(".drawer").clientHeight / 3.5 -
       margin.top -
       margin.bottom; // Use the window's height
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
@@ -204,4 +205,33 @@ export const drawLeftRightPie = (data) => {
     .attr("y", (_, i) => `${i * 1.1}em`)
     .attr("font-weight", (_, i) => (i ? null : "bold"))
     .text((d) => d);
+};
+
+export const drawPolarityOverAllTime = (chart1) => {
+  var margin = { top: 50, right: 50, bottom: 50, left: 50 },
+    width = window.innerWidth - margin.left - margin.right, // Use the window's width
+    height =
+      document.querySelector(".drawer").clientHeight / 3.5 -
+      margin.top -
+      margin.bottom; // Use the window's height
+
+  d3.csv("http://localhost:5000/flask?type=test").then(function (rows) {
+    rows.forEach(function (d) {
+      d.value = +d.value;
+    });
+    chart1.current = makeDistroChart({
+      data: rows,
+      xName: "date",
+      yName: "value",
+      axisLabels: { xAxis: null, yAxis: "Values" },
+      selector: "#polarity-over-all-time",
+      chartSize: { height, width },
+      constrainExtremes: true,
+    });
+
+    chart1.current.renderBoxPlot();
+    chart1.current.renderDataPlots();
+    chart1.current.renderNotchBoxes({ showNotchBox: false });
+    chart1.current.renderViolinPlot({ showViolinPlot: false });
+  });
 };

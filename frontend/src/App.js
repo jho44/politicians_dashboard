@@ -1,12 +1,18 @@
 import "./App.css";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import classNames from "classnames";
 import Select from "react-select";
 import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import TimeRangeSlider from "react-time-range-slider";
-import { drawLeftRightPie, drawNumPostsOverTime } from "./drawerFuncs";
+import {
+  drawLeftRightPie,
+  drawNumPostsOverTime,
+  drawPolarityOverAllTime,
+} from "./drawerFuncs";
+import * as co from "./chartOptions";
+import "./distrochart.css";
 import Timeline from "./Timeline";
 import { RELATIONSHIPS } from "./constants";
 
@@ -26,6 +32,8 @@ function App() {
     start: null,
     end: null,
   });
+
+  const chart1 = useRef();
 
   // // for getting attention weights
   // fetch('http://localhost:5000/flask', {
@@ -89,6 +97,8 @@ function App() {
         drawLeftRightPie(res);
       })
       .catch((err) => console.error(err));
+
+    drawPolarityOverAllTime(chart1);
   };
 
   const handleRelationshipChange = useCallback(
@@ -252,6 +262,28 @@ function App() {
           </div>
           <div id="num-left-right-posts">
             <h3>Number of Left vs Right Tweets over Specified Time Frame</h3>
+          </div>
+          <div id="polarity-over-all-time">
+            <h3>Posts' Polarity over All Time</h3>
+          </div>
+          <div className="chart-options">
+            <p>Show: </p>
+            <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
+            <button onClick={() => co.notchedBoxPlot(chart1)}>
+              Notched Box Plot
+            </button>
+            <button onClick={() => co.violinPlotUnbound(chart1)}>
+              Violin Plot Unbound
+            </button>
+            <button onClick={() => co.violinPlotClamp(chart1)}>
+              Violin Plot Clamp to Data
+            </button>
+            <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
+            <button onClick={() => co.beeswarmPlot(chart1)}>
+              Beeswarm Plot
+            </button>
+            <button onClick={() => co.scatterPlot(chart1)}>Scatter Plot</button>
+            <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
           </div>
         </div>
         <Timeline
