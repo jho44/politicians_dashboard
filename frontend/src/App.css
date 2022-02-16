@@ -42,26 +42,32 @@
   }
 }
 
-#drawer-wrapper {
-  min-height: calc(100vh + var(--drawer-height));
+.drawer-wrapper {
+  min-height: 0;
   margin-bottom: 10vh;
   width: 100vw;
   position: relative;
   overflow: hidden;
+  transition: min-height 0.5s ease-out;
+}
+
+.drawer-wrapper.open {
+  min-height: var(--drawer-height);
 }
 
 .drawer {
   background-color: rgb(14, 176, 230, 0.5);
-  width: 100%;
-  height: var(--drawer-height);
+  height: 0;
+  width: 100vw;
   position: relative;
   top: calc(-1 * var(--drawer-height));
   left: 0;
-  transition: top 0.5s ease-out;
+  transition: top 0.5s ease-out, height 0.5s ease-out;
 }
 
 .drawer.open {
   top: 0;
+  height: var(--drawer-height);
   padding: 1rem;
 }
 

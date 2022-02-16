@@ -79,7 +79,6 @@ text {
 }
 
 #btn-section {
-  padding-top: 10vh;
   text-align: center;
 }
 
@@ -141,8 +140,9 @@ text {
 
 #graph {
   position: relative;
-  top: calc(-1 * var(--drawer-height));
-  transition: top 0.5s ease-out;
+  top: 0;
+  /* top: calc(-1 * var(--drawer-height));
+  transition: top 0.5s ease-out; */
 }
 
 #graph.moveup {

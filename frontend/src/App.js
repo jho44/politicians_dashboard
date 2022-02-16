@@ -98,7 +98,14 @@ function App() {
       })
       .catch((err) => console.error(err));
 
-    drawPolarityOverAllTime(chart1);
+    fetch(
+      `http://localhost:5000/flask?type=post_polarity&account_id=${accountId}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        drawPolarityOverAllTime(chart1, res);
+      })
+      .catch((err) => console.error(err));
   };
 
   const handleRelationshipChange = useCallback(
@@ -246,7 +253,7 @@ function App() {
       >
         Update Settings
       </button>
-      <div id="drawer-wrapper">
+      <div className={classNames("drawer-wrapper", openDrawer && "open")}>
         <div className={classNames("drawer", openDrawer && "open")}>
           <h2 style={{ marginTop: 0 }}>
             {accId}'s Summarized Twitter Activity
@@ -263,8 +270,9 @@ function App() {
           <div id="num-left-right-posts">
             <h3>Number of Left vs Right Tweets over Specified Time Frame</h3>
           </div>
-          <div id="polarity-over-all-time">
+          <div>
             <h3>Posts' Polarity over All Time</h3>
+            <div id="polarity-over-all-time" />
           </div>
           <div className="chart-options">
             <p>Show: </p>
@@ -286,13 +294,13 @@ function App() {
             <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
           </div>
         </div>
-        <Timeline
-          timelineAux={timelineAux}
-          setDateRange={setDateRange}
-          openDrawer={openDrawer}
-          handleNodeClick={handleNodeClick}
-        />
       </div>
+      <Timeline
+        timelineAux={timelineAux}
+        setDateRange={setDateRange}
+        openDrawer={openDrawer}
+        handleNodeClick={handleNodeClick}
+      />
     </div>
   );
 }

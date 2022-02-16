@@ -1,13 +1,16 @@
 import makeDistroChart from "./distrochart";
 const d3 = window.d3;
 
+const DRAWER_HEIGHT_FACTOR = 3;
+
 export const drawNumPostsOverTime = (data) => {
   // grouped by minute by server
   // https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
   var margin = { top: 50, right: 50, bottom: 150, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight / 3.5 -
+      document.querySelector(".drawer").clientHeight /
+        (DRAWER_HEIGHT_FACTOR + 1) -
       margin.top -
       margin.bottom; // Use the window's height
   var parseTime = d3.timeParse("%m/%d/%Y, %H:%M:%S");
@@ -133,10 +136,11 @@ export const drawNumPostsOverTime = (data) => {
 
 export const drawLeftRightPie = (data) => {
   // https://www.d3-graph-gallery.com/graph/pie_basic.html
-  var margin = { top: 50, right: 50, bottom: 50, left: 50 },
+  var margin = { top: 50, right: 0, bottom: 0, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight / 3.5 -
+      document.querySelector(".drawer").clientHeight /
+        (DRAWER_HEIGHT_FACTOR * 1.5) -
       margin.top -
       margin.bottom; // Use the window's height
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
@@ -207,31 +211,27 @@ export const drawLeftRightPie = (data) => {
     .text((d) => d);
 };
 
-export const drawPolarityOverAllTime = (chart1) => {
-  var margin = { top: 50, right: 50, bottom: 50, left: 50 },
+export const drawPolarityOverAllTime = (chart1, data) => {
+  var margin = { top: 50, right: 10, bottom: 50, left: 10 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight / 3.5 -
+      document.querySelector(".drawer").clientHeight /
+        (DRAWER_HEIGHT_FACTOR + 1) -
       margin.top -
       margin.bottom; // Use the window's height
 
-  d3.csv("http://localhost:5000/flask?type=test").then(function (rows) {
-    rows.forEach(function (d) {
-      d.value = +d.value;
-    });
-    chart1.current = makeDistroChart({
-      data: rows,
-      xName: "date",
-      yName: "value",
-      axisLabels: { xAxis: null, yAxis: "Values" },
-      selector: "#polarity-over-all-time",
-      chartSize: { height, width },
-      constrainExtremes: true,
-    });
-
-    chart1.current.renderBoxPlot();
-    chart1.current.renderDataPlots();
-    chart1.current.renderNotchBoxes({ showNotchBox: false });
-    chart1.current.renderViolinPlot({ showViolinPlot: false });
+  chart1.current = makeDistroChart({
+    data: data.res,
+    xName: "qtr",
+    yName: "polarity",
+    axisLabels: { xAxis: null, yAxis: "Posts' Quarterly Polarity" },
+    selector: "#polarity-over-all-time",
+    chartSize: { height, width },
+    constrainExtremes: true,
   });
+
+  chart1.current.renderBoxPlot();
+  chart1.current.renderDataPlots();
+  chart1.current.renderNotchBoxes({ showNotchBox: false });
+  chart1.current.renderViolinPlot({ showViolinPlot: false });
 };
