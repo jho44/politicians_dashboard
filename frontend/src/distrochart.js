@@ -362,8 +362,8 @@ export default function makeDistroChart(settings) {
    * Prepare the chart html elements
    */
   (function prepareChart() {
-    const existing_svg = d3.select(chart.settings.selector).select("div");
-    if (existing_svg["_groups"][0][0]) existing_svg.remove();
+    const existing_svg = d3.select(chart.settings.selector).selectAll("div");
+    if (existing_svg["_groups"][0].length) existing_svg.remove();
     // Build main div and chart div
     chart.objs.mainDiv = d3
       .select(chart.settings.selector)
