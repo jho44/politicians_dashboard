@@ -6,6 +6,7 @@ import { DateRange } from "react-date-range";
 import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import TimeRangeSlider from "react-time-range-slider";
+import ReactLoading from "react-loading";
 import {
   drawLeftRightPie,
   drawNumPostsOverTime,
@@ -115,15 +116,14 @@ function App() {
   );
 
   useEffect(() => {
-    document
-      .getElementById("relationship")
-      .addEventListener("change", handleRelationshipChange);
+    const relation = document.getElementById("relationship");
+    if (relation) relation.addEventListener("change", handleRelationshipChange);
     return () => {
-      document
-        .getElementById("relationship")
-        .removeEventListener("change", handleRelationshipChange);
+      const relation = document.getElementById("relationship");
+      if (relation)
+        relation.removeEventListener("change", handleRelationshipChange);
     };
-  }, [handleRelationshipChange]);
+  }, [handleRelationshipChange, dateRange.start]);
 
   const [options, setOptions] = useState([]);
 
@@ -165,137 +165,158 @@ function App() {
       <header className="App-header">
         <p>Politician Twitter Activity</p>
       </header>
-      <button onClick={handleCloseClick}>Close Drawer</button>
-      <Select
-        isMulti
-        name="colors"
-        id="desired-users-input"
-        options={options}
-        className="basic-multi-select"
-        classNamePrefix="select"
-        value={selectedOptions}
-        onChange={(newSelectedOptions) => {
-          setSelectedOptions(newSelectedOptions);
-        }}
-      />
-      {dateRange.start && (
-        <DateRange
-          onChange={(item) => setDates([item.selection])}
-          date={dateRange.start}
-          ranges={dates}
-          minDate={dateRange.start}
-          maxDate={dateRange.end}
-          shownDate={dateRange.start}
+      {dateRange.start ? (
+        <>
+          <button onClick={handleCloseClick}>Close Drawer</button>
+          <Select
+            isMulti
+            name="colors"
+            id="desired-users-input"
+            options={options}
+            className="basic-multi-select"
+            classNamePrefix="select"
+            value={selectedOptions}
+            onChange={(newSelectedOptions) => {
+              setSelectedOptions(newSelectedOptions);
+            }}
+          />
+          <DateRange
+            onChange={(item) => setDates([item.selection])}
+            date={dateRange.start}
+            ranges={dates}
+            minDate={dateRange.start}
+            maxDate={dateRange.end}
+            shownDate={dateRange.start}
+          />
+          <TimeRangeSlider
+            disabled={
+              !dates[0].startDate ||
+              !dates[0].endDate ||
+              dates[0].startDate.getFullYear() !=
+                dates[0].endDate.getFullYear() ||
+              dates[0].startDate.getMonth() != dates[0].endDate.getMonth() ||
+              dates[0].startDate.getDay() != dates[0].endDate.getDay()
+            }
+            format={24}
+            maxValue={"23:59"}
+            minValue={"00:00"}
+            name={"time_range"}
+            onChange={handleTimeChange}
+            step={15}
+            value={selectedTime}
+          />
+          <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
+            {RELATIONSHIPS.map((x) => (
+              <option value={x} key={x}>
+                {x}
+              </option>
+            ))}
+          </select>
+
+          <button
+            onClick={() => {
+              setTimelineAux((prevState) => {
+                const latestUsers = new Set(
+                  selectedOptions.map((x) => x.label)
+                );
+                if (
+                  prevState.selectedDateTimes[0].startDate !=
+                    dates[0].startDate ||
+                  prevState.selectedDateTimes[0].endDate != dates[0].endDate ||
+                  prevState.timelineRelation != timelineRelation ||
+                  prevState.users.size != latestUsers.size
+                ) {
+                  console.log("diff detected");
+                  const datetimes = dates;
+                  // if TimeRangeSlider enabled
+                  if (
+                    dates[0].startDate &&
+                    dates[0].endDate &&
+                    dates[0].startDate.getFullYear() ==
+                      dates[0].endDate.getFullYear() &&
+                    dates[0].startDate.getMonth() ==
+                      dates[0].endDate.getMonth() &&
+                    dates[0].startDate.getDay() == dates[0].endDate.getDay()
+                  ) {
+                    const startTime = selectedTime.start.split(":");
+                    datetimes[0].startDate.setHours(startTime[0]);
+                    datetimes[0].startDate.setMinutes(startTime[1]);
+
+                    const endTime = selectedTime.end.split(":");
+                    datetimes[0].endDate.setHours(endTime[0]);
+                    datetimes[0].endDate.setMinutes(endTime[1]);
+                  }
+                  return {
+                    selectedDateTimes: dates,
+                    timelineRelation,
+                    users: latestUsers,
+                  };
+                }
+                console.log("no diff");
+                return prevState;
+              });
+            }}
+          >
+            Update Settings
+          </button>
+          <div className={classNames("drawer-wrapper", openDrawer && "open")}>
+            <div className={classNames("drawer", openDrawer && "open")}>
+              <h2 style={{ marginTop: 0 }}>
+                {accId}'s Summarized Twitter Activity
+              </h2>
+              <div id="num-posts">
+                <h3>Number of Tweets over Specified Time Frame</h3>
+                <p>
+                  The color of the line corresponds to the polarity of posts at
+                  that point in time. The bluer it is, the more liberal-leaning
+                  the posts there were. The redder it is, the more
+                  conservative-leaning the posts there were. White signifies a
+                  more neutral position.
+                </p>
+              </div>
+              <div id="num-left-right-posts">
+                <h3>
+                  Number of Left vs Right Tweets over Specified Time Frame
+                </h3>
+              </div>
+              <div>
+                <h3>Posts' Polarity over All Time</h3>
+                <div id="polarity-over-all-time" />
+              </div>
+              <div className="chart-options">
+                <p>Show: </p>
+                <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
+                <button onClick={() => co.notchedBoxPlot(chart1)}>
+                  Notched Box Plot
+                </button>
+                <button onClick={() => co.violinPlotUnbound(chart1)}>
+                  Violin Plot Unbound
+                </button>
+                <button onClick={() => co.violinPlotClamp(chart1)}>
+                  Violin Plot Clamp to Data
+                </button>
+                <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
+                <button onClick={() => co.beeswarmPlot(chart1)}>
+                  Beeswarm Plot
+                </button>
+                <button onClick={() => co.scatterPlot(chart1)}>
+                  Scatter Plot
+                </button>
+                <button onClick={() => co.trendLines(chart1)}>
+                  Trend Lines
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <ReactLoading
+          type={"bubbles"}
+          color={"white"}
+          height={"20%"}
+          width={"20%"}
         />
       )}
-      <TimeRangeSlider
-        disabled={
-          !dates[0].startDate ||
-          !dates[0].endDate ||
-          dates[0].startDate.getFullYear() != dates[0].endDate.getFullYear() ||
-          dates[0].startDate.getMonth() != dates[0].endDate.getMonth() ||
-          dates[0].startDate.getDay() != dates[0].endDate.getDay()
-        }
-        format={24}
-        maxValue={"23:59"}
-        minValue={"00:00"}
-        name={"time_range"}
-        onChange={handleTimeChange}
-        step={15}
-        value={selectedTime}
-      />
-      <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
-        {RELATIONSHIPS.map((x) => (
-          <option value={x} key={x}>
-            {x}
-          </option>
-        ))}
-      </select>
-
-      <button
-        onClick={() => {
-          setTimelineAux((prevState) => {
-            const latestUsers = new Set(selectedOptions.map((x) => x.label));
-            if (
-              prevState.selectedDateTimes[0].startDate != dates[0].startDate ||
-              prevState.selectedDateTimes[0].endDate != dates[0].endDate ||
-              prevState.timelineRelation != timelineRelation ||
-              prevState.users.size != latestUsers.size
-            ) {
-              console.log("diff detected");
-              const datetimes = dates;
-              // if TimeRangeSlider enabled
-              if (
-                dates[0].startDate &&
-                dates[0].endDate &&
-                dates[0].startDate.getFullYear() ==
-                  dates[0].endDate.getFullYear() &&
-                dates[0].startDate.getMonth() == dates[0].endDate.getMonth() &&
-                dates[0].startDate.getDay() == dates[0].endDate.getDay()
-              ) {
-                const startTime = selectedTime.start.split(":");
-                datetimes[0].startDate.setHours(startTime[0]);
-                datetimes[0].startDate.setMinutes(startTime[1]);
-
-                const endTime = selectedTime.end.split(":");
-                datetimes[0].endDate.setHours(endTime[0]);
-                datetimes[0].endDate.setMinutes(endTime[1]);
-              }
-              return {
-                selectedDateTimes: dates,
-                timelineRelation,
-                users: latestUsers,
-              };
-            }
-            console.log("no diff");
-            return prevState;
-          });
-        }}
-      >
-        Update Settings
-      </button>
-      <div className={classNames("drawer-wrapper", openDrawer && "open")}>
-        <div className={classNames("drawer", openDrawer && "open")}>
-          <h2 style={{ marginTop: 0 }}>
-            {accId}'s Summarized Twitter Activity
-          </h2>
-          <div id="num-posts">
-            <h3>Number of Tweets over Specified Time Frame</h3>
-            <p>
-              The color of the line corresponds to the polarity of posts at that
-              point in time. The bluer it is, the more liberal-leaning the posts
-              there were. The redder it is, the more conservative-leaning the
-              posts there were. White signifies a more neutral position.
-            </p>
-          </div>
-          <div id="num-left-right-posts">
-            <h3>Number of Left vs Right Tweets over Specified Time Frame</h3>
-          </div>
-          <div>
-            <h3>Posts' Polarity over All Time</h3>
-            <div id="polarity-over-all-time" />
-          </div>
-          <div className="chart-options">
-            <p>Show: </p>
-            <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
-            <button onClick={() => co.notchedBoxPlot(chart1)}>
-              Notched Box Plot
-            </button>
-            <button onClick={() => co.violinPlotUnbound(chart1)}>
-              Violin Plot Unbound
-            </button>
-            <button onClick={() => co.violinPlotClamp(chart1)}>
-              Violin Plot Clamp to Data
-            </button>
-            <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
-            <button onClick={() => co.beeswarmPlot(chart1)}>
-              Beeswarm Plot
-            </button>
-            <button onClick={() => co.scatterPlot(chart1)}>Scatter Plot</button>
-            <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
-          </div>
-        </div>
-      </div>
       <Timeline
         currGraphTime={currGraphTime}
         timelineAux={timelineAux}

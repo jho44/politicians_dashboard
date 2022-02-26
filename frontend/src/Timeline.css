@@ -148,3 +148,7 @@ text {
 #graph.moveup {
   top: 0;
 }
+
+.invisible {
+  display: none;
+}

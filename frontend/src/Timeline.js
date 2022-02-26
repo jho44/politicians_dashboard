@@ -1,11 +1,16 @@
-import React, { useEffect, useCallback, useMemo, useRef } from "react";
+import React, {
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import ReactLoading from "react-loading";
 import classNames from "classnames";
 import "./Timeline.css";
-import { RELATIONSHIPS } from "./constants";
+import { RELATIONSHIPS, COEFF } from "./constants";
 
 const d3 = window.d3;
-
-const COEFF = 3.6e6; // milliseconds in one time step
 
 const Timeline = ({
   openDrawer,
@@ -39,6 +44,8 @@ const Timeline = ({
   const parentNodes = useRef([]);
   const parentLabels = useRef(new Set());
   const currTime = useRef(0);
+
+  const [loading, setLoading] = useState(true);
 
   const inst = useMemo(() => {
     const nodes = {};
@@ -90,6 +97,7 @@ const Timeline = ({
           start: globalStartTime.current,
           end: globalEndTime.current,
         });
+        setLoading(false);
         return { nodes: nodeVals, nodeKeys: Object.keys(nodes) };
       });
   }, [timelineAux, setDateRange]);
@@ -655,24 +663,41 @@ const Timeline = ({
   }, [drawSlider, drawChart, timelineAux, currGraphTime]); // Redraw chart if data changes
 
   return (
-    <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>
-      <div id="btn-section">
-        <button id="play-button">Play</button>
-      </div>
-      <svg
-        id="slider-section"
-        preserveAspectRatio="xMinYMin meet"
-        viewBox={`0 0 ${width} ${height}`}
-      ></svg>
-
-      <div className="chart-container" id="container">
+    <>
+      {loading && (
+        <ReactLoading
+          type={"bubbles"}
+          color={"white"}
+          height={"20%"}
+          width={"20%"}
+        />
+      )}
+      <div
+        id="graph"
+        className={classNames(
+          "timeline",
+          openDrawer && "moveup",
+          loading && "invisible"
+        )}
+      >
+        <div id="btn-section">
+          <button id="play-button">Play</button>
+        </div>
         <svg
-          className="chart"
+          id="slider-section"
           preserveAspectRatio="xMinYMin meet"
-          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          viewBox={`0 0 ${width} ${height}`}
         ></svg>
+
+        <div className="chart-container" id="container">
+          <svg
+            className="chart"
+            preserveAspectRatio="xMinYMin meet"
+            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          ></svg>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
