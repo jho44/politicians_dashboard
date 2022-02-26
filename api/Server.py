@@ -40,10 +40,11 @@ class Server(Resource):
         data = data[(data['timestamp'] >= args['start_date']) & (data['timestamp'] <= args['end_date'])]
 
       if arg_type == 'num_posts_over_time':
-        data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms')
+        data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms', utc=True)
         data.drop('timestamp', axis=1, inplace=True)
 
-        grps = data.groupby(pd.Grouper(key='datetime', freq='D'))
+        grps = data.groupby(pd.Grouper(key='datetime', freq='D', origin='epoch'))
+        # since we're grouping by day, the chart will have an time-axis ending on the start of the last selected day
         grp_sizes = grps.size()
 
         try:

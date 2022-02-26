@@ -27,10 +27,10 @@ const Timeline = ({
   const propertyName = useRef("retweet_from");
   const localUsers = useRef(new Set());
   const innerDateRange = useRef(timelineAux.selectedDateTimes[0]);
-  const globalStartTime = useRef();
-  const globalEndTime = useRef();
-  const trueStart = useRef();
-  const trueEnd = useRef();
+  const globalStartTime = useRef(); // of all the data
+  const globalEndTime = useRef(); // of all the data
+  const trueStart = useRef(); // user-selected
+  const trueEnd = useRef(); // user-selected
 
   // for keeping track of nodes and links between user input changes
   const activeChildLinks = useRef({});
@@ -588,7 +588,7 @@ const Timeline = ({
       if (+startDate == +endDate) {
         trueStart.current = Math.max(+globalStartTime.current, +startDate);
         const dayEnd = new Date(trueStart.current);
-        dayEnd.setHours(23, 59, 59, 59);
+        dayEnd.setUTCHours(23, 59, 59, 59);
         trueEnd.current = Math.min(+dayEnd, +globalEndTime.current);
       } else {
         // checking for endDate b/c it's initialized to null, which indicates the user hasn't set their own date range yet
@@ -596,9 +596,12 @@ const Timeline = ({
           endDate && +globalStartTime.current < +startDate
             ? +startDate
             : +globalStartTime.current;
+
+        if (endDate) endDate.setUTCHours(23, 59, 59, 59);
+
         trueEnd.current =
-          endDate && +endDate + COEFF < +globalEndTime.current
-            ? +endDate + COEFF
+          endDate && +endDate < +globalEndTime.current
+            ? +endDate
             : +globalEndTime.current;
       }
       GlobalAdaptor.current
