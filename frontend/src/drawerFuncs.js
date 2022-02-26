@@ -3,7 +3,7 @@ const d3 = window.d3;
 
 const DRAWER_HEIGHT_FACTOR = 3;
 
-export const drawNumPostsOverTime = (data) => {
+export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
   // grouped by minute by server
   // https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
   var margin = { top: 50, right: 50, bottom: 150, left: 50 },
@@ -125,7 +125,10 @@ export const drawNumPostsOverTime = (data) => {
     .attr("cy", function (d) {
       return yScale(d.y);
     })
-    .attr("r", 1)
+    .attr("r", 4)
+    .on("click", function (d) {
+      setCurrGraphTime(d.x);
+    })
     .on("mouseover", function (d, i) {
       d3.select(`#dot-${i}`).attr("class", "focus");
     })

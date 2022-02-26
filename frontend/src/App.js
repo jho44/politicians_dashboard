@@ -20,6 +20,7 @@ function App() {
   const [timelineRelation, setTimelineRelation] = useState(RELATIONSHIPS[0]);
   const [openDrawer, setOpenDrawer] = useState(false);
   const [accId, setAccId] = useState();
+  const [currGraphTime, setCurrGraphTime] = useState();
 
   const [dates, setDates] = useState([
     {
@@ -83,7 +84,7 @@ function App() {
     )
       .then((res) => res.json())
       .then((res) => {
-        drawNumPostsOverTime(res);
+        drawNumPostsOverTime(res, setCurrGraphTime);
       })
       .catch((err) => console.error(err));
 
@@ -296,6 +297,7 @@ function App() {
         </div>
       </div>
       <Timeline
+        currGraphTime={currGraphTime}
         timelineAux={timelineAux}
         setDateRange={setDateRange}
         openDrawer={openDrawer}

@@ -12,6 +12,7 @@ const Timeline = ({
   handleNodeClick,
   setDateRange,
   timelineAux,
+  currGraphTime,
 }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
@@ -304,10 +305,9 @@ const Timeline = ({
   );
 
   const drawSlider = useCallback(
-    async (dates) => {
+    async (dates, curr) => {
       var moving = false;
       var timer = null;
-      var currentValue = 0;
       var targetValue = width;
       let startDate, endDate;
 
@@ -319,6 +319,9 @@ const Timeline = ({
         startDate = +globalStartTime.current;
         endDate = +globalEndTime.current;
       }
+      const firstDate = curr ? curr : startDate;
+      var currentValue =
+        ((+firstDate - startDate) / (endDate - startDate)) * width; // map startDate to 0, endDate to width
 
       var playButton = d3.select("#play-button");
 
@@ -427,6 +430,7 @@ const Timeline = ({
       );
 
       function step() {
+        if (currentValue < 0) currentValue = 0;
         update(x.invert(currentValue));
         currentValue = currentValue + targetValue / 151;
         if (currentValue > targetValue) {
@@ -437,6 +441,15 @@ const Timeline = ({
           playButton.text("Play");
         }
       }
+
+      /*
+        initializes slider to firstDate, which is either:
+        - start of data
+        - user-selected start
+        - or time corresponding to node clicked in num_posts_over_time chart
+      */
+      handle.attr("cx", x(firstDate));
+      label.attr("x", x(firstDate)).text(d3.timeFormat("%b %d %Y")(firstDate));
     },
     [drawChart, height, width, margin.right]
   );
@@ -608,10 +621,29 @@ const Timeline = ({
         .getInstance()
         .then((adaptor) => adaptor.update(trueStart.current)) // have adaptor return the new nodes and new links
         .then(({ nodes, links }) => {
-          drawSlider({
-            trueStart: trueStart.current,
-            trueEnd: trueEnd.current,
-          });
+          drawSlider(
+            {
+              trueStart: trueStart.current,
+              trueEnd: trueEnd.current,
+            },
+            trueStart.current
+          );
+          drawChart(nodes, links);
+        });
+    } else if (currGraphTime && +currGraphTime != currTime.current) {
+      // from clicking on node in num_posts_over_time chart
+      currTime.current = +currGraphTime;
+      GlobalAdaptor.current
+        .getInstance()
+        .then((adaptor) => adaptor.update(currTime.current)) // have adaptor return the new nodes and new links
+        .then(({ nodes, links }) => {
+          drawSlider(
+            {
+              trueStart: trueStart.current,
+              trueEnd: trueEnd.current,
+            },
+            currTime.current
+          );
           drawChart(nodes, links);
         });
     } else {
@@ -620,7 +652,7 @@ const Timeline = ({
         drawChart([], []);
       }
     }
-  }, [drawSlider, drawChart, timelineAux]); // Redraw chart if data changes
+  }, [drawSlider, drawChart, timelineAux, currGraphTime]); // Redraw chart if data changes
 
   return (
     <div id="graph" className={classNames("timeline", openDrawer && "moveup")}>

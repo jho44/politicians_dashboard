@@ -79,14 +79,17 @@ class Server(Resource):
         colors = mean_polarities.apply(get_color).tolist()
 
         not_null_indices = mean_polarities.index
-        stops = not_null_indices / not_null_indices[-1] * 100
+        if not_null_indices[-1] == 0:
+            stops = [100]
+        else:
+          stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
 
         return jsonify({
           'times': grp_sizes.index.strftime('%m/%d/%Y, %H:%M:%S').tolist(),
           'sizes': grp_sizes.values.tolist(),
           'range': [min_range, max_range],
           'colors': colors,
-          'stops': stops.tolist()
+          'stops': stops
         })
       elif arg_type == 'num_left_right_posts':
         num_left = len(data[data['polarity'] < 0]) # number of posts that were overall left-leaning
