@@ -348,7 +348,7 @@ const Timeline = ({
       async function update(h) {
         // update position and text of label according to slider scale
         handle.attr("cx", x(h));
-        label.attr("x", x(h)).text(d3.timeFormat("%b %d %Y")(h));
+        label.attr("x", x(h)).text(d3.utcFormat("%b %d %Y")(h));
 
         const adaptor = await GlobalAdaptor.current.getInstance();
         const { nodes, links } = await adaptor.update(h); // have adaptor return the new nodes and new links
@@ -384,17 +384,16 @@ const Timeline = ({
       slider
         .insert("g", ".track-overlay")
         .attr("class", "ticks")
-        .attr("transform", "translate(0," + 18 + ")")
-        .selectAll("text")
-        .data(x.ticks(10))
-        .enter()
-        .append("text")
-        .attr("x", x)
-        .attr("y", 10)
-        .attr("text-anchor", "middle")
-        .text(function (d) {
-          return d3.timeFormat("%m/%d %H:%M")(d);
-        });
+        .attr("transform", "translate(0,18)")
+        .call(d3.axisBottom(x).tickFormat(d3.utcFormat("%m/%d/%Y, %H:%M")))
+        .selectAll(".ticks text") // https://bl.ocks.org/d3noob/ecf9e1ddeb48d0c4fbb29d03c08660bb
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform", "rotate(-65)");
+
+      // d3.selectAll(".ticks > text")
+      // .attr("transform", "rotate(-65)")
 
       var handle = slider
         .insert("circle", ".track-overlay")
@@ -405,8 +404,8 @@ const Timeline = ({
         .append("text")
         .attr("class", "label")
         .attr("text-anchor", "middle")
-        .text(d3.timeFormat("%b %d %Y")(startDate))
-        .attr("transform", "translate(0," + -25 + ")");
+        .text(d3.utcFormat("%b %d %Y")(startDate))
+        .attr("transform", "translate(0,-25)");
 
       const sliderWidth = d3
         .select(".slider")
@@ -457,7 +456,7 @@ const Timeline = ({
         - or time corresponding to node clicked in num_posts_over_time chart
       */
       handle.attr("cx", x(firstDate));
-      label.attr("x", x(firstDate)).text(d3.timeFormat("%b %d %Y")(firstDate));
+      label.attr("x", x(firstDate)).text(d3.utcFormat("%b %d %Y")(firstDate));
     },
     [drawChart, height, width, margin.right]
   );
@@ -605,11 +604,15 @@ const Timeline = ({
       localUsers.current = users;
       innerDateRange.current = selectedDateTimes[0];
 
-      // special case when user selects just one day -- might needa change when bring time of day filter in
-      if (+startDate == +endDate) {
+      // special case when user selects just one day
+      if (+endDate - +startDate <= 8.64e7) {
         trueStart.current = Math.max(+globalStartTime.current, +startDate);
-        const dayEnd = new Date(trueStart.current);
-        dayEnd.setUTCHours(23, 59, 59, 59);
+        let dayEnd = endDate;
+        if (startDate == endDate) {
+          // only set this if user didn't specify hours
+          dayEnd = new Date(trueStart.current);
+          dayEnd.setUTCHours(23, 59, 59, 59);
+        }
         trueEnd.current = Math.min(+dayEnd, +globalEndTime.current);
       } else {
         // checking for endDate b/c it's initialized to null, which indicates the user hasn't set their own date range yet

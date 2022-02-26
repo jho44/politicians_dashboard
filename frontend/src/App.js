@@ -188,23 +188,30 @@ function App() {
             maxDate={dateRange.end}
             shownDate={dateRange.start}
           />
-          <TimeRangeSlider
-            disabled={
-              !dates[0].startDate ||
-              !dates[0].endDate ||
-              dates[0].startDate.getFullYear() !=
-                dates[0].endDate.getFullYear() ||
-              dates[0].startDate.getMonth() != dates[0].endDate.getMonth() ||
-              dates[0].startDate.getDay() != dates[0].endDate.getDay()
-            }
-            format={24}
-            maxValue={"23:59"}
-            minValue={"00:00"}
-            name={"time_range"}
-            onChange={handleTimeChange}
-            step={15}
-            value={selectedTime}
-          />
+          {dates[0].startDate &&
+            dates[0].endDate &&
+            dates[0].startDate.getFullYear() ==
+              dates[0].endDate.getFullYear() &&
+            dates[0].startDate.getMonth() == dates[0].endDate.getMonth() &&
+            dates[0].startDate.getDay() == dates[0].endDate.getDay() && (
+              <div style={{ width: "80%" }}>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <p>{selectedTime.start}</p>
+                  <p>{selectedTime.end}</p>
+                </div>
+                <TimeRangeSlider
+                  format={24}
+                  maxValue={"23:59"}
+                  minValue={"00:00"}
+                  name={"time_range"}
+                  onChange={handleTimeChange}
+                  step={15}
+                  value={selectedTime}
+                />
+              </div>
+            )}
           <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
             {RELATIONSHIPS.map((x) => (
               <option value={x} key={x}>
@@ -227,7 +234,8 @@ function App() {
                   prevState.users.size != latestUsers.size
                 ) {
                   console.log("diff detected");
-                  const datetimes = dates;
+                  const startDate = new Date(dates[0].startDate);
+                  const endDate = new Date(dates[0].endDate);
                   // if TimeRangeSlider enabled
                   if (
                     dates[0].startDate &&
@@ -239,15 +247,15 @@ function App() {
                     dates[0].startDate.getDay() == dates[0].endDate.getDay()
                   ) {
                     const startTime = selectedTime.start.split(":");
-                    datetimes[0].startDate.setHours(startTime[0]);
-                    datetimes[0].startDate.setMinutes(startTime[1]);
+                    startDate.setUTCHours(startTime[0]);
+                    startDate.setUTCMinutes(startTime[1]);
 
                     const endTime = selectedTime.end.split(":");
-                    datetimes[0].endDate.setHours(endTime[0]);
-                    datetimes[0].endDate.setMinutes(endTime[1]);
+                    endDate.setUTCHours(endTime[0]);
+                    endDate.setUTCMinutes(endTime[1]);
                   }
                   return {
-                    selectedDateTimes: dates,
+                    selectedDateTimes: [{ startDate, endDate }],
                     timelineRelation,
                     users: latestUsers,
                   };

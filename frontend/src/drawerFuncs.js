@@ -13,7 +13,7 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
         (DRAWER_HEIGHT_FACTOR + 1) -
       margin.top -
       margin.bottom; // Use the window's height
-  var parseTime = d3.timeParse("%m/%d/%Y, %H:%M:%S");
+  var parseTime = d3.utcParse("%m/%d/%Y, %H:%M:%S");
 
   // 5. X scale will use the timestamps of our data
   var xScale = d3
@@ -66,7 +66,7 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
     .append("g")
     .attr("class", "x-axis")
     .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m/%d/%Y, %H:%M")))
+    .call(d3.axisBottom(xScale).tickFormat(d3.utcFormat("%m/%d/%Y, %H:%M")))
     .selectAll(".x-axis text") // https://bl.ocks.org/d3noob/ecf9e1ddeb48d0c4fbb29d03c08660bb
     .style("text-anchor", "end")
     .attr("dx", "-.8em")
