@@ -1,4 +1,5 @@
 import makeDistroChart from "./distrochart";
+import { ATTN_COLOR } from "./constants";
 const d3 = window.d3;
 
 const DRAWER_HEIGHT_FACTOR = 3;
@@ -239,96 +240,12 @@ export const drawPolarityOverAllTime = (chart1, data) => {
   chart1.current.renderViolinPlot({ showViolinPlot: false });
 };
 
-export const drawAttentionWeights = () => {
+export const drawAttentionWeights = (data) => {
   // credit to Patricia for this part's skeleton
 
-  const post = [
-    [
-      "abortion",
-      "access",
-      "is",
-      "health",
-      "care",
-      "period",
-      "as",
-      "co-chair",
-      "of",
-      "the",
-      "pro-choice",
-      "caucus",
-      "i",
-      "will",
-      "fight",
-      "any",
-      "attempt",
-      "to",
-      "interfere",
-      "in",
-      "a",
-      "woman's",
-      "constitutional",
-      "right",
-      "to",
-      "choose",
-      "#sotu",
-    ],
-    [
-      "being",
-      "pro-life",
-      "is",
-      "wanting",
-      "the",
-      "most",
-      "for",
-      "women",
-      "and",
-      "their",
-      "children",
-      "it",
-      "is",
-      "recognizing",
-      "every",
-      "person",
-      "deserves",
-      "a",
-      "chance",
-      "to",
-      "live",
-      "#whywemarch",
-    ],
-  ];
+  const { post, trigramWeights, polarityScores, sentenceScores } = data;
 
-  var trigram_weights = [
-    [
-      0.11000392350720457, 0.027753256063696836, 0.0, 0.01698094704034859,
-      0.00040684266706241375, 0.022323664106730277, 0.0, 0.4905698025174466,
-      0.0, 0.0, 0.2888449640949988, 0.016011572708793265, 0.005453279524286329,
-      0.0, 0.0, 0.0, 0.001411262989865475, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-      0.009968161550774558, 0.0, 0.0, 0.010272323228792273,
-    ],
-    [
-      0.0, 0.07315461940729052, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0739448001194151,
-      0.0, 0.0, 0.013475237893787894, 0.0, 0.0, 0.0, 0.0, 0.02260653998362492,
-      0.0, 0.0, 0.01404085112697572, 0.0, 0.0, 0.8027779514689058,
-    ],
-  ];
-
-  var polarity_scores = [
-    [
-      1.19, -3.98, -0.16, -5.94, -2.34, -0.35, 0.44, 0.39, 0.59, 1.05, -2.65,
-      -3.79, 0.92, 1.12, -5.24, 0.98, -2.91, -0.02, -2.24, 0.25, -0.66, -8.36,
-      4.22, -0.42, -0.02, -1.4, 3.8,
-    ],
-    [
-      -0.08, 16.87, -0.16, 5.4, 1.05, 1.0, 0.14, -5.04, 0.88, -0.26, -6.58,
-      -0.3, -0.16, 1.51, -4.36, -1.4, -4.22, -0.66, -1.29, -0.02, -0.64, 4.92,
-    ],
-  ];
-
-  var sentence_scores = [-0.369, 1.832];
-
-  const color = "10,180,120";
-  const maxNumTokens = Math.max(...trigram_weights.map((x) => x.length));
+  const maxNumTokens = Math.max(...trigramWeights.map((x) => x.length));
 
   let rows = `<tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
 
@@ -339,17 +256,12 @@ export const drawAttentionWeights = () => {
 
     const tokens = post[k];
 
-    var heat_text = "<td>" + sentence_scores[k] + "</td>";
+    var heat_text = `<td>${sentenceScores[k]}</td>`;
 
     for (let i = 0; i < tokens.length; i++) {
-      heat_text +=
-        "<td><span style='background-color:rgba(" +
-        color +
-        "," +
-        trigram_weights[k][i] * 15 +
-        ")'>" +
-        tokens[i] +
-        "</span></td>";
+      heat_text += `<td><span style='background-color:rgba(${ATTN_COLOR}, ${
+        trigramWeights[k][i] * 15
+      })'>${tokens[i]}</span></td>`;
     }
 
     rows += heat_text + "</tr><tr>";
@@ -357,10 +269,10 @@ export const drawAttentionWeights = () => {
     // polarity scores line
 
     heat_text = "<th>Polarity</th>";
-    for (let j = 0; j < polarity_scores[k].length; j++) {
-      const score = polarity_scores[k][j];
+    for (let j = 0; j < polarityScores[k].length; j++) {
+      const score = polarityScores[k][j];
       heat_text += `<td><span style='font-size:${
-        trigram_weights[k][j] * 100 < 7 ? "small" : "16"
+        trigramWeights[k][j] * 100 < 7 ? "small" : "16"
       }'>${score}</span></td>`;
     }
 

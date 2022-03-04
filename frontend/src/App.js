@@ -62,7 +62,16 @@ function App() {
     setAccId(accountId);
     setOpenDrawer(true);
 
-    drawAttentionWeights();
+    fetch(
+      start && end
+        ? `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}&start_date=${start}&end_date=${end}`
+        : `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        drawAttentionWeights(res);
+      })
+      .catch((err) => console.error(err));
 
     fetch(
       start && end
