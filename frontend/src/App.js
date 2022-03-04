@@ -11,6 +11,7 @@ import {
   drawLeftRightPie,
   drawNumPostsOverTime,
   drawPolarityOverAllTime,
+  drawAttentionWeights,
 } from "./drawerFuncs";
 import * as co from "./chartOptions";
 import "./distrochart.css";
@@ -37,23 +38,6 @@ function App() {
 
   const chart1 = useRef();
 
-  // // for getting attention weights
-  // fetch('http://localhost:5000/flask', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({stmt: "this is my statement"})
-  // })
-  // .then(response => response.json())
-  // .then(res => {
-  //   console.log(res)
-  //   setGetMessage(res);
-  // })
-  // .catch(error => {
-  //   console.log(error)
-  // });
-
   const handleCloseClick = () => {
     setOpenDrawer(false);
   };
@@ -77,6 +61,8 @@ function App() {
   const handleNodeClick = (accountId, start, end) => {
     setAccId(accountId);
     setOpenDrawer(true);
+
+    drawAttentionWeights();
 
     fetch(
       start && end
@@ -314,6 +300,7 @@ function App() {
                   Trend Lines
                 </button>
               </div>
+              <table id="attention-weights"></table>
             </div>
           </div>
         </>
