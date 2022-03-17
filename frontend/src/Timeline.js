@@ -5,12 +5,26 @@ import React, {
   useRef,
   useState,
 } from "react";
+import ReactDOMServer from "react-dom/server";
 import ReactLoading from "react-loading";
 import classNames from "classnames";
+import { PauseCircleOutline, PlayCircleOutline } from "@mui/icons-material";
 import "./Timeline.css";
-import { RELATIONSHIPS, COEFF } from "./constants";
+import { RELATIONSHIPS, COEFF, MAIN_COLOR } from "./constants";
 
 const d3 = window.d3;
+const playIconHtml = ReactDOMServer.renderToString(
+  <>
+    <PlayCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
+    PLAY
+  </>
+);
+const pauseIconHtml = ReactDOMServer.renderToString(
+  <>
+    <PauseCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
+    PAUSE
+  </>
+);
 
 const Timeline = ({
   openDrawer,
@@ -421,16 +435,15 @@ const Timeline = ({
       playButton.on(
         "click",
         function () {
-          var button = d3.select(this);
-          if (button.text() == "Pause") {
+          var button = d3.select("#play-button > div");
+          if (button.html().includes("Pause")) {
             moving = false;
             clearInterval(timer);
-            // timer = 0;
-            button.text("Play");
+            button.html(playIconHtml);
           } else {
             moving = true;
             timer = setInterval(step, 100);
-            button.text("Pause");
+            button.html(pauseIconHtml);
           }
         },
         []
@@ -445,7 +458,7 @@ const Timeline = ({
           currentValue = 0;
           clearInterval(timer);
           // timer = 0;
-          playButton.text("Play");
+          playButton.html(playIconHtml);
         }
       }
 
@@ -670,7 +683,7 @@ const Timeline = ({
       {loading && (
         <ReactLoading
           type={"bubbles"}
-          color={"white"}
+          color={MAIN_COLOR}
           height={"20%"}
           width={"20%"}
         />
@@ -684,7 +697,15 @@ const Timeline = ({
         )}
       >
         <div id="btn-section">
-          <button id="play-button">Play</button>
+          <button id="play-button" className="btn">
+            <div className="centered-column">
+              <PlayCircleOutline
+                fontSize="large"
+                style={{ marginBottom: "0.5rem" }}
+              />
+              PLAY
+            </div>
+          </button>
         </div>
         <svg
           id="slider-section"

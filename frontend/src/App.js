@@ -7,6 +7,7 @@ import "react-date-range/dist/styles.css"; // main style file
 import "react-date-range/dist/theme/default.css"; // theme css file
 import TimeRangeSlider from "react-time-range-slider";
 import ReactLoading from "react-loading";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import {
   drawLeftRightPie,
   drawNumPostsOverTime,
@@ -15,10 +16,18 @@ import {
 } from "./drawerFuncs";
 import "./distrochart.css";
 import Timeline from "./Timeline";
-import { RELATIONSHIPS } from "./constants";
+import { RELATIONSHIPS, MAIN_COLOR } from "./constants";
+
+const RELATIONSHIP_OPTIONS = RELATIONSHIPS.map((x) => ({
+  value: x,
+  label: x,
+}));
 
 function App() {
-  const [timelineRelation, setTimelineRelation] = useState(RELATIONSHIPS[0]);
+  const [timelineRelation, setTimelineRelation] = useState({
+    value: RELATIONSHIPS[0],
+    label: RELATIONSHIPS[0],
+  });
   const [openDrawer, setOpenDrawer] = useState(false);
   const [accId, setAccId] = useState();
   const [currGraphTime, setCurrGraphTime] = useState();
@@ -104,28 +113,13 @@ function App() {
       .catch((err) => console.error(err));
   };
 
-  const handleRelationshipChange = useCallback(
-    (e) => setTimelineRelation(e.target.value),
-    []
-  );
-
-  useEffect(() => {
-    const relation = document.getElementById("relationship");
-    if (relation) relation.addEventListener("change", handleRelationshipChange);
-    return () => {
-      const relation = document.getElementById("relationship");
-      if (relation)
-        relation.removeEventListener("change", handleRelationshipChange);
-    };
-  }, [handleRelationshipChange, dateRange.start]);
-
   const [options, setOptions] = useState([]);
 
   const [selectedOptions, setSelectedOptions] = useState([]);
 
   const [timelineAux, setTimelineAux] = useState({
     selectedDateTimes: dates,
-    timelineRelation,
+    timelineRelation: timelineRelation.value,
     users: new Set(selectedOptions.map((x) => x.label)),
   });
 
@@ -154,40 +148,63 @@ function App() {
       });
   }, []);
 
+  const selectStyles = {
+    control: (styles) => ({ ...styles, borderRadius: 0, width: "100%" }),
+  };
+
   return (
-    <div className="App">
+    <div className="App centered-column">
       <header className="App-header">
         <p>Politician Twitter Activity</p>
       </header>
       {dateRange.start ? (
         <>
-          <button onClick={handleCloseClick}>Close Drawer</button>
-          <Select
-            isMulti
-            name="colors"
-            id="desired-users-input"
-            options={options}
-            className="basic-multi-select"
-            classNamePrefix="select"
-            value={selectedOptions}
-            onChange={(newSelectedOptions) => {
-              setSelectedOptions(newSelectedOptions);
-            }}
-          />
-          <DateRange
-            onChange={(item) => setDates([item.selection])}
-            date={dateRange.start}
-            ranges={dates}
-            minDate={dateRange.start}
-            maxDate={dateRange.end}
-            shownDate={dateRange.start}
-          />
-          {dates[0].startDate &&
-            dates[0].endDate &&
-            dates[0].startDate.getFullYear() ==
-              dates[0].endDate.getFullYear() &&
-            dates[0].startDate.getMonth() == dates[0].endDate.getMonth() &&
-            dates[0].startDate.getDay() == dates[0].endDate.getDay() && (
+          <div style={{ display: "flex", width: "100%" }}>
+            <div style={{ width: "50%" }} className="center">
+              <div className="card">
+                <DateRange
+                  onChange={(item) => setDates([item.selection])}
+                  date={dateRange.start}
+                  ranges={dates}
+                  minDate={dateRange.start}
+                  maxDate={dateRange.end}
+                  shownDate={dateRange.start}
+                />
+              </div>
+            </div>
+            <div
+              className="center"
+              style={{ flexDirection: "column", width: "50%", margin: "10%" }}
+            >
+              <Select
+                placeholder="Select Users..."
+                isMulti
+                name="colors"
+                id="desired-users-input"
+                options={options}
+                className="basic-multi-select card"
+                classNamePrefix="select"
+                value={selectedOptions}
+                onChange={(newSelectedOptions) => {
+                  setSelectedOptions(newSelectedOptions);
+                }}
+                styles={selectStyles}
+              />
+
+              <Select
+                className="basic-single card"
+                classNamePrefix="select"
+                name="colors"
+                id="relationship"
+                value={timelineRelation}
+                options={RELATIONSHIP_OPTIONS}
+                onChange={(newSelectedOptions) => {
+                  console.log(newSelectedOptions.value);
+                  setTimelineRelation(newSelectedOptions);
+                }}
+                styles={selectStyles}
+              />
+
               <div style={{ width: "80%" }}>
                 <div
                   style={{ display: "flex", justifyContent: "space-between" }}
@@ -196,6 +213,15 @@ function App() {
                   <p>{selectedTime.end}</p>
                 </div>
                 <TimeRangeSlider
+                  disabled={
+                    !dates[0].startDate ||
+                    !dates[0].endDate ||
+                    dates[0].startDate.getFullYear() !==
+                      dates[0].endDate.getFullYear() ||
+                    dates[0].startDate.getMonth() !==
+                      dates[0].endDate.getMonth() ||
+                    dates[0].startDate.getDay() != dates[0].endDate.getDay()
+                  }
                   format={24}
                   maxValue={"23:59"}
                   minValue={"00:00"}
@@ -205,16 +231,11 @@ function App() {
                   value={selectedTime}
                 />
               </div>
-            )}
-          <select id="relationship" defaultValue={RELATIONSHIPS[0]}>
-            {RELATIONSHIPS.map((x) => (
-              <option value={x} key={x}>
-                {x}
-              </option>
-            ))}
-          </select>
-
+            </div>
+          </div>
           <button
+            className="btn"
+            style={{ marginTop: "2rem", marginBottom: "1rem" }}
             onClick={() => {
               setTimelineAux((prevState) => {
                 const latestUsers = new Set(
@@ -224,7 +245,7 @@ function App() {
                   prevState.selectedDateTimes[0].startDate !=
                     dates[0].startDate ||
                   prevState.selectedDateTimes[0].endDate != dates[0].endDate ||
-                  prevState.timelineRelation != timelineRelation ||
+                  prevState.timelineRelation != timelineRelation.value ||
                   prevState.users.size != latestUsers.size
                 ) {
                   console.log("diff detected");
@@ -250,7 +271,7 @@ function App() {
                   }
                   return {
                     selectedDateTimes: [{ startDate, endDate }],
-                    timelineRelation,
+                    timelineRelation: timelineRelation.value,
                     users: latestUsers,
                   };
                 }
@@ -259,14 +280,25 @@ function App() {
               });
             }}
           >
-            Update Settings
+            <div className="centered-column">
+              <CheckCircleOutlineIcon
+                fontSize="large"
+                style={{ marginBottom: "0.5rem" }}
+              />
+              APPLY SETTINGS
+            </div>
           </button>
-          <Charts openDrawer={openDrawer} accId={accId} chart1={chart1} />
+          <Charts
+            openDrawer={openDrawer}
+            accId={accId}
+            chart1={chart1}
+            handleCloseClick={handleCloseClick}
+          />
         </>
       ) : (
         <ReactLoading
           type={"bubbles"}
-          color={"white"}
+          color={MAIN_COLOR}
           height={"20%"}
           width={"20%"}
         />

@@ -2,10 +2,16 @@ import React from "react";
 import * as co from "./chartOptions";
 import classNames from "classnames";
 
-export default function Charts({ openDrawer, accId, chart1 }) {
+export default function Charts({
+  openDrawer,
+  accId,
+  chart1,
+  handleCloseClick,
+}) {
   return (
     <div className={classNames("drawer-wrapper", openDrawer && "open")}>
       <div className={classNames("drawer", openDrawer && "open")}>
+        <button onClick={handleCloseClick}>Close Drawer</button>
         <h2 style={{ marginTop: 0 }}>{accId}'s Summarized Twitter Activity</h2>
         <div id="num-posts">
           <h3>Number of Tweets over Specified Time Frame</h3>
