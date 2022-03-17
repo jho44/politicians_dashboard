@@ -163,3 +163,62 @@ tr:nth-child(even) {
     0 4px 15px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 }
+
+.card {
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+  border: 0;
+  font-weight: 400;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.css-b62m3t-container {
+  width: 100%;
+  margin: 5% 10%;
+}
+
+.input-range__track--active {
+  background-color: #3d91ff !important;
+}
+
+.input-range--disabled .input-range__track {
+  background-color: #9e9e9e !important;
+  cursor: not-allowed;
+}
+
+.centered-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  cursor: pointer;
+  background-color: #3d91ff;
+  color: #fff;
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    -webkit-box-shadow 0.15s ease-in-out;
+  margin: 0.375rem;
+  border: 0;
+  border-radius: 0.125rem;
+  text-transform: uppercase;
+  white-space: normal;
+  word-wrap: break-word;
+  width: 200px;
+}
+
+.btn:hover {
+  text-decoration: none;
+  outline: 0;
+  background-color: #0eaae6;
+  -webkit-box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18),
+    0 4px 15px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
+}
