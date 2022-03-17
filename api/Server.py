@@ -1,7 +1,6 @@
 from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
 import pandas as pd
-import re
 
 class Server(Resource):
   '''
