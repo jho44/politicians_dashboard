@@ -559,7 +559,11 @@ const Timeline = ({
           .on("end", dragended)
       );
 
-    nodeEnter.append("circle").attr("r", 10).on("click", click);
+    nodeEnter
+      .append("circle")
+      .attr("r", 10)
+      .attr("class", "node")
+      .on("click", click);
 
     nodeEnter
       .append("text")
@@ -715,7 +719,7 @@ const Timeline = ({
 
         <div className="chart-container" id="container">
           <svg
-            className="chart"
+            className="chart card"
             preserveAspectRatio="xMinYMin meet"
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
           ></svg>

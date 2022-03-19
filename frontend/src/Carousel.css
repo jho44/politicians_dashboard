@@ -1,0 +1,45 @@
+/* https://medium.com/tinyso/how-to-create-the-responsive-and-swipeable-carousel-slider-component-in-react-99f433364aa0 */
+.carousel {
+  overflow: hidden;
+  width: var(--charts-width);
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.inner {
+  white-space: nowrap;
+  transition: transform 0.3s;
+}
+
+.carousel-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.carousel-item p,
+.carousel-item h3 {
+  margin: 1rem;
+  overflow-wrap: break-word;
+  white-space: pre-line;
+  width: var(--charts-width);
+}
+
+.indicators {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1rem 0;
+}
+
+.indicators > button {
+  padding: 0;
+  margin: 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border-style: none;
+  cursor: pointer;
+}
+
+.indicators > button.active {
+  background-color: white;
+}
