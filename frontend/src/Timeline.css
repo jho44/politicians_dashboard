@@ -47,12 +47,13 @@ ul.horizontal li a {
 }
 
 .link {
-  stroke: rgb(114, 114, 114);
+  stroke: var(--secondary-color) !important;
   stroke-opacity: 0.6;
 }
 
-circle {
-  fill-opacity: 0.1;
+.node {
+  fill: var(--main-color);
+  fill-opacity: 0.5;
   stroke: #fff;
   stroke-width: 1.5px;
 }
@@ -120,10 +121,7 @@ text {
   top: -19vh;
   left: 0;
   margin: 20px;
-  background-color: #e8fffd;
-  border-radius: 5px;
-  border-style: solid;
-  border-color: #0eb0e6;
+  background-color: #fff;
 }
 
 .chart-container {

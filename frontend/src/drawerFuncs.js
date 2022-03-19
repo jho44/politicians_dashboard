@@ -2,16 +2,15 @@ import makeDistroChart from "./distrochart";
 import { ATTN_COLOR } from "./constants";
 const d3 = window.d3;
 
-const DRAWER_HEIGHT_FACTOR = 3;
+const DRAWER_HEIGHT_FACTOR = 2;
 
 export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
   // grouped by minute by server
   // https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
-  var margin = { top: 50, right: 50, bottom: 150, left: 50 },
+  var margin = { top: 50, right: 100, bottom: 150, left: 100 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight /
-        (DRAWER_HEIGHT_FACTOR + 1) -
+      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
       margin.top -
       margin.bottom; // Use the window's height
   var parseTime = d3.utcParse("%m/%d/%Y, %H:%M:%S");
@@ -134,7 +133,7 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
       d3.select(`#dot-${i}`).attr("class", "focus");
     })
     .on("mouseout", function (d, i) {
-      d3.select(`#dot-${i}`).classed("focus", false);
+      d3.select(`#dot-${i}`).classed("focus", false).attr("class", "dot");
     });
 };
 
@@ -143,8 +142,7 @@ export const drawLeftRightPie = (data) => {
   var margin = { top: 50, right: 0, bottom: 0, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight /
-        (DRAWER_HEIGHT_FACTOR * 1.5) -
+      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
       margin.top -
       margin.bottom; // Use the window's height
   // The radius of the pieplot is half the width or half the height (smallest one). I subtract a bit of margin.
@@ -216,11 +214,10 @@ export const drawLeftRightPie = (data) => {
 };
 
 export const drawPolarityOverAllTime = (chart1, data) => {
-  var margin = { top: 50, right: 10, bottom: 50, left: 10 },
+  var margin = { top: 50, right: 100, bottom: 50, left: 100 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
-      document.querySelector(".drawer").clientHeight /
-        (DRAWER_HEIGHT_FACTOR + 1) -
+      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
       margin.top -
       margin.bottom; // Use the window's height
 
@@ -247,7 +244,7 @@ export const drawAttentionWeights = (data) => {
 
   const maxNumTokens = Math.max(...trigramWeights.map((x) => x.length));
 
-  let rows = `<tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
+  let rows = `<div id="table-scroll"><table><tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
 
   for (let k = 0; k < post.length; k++) {
     // each line
@@ -282,6 +279,6 @@ export const drawAttentionWeights = (data) => {
 
     rows += heat_text + "</tr>";
   }
-  rows += "</tbody>";
+  rows += "</table></tbody></div>";
   document.getElementById("attention-weights").innerHTML += rows;
 };
