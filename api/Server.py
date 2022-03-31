@@ -2,6 +2,48 @@ from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
 import pandas as pd
 import math
+from api.code_inference.task_manager import create_task_manager
+
+'''
+watch -n0.1 nvidia-smi
+
+python main.py -m 3 -t task3_withent
+
+'''
+
+class ModelArgs:
+  embedding_size = 200
+  n_epoch= 3
+  batch_size= 16
+  window_size= 1
+  learning_rate= 0.8
+  basic_model= "skipgram"
+  test_name= "task3_withent"
+  lambda_D= 0.1
+  fixed_seed= 1
+  mode= 3
+  mask_mode= "entities"
+  gpu_id= 0
+
+print("This is not the most recent version of our code\nThe most recent version of our code is kept confidential until paper is accepted\nThanks for your understanding")
+# args = {
+#   "embedding_size": 200,
+#   "n_epoch": 3,
+#   "batch_size": 16,
+#   "window_size": 1,
+#   "learning_rate": 0.8,
+#   "basic_model": "skipgram",
+#   "test_name": "task3_withent",
+#   "lambda_D": 0.1,
+#   "fixed_seed": 1,
+#   "mode": 3,
+#   "mask_mode": "entities",
+#   "gpu_id": 0
+# }
+# print(args)
+
+args = ModelArgs()
+task_manager = create_task_manager(args)
 
 class Server(Resource):
   '''
@@ -13,6 +55,7 @@ class Server(Resource):
     Returning d3 data for timeline graph
     input: relationship
   '''
+
   def get(self):
     parser = reqparse.RequestParser()
     parser.add_argument('type', type=str)
@@ -209,19 +252,13 @@ class Server(Resource):
 
   def post(self):
     parser = reqparse.RequestParser()
-    parser.add_argument('stmt', type=str)
-
+    parser.add_argument('tweet', type=str)
     args = parser.parse_args()
-
-    stmt = args['stmt']
-
-    if stmt:
-      message = 'Your Statement: {}'.format(stmt)
-      status = 200
+    res = task_manager.single_line_test(args.tweet)
+    if res:
+      return jsonify({
+        "polarity": res["polarity"].tolist(),
+        "attention": res["attention"].tolist()
+      })
     else:
-      message = 'No Statement'
-      status = 403
-
-    final_ret = {'status': status, 'message': message}
-
-    return final_ret
+      return jsonify({})
