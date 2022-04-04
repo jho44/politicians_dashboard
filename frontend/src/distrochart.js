@@ -1,3 +1,4 @@
+// https://github.com/asielen/D3_Reusable_Charts/blob/master/distro_chart/distrochart.js
 /**
  * @fileOverview A D3 based distribution chart system. Supports: Box plots, Violin plots, Notched box plots, trend lines, beeswarm plot
  * @version 3.0
@@ -30,7 +31,7 @@ export default function makeDistroChart(settings) {
     xName: null,
     yName: null,
     selector: null,
-    axisLables: null,
+    axisLabels: null,
     yTicks: 1,
     scale: "linear",
     chartSize: { width: 800, height: 400 },
@@ -255,11 +256,11 @@ export default function makeDistroChart(settings) {
       chart.settings.chartSize.height - chart.margin.top - chart.margin.bottom;
 
     if (chart.settings.axisLabels) {
-      chart.xAxisLable = chart.settings.axisLabels.xAxis;
-      chart.yAxisLable = chart.settings.axisLabels.yAxis;
+      chart.xAxisLabel = chart.settings.axisLabels.xAxis;
+      chart.yAxisLabel = chart.settings.axisLabels.yAxis;
     } else {
-      chart.xAxisLable = chart.settings.xName;
-      chart.yAxisLable = chart.settings.yName;
+      chart.xAxisLabel = chart.settings.xName;
+      chart.yAxisLabel = chart.settings.yName;
     }
 
     if (chart.settings.scale === "log") {
@@ -284,6 +285,22 @@ export default function makeDistroChart(settings) {
 
     chart.colorFunct = getColorFunct(chart.settings.colors);
 
+    const keyMapping = {
+      "Q1": "Qtr1",
+      "Q2": "Qtr2",
+      "Q3": "Qtr3",
+      "Q4": "Qtr4",
+    };
+
+    for (const keyPairs of Object.entries(keyMapping)) {
+      const oldKey = keyPairs[0];
+      const newKey = keyPairs[1];
+      if (chart.groupObjs[keyPairs[0]]) {
+        chart.groupObjs[newKey] = chart.groupObjs[oldKey];
+        delete chart.groupObjs[oldKey];
+      }
+    }
+
     // Build Scale functions
     chart.yScale
       .range([chart.height, 0])
@@ -300,7 +317,7 @@ export default function makeDistroChart(settings) {
       .axisLeft(chart.yScale)
       .tickFormat(chart.yFormatter)
       .tickSizeOuter(0)
-      .tickSizeInner(-chart.width + (chart.margin.right + chart.margin.left));
+      .tickSizeInner(-chart.divWidth + (chart.margin.right + chart.margin.left));
     chart.objs.yAxis.tickArguments(
       chart.objs.yAxis.tickArguments() * chart.settings.yTicks
     );
@@ -338,23 +355,6 @@ export default function makeDistroChart(settings) {
       chart.yScale.domain(chart.range).nice().clamp(true);
     }
 
-    //Update axes
-    chart.objs.g
-      .select(".x.axis")
-      .attr("transform", "translate(0," + chart.height + ")")
-      .call(chart.objs.xAxis)
-      .selectAll("text")
-      .attr("y", 5)
-      .attr("x", -5)
-      .attr("transform", "rotate(-45)")
-      .style("text-anchor", "end");
-    chart.objs.g
-      .select(".y.axis")
-      .call(chart.objs.yAxis.tickSizeInner(-chart.width));
-
-    chart.objs.g.select(".x.axis .label").attr("x", chart.width / 2);
-    chart.objs.g.select(".y.axis .label").attr("x", -chart.height / 2);
-
     return chart;
   };
 
@@ -372,7 +372,7 @@ export default function makeDistroChart(settings) {
     chart.objs.innerDiv = chart.objs.mainDiv
       .append("div")
       .attr("class", "inner-wrapper")
-      .style("padding-bottom", "10px");
+      .style("padding-bottom", (chart.divHeight / chart.divWidth) * 100 + "%");
     chart.objs.innerDiv
       .append("div")
       .attr("class", "outer-box")
@@ -388,8 +388,8 @@ export default function makeDistroChart(settings) {
     chart.objs.svg = chart.objs.chartDiv
       .append("svg")
       .attr("class", "chart-area")
-      .attr("width", chart.width + (chart.margin.left + chart.margin.right))
-      .attr("height", chart.height + (chart.margin.top + chart.margin.bottom))
+      .attr("width", chart.width)
+      .attr("height", chart.height)
       .style("overflow", "visible");
     chart.objs.g = chart.objs.svg
       .append("g")
@@ -404,7 +404,14 @@ export default function makeDistroChart(settings) {
       .append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + chart.height + ")")
-      .call(chart.objs.xAxis);
+      .call(chart.objs.xAxis)
+      .append("text")
+      .attr("class", "label")
+      .attr("y", "2.4em")
+      .attr("x", chart.width / 2)
+      .style("text-anchor", "middle")
+      .text(chart.xAxisLabel);
+
     chart.objs.axes
       .append("g")
       .attr("class", "y axis")
@@ -412,22 +419,20 @@ export default function makeDistroChart(settings) {
       .append("text")
       .attr("class", "label")
       .attr("transform", "rotate(-90)")
-      .attr("y", -42)
+      .attr("y", "-3em")
       .attr("x", -chart.height / 2)
-      .attr("dy", ".71em")
-      .style("text-ancohor", "middle")
-      .text(chart.yAxisLable);
+      .style("text-anchor", "middle")
+      .text(chart.yAxisLabel);
 
     // Create tooltip div
-    chart.objs.tooltip = chart.objs.mainDiv
+    chart.objs.tooltip = d3.select("body")
       .append("div")
       .attr("class", "tooltip");
     for (var cName in chart.groupObjs) {
       chart.groupObjs[cName].g = chart.objs.g
         .append("g")
-        .attr("class", "group");
-      chart.groupObjs[cName].g
-        .on("mouseover", function () {
+        .attr("class", "group")
+        .on("mouseover", function (e) {
           chart.objs.tooltip
             .style("display", null)
             .style("left", d3.event.pageX + "px")

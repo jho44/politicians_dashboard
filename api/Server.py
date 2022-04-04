@@ -1,6 +1,7 @@
 from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
 import pandas as pd
+import math
 
 class Server(Resource):
   '''
@@ -65,16 +66,16 @@ class Server(Resource):
         # conservative leaning, R (255, 0, 0)       -- lambda = 13
 
         def get_color(polarity):
+          # y = 255 * e ^ (-x^2 / 12)
+          RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip("0x")
           if polarity > 0:
             # white FFFFFF -> red FF0000 interpolation
-            # (0, 255), (13, 0)  -- y = -255x/13 + 255
-            GB = hex(round(-255 * polarity / 13 + 255)).lstrip("0x")
-            return f'#FF{GB}{GB}'
+            # (0, 255), (13, 0)
+            return f'#FF{RGB_comp}{RGB_comp}'
           else:
             # blue 0000FF -> white FFFFFF interpolation
-            # (-13, 0), (0, 255) -- y = 255x/13 + 255
-            RG = hex(round(255 * polarity / 13 + 255)).lstrip("0x")
-            return f'#{RG}{RG}FF'
+            # (-13, 0), (0, 255)
+            return f'#{RGB_comp}{RGB_comp}FF'
         # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
         colors = mean_polarities.apply(get_color).tolist()
 

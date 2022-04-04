@@ -214,21 +214,24 @@ export const drawLeftRightPie = (data) => {
 };
 
 export const drawPolarityOverAllTime = (chart1, data) => {
-  var margin = { top: 50, right: 100, bottom: 50, left: 100 },
-    width = window.innerWidth - margin.left - margin.right, // Use the window's width
-    height =
-      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
-      margin.top -
-      margin.bottom; // Use the window's height
+  const width = window.innerWidth, // Use the window's width
+  height =
+    document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR;
 
   chart1.current = makeDistroChart({
     data: data.res,
     xName: "qtr",
     yName: "polarity",
-    axisLabels: { xAxis: null, yAxis: "Posts' Quarterly Polarity" },
+    axisLabels: { xAxis: "2020 Quarters", yAxis: "Posts' Quarterly Polarity" },
     selector: "#polarity-over-all-time",
     chartSize: { height, width },
     constrainExtremes: true,
+    margin: {
+      top: 20,
+      bottom: 50,
+      left: width / 5,
+      right: width / 5,
+    }
   });
 
   chart1.current.renderBoxPlot();
@@ -280,5 +283,5 @@ export const drawAttentionWeights = (data) => {
     rows += heat_text + "</tr>";
   }
   rows += "</table></tbody></div>";
-  document.getElementById("attention-weights").innerHTML += rows;
+  document.getElementById("attention-weights").innerHTML = rows;
 };

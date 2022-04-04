@@ -48,27 +48,27 @@ export default function Charts({
             <div>
               <h3>Posts' Polarity over All Time</h3>
               <div id="polarity-over-all-time" />
-            </div>
-            <div className="chart-options">
-              <p>Show: </p>
-              <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
-              <button onClick={() => co.notchedBoxPlot(chart1)}>
-                Notched Box Plot
-              </button>
-              <button onClick={() => co.violinPlotUnbound(chart1)}>
-                Violin Plot Unbound
-              </button>
-              <button onClick={() => co.violinPlotClamp(chart1)}>
-                Violin Plot Clamp to Data
-              </button>
-              <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
-              <button onClick={() => co.beeswarmPlot(chart1)}>
-                Beeswarm Plot
-              </button>
-              <button onClick={() => co.scatterPlot(chart1)}>
-                Scatter Plot
-              </button>
-              <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
+              <div className="chart-options">
+                <p>Show: </p>
+                <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
+                <button onClick={() => co.notchedBoxPlot(chart1)}>
+                  Notched Box Plot
+                </button>
+                <button onClick={() => co.violinPlotUnbound(chart1)}>
+                  Violin Plot Unbound
+                </button>
+                <button onClick={() => co.violinPlotClamp(chart1)}>
+                  Violin Plot Clamp to Data
+                </button>
+                <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
+                <button onClick={() => co.beeswarmPlot(chart1)}>
+                  Beeswarm Plot
+                </button>
+                <button onClick={() => co.scatterPlot(chart1)}>
+                  Scatter Plot
+                </button>
+                <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
+              </div>
             </div>
           </CarouselItem>
         </Carousel>
