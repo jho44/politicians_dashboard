@@ -1,6 +1,7 @@
 from flask import send_file, jsonify
 from flask_restful import Resource, reqparse
 import pandas as pd
+import numpy as np
 import math
 from api.code_inference.task_manager import create_task_manager
 
@@ -62,6 +63,7 @@ class Server(Resource):
     parser.add_argument('account_id', type=int)
     parser.add_argument('start_date', type=int, required=False)
     parser.add_argument('end_date', type=int, required=False)
+    parser.add_argument('curr_time', type=int, required=False)
 
     args = parser.parse_args()
 
@@ -69,8 +71,6 @@ class Server(Resource):
 
     if arg_type == 'whole':
       return send_file('api/politicians.csv')
-    elif arg_type == 'test':
-      return send_file('api/data.csv')
 
     data = pd.read_csv('api/politicians.csv', dtype={'full_text': str, 'mention': object, 'liked_by': object, 'account_id': str})
 
@@ -142,101 +142,25 @@ class Server(Resource):
           'num_right': len(data) - num_left
         })
       elif arg_type == 'attn_weights':
-        # posts = data['full_text']
-        # posts.full_text.str.split(r"[(.\")(?\")(!\")!?.]\s+").values # split into sentences
+        data = data[(data['timestamp'] >= args['curr_time']) & (data['timestamp'] <= args['curr_time'] + 8.64e+7)]
+        # time step is 1 day in milliseconds
+        posts = data['full_text'] #.str.split(r"[(.\")(?\")(!\")!?.]\s+").values # split into sentences
 
-        post = [
-          [
-            "abortion",
-            "access",
-            "is",
-            "health",
-            "care",
-            "period",
-            "as",
-            "co-chair",
-            "of",
-            "the",
-            "pro-choice",
-            "caucus",
-            "i",
-            "will",
-            "fight",
-            "any",
-            "attempt",
-            "to",
-            "interfere",
-            "in",
-            "a",
-            "woman's",
-            "constitutional",
-            "right",
-            "to",
-            "choose",
-            "#sotu",
-          ],
-          [
-            "being",
-            "pro-life",
-            "is",
-            "wanting",
-            "the",
-            "most",
-            "for",
-            "women",
-            "and",
-            "their",
-            "children",
-            "it",
-            "is",
-            "recognizing",
-            "every",
-            "person",
-            "deserves",
-            "a",
-            "chance",
-            "to",
-            "live",
-            "#whywemarch",
-          ],
-        ]
+        results = []
+        for post in posts:
+          res = task_manager.single_line_test(post)
 
-        trigram_weights = [
-          [
-            0.11000392350720457, 0.027753256063696836, 0.0, 0.01698094704034859,
-            0.00040684266706241375, 0.022323664106730277, 0.0, 0.4905698025174466,
-            0.0, 0.0, 0.2888449640949988, 0.016011572708793265,
-            0.005453279524286329, 0.0, 0.0, 0.0, 0.001411262989865475, 0.0, 0.0,
-            0.0, 0.0, 0.0, 0.0, 0.009968161550774558, 0.0, 0.0,
-            0.010272323228792273,
-          ],
-          [
-            0.0, 0.07315461940729052, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0739448001194151,
-            0.0, 0.0, 0.013475237893787894, 0.0, 0.0, 0.0, 0.0, 0.02260653998362492,
-            0.0, 0.0, 0.01404085112697572, 0.0, 0.0, 0.8027779514689058,
-          ],
-        ]
+          if res:
+            results.append({
+              "raw_tweet": post,
+              "processedTweet": res["processed_tweet"],
+              "tweetScore": 1.*np.float32(res["polarity"]),
+              "attention": res["attention"].tolist(),
+            })
+          else:
+            results.append(None)
 
-        polarity_scores = [
-          [
-            1.19, -3.98, -0.16, -5.94, -2.34, -0.35, 0.44, 0.39, 0.59, 1.05, -2.65,
-            -3.79, 0.92, 1.12, -5.24, 0.98, -2.91, -0.02, -2.24, 0.25, -0.66, -8.36,
-            4.22, -0.42, -0.02, -1.4, 3.8,
-          ],
-          [
-            -0.08, 16.87, -0.16, 5.4, 1.05, 1.0, 0.14, -5.04, 0.88, -0.26, -6.58,
-            -0.3, -0.16, 1.51, -4.36, -1.4, -4.22, -0.66, -1.29, -0.02, -0.64, 4.92,
-          ],
-        ]
-
-        sentence_scores = [-0.369, 1.832]
-
-        return jsonify({
-          'post': post,
-          'trigramWeights': trigram_weights,
-          'polarityScores': polarity_scores,
-          'sentenceScores': sentence_scores,
-        })
+          return results
       else: # arg_type == 'post_polarity'
         data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms')
         data.drop('timestamp', axis=1, inplace=True)

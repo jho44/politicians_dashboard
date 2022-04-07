@@ -66,18 +66,18 @@ function App() {
    *
    *  (to come) attention weights of posts in this time step / user-specified time range
    */
-  const handleNodeClick = (accountId, start, end) => {
+  const handleNodeClick = (accountId, start, end, currTime) => {
     setAccId(accountId);
     setOpenDrawer(true);
 
     fetch(
-      start && end
-        ? `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}`
+      `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}&curr_time=${currTime}`
     )
       .then((res) => res.json())
       .then((res) => {
-        drawAttentionWeights(res);
+        for (const post of res) {
+          drawAttentionWeights(post);
+        }
       })
       .catch((err) => console.error(err));
 

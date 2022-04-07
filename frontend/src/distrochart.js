@@ -286,10 +286,10 @@ export default function makeDistroChart(settings) {
     chart.colorFunct = getColorFunct(chart.settings.colors);
 
     const keyMapping = {
-      "Q1": "Qtr1",
-      "Q2": "Qtr2",
-      "Q3": "Qtr3",
-      "Q4": "Qtr4",
+      Q1: "Qtr1",
+      Q2: "Qtr2",
+      Q3: "Qtr3",
+      Q4: "Qtr4",
     };
 
     for (const keyPairs of Object.entries(keyMapping)) {
@@ -317,7 +317,9 @@ export default function makeDistroChart(settings) {
       .axisLeft(chart.yScale)
       .tickFormat(chart.yFormatter)
       .tickSizeOuter(0)
-      .tickSizeInner(-chart.divWidth + (chart.margin.right + chart.margin.left));
+      .tickSizeInner(
+        -chart.divWidth + (chart.margin.right + chart.margin.left)
+      );
     chart.objs.yAxis.tickArguments(
       chart.objs.yAxis.tickArguments() * chart.settings.yTicks
     );
@@ -425,7 +427,8 @@ export default function makeDistroChart(settings) {
       .text(chart.yAxisLabel);
 
     // Create tooltip div
-    chart.objs.tooltip = d3.select("body")
+    chart.objs.tooltip = d3
+      .select("body")
       .append("div")
       .attr("class", "tooltip");
     for (var cName in chart.groupObjs) {

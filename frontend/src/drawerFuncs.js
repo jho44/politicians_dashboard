@@ -215,8 +215,7 @@ export const drawLeftRightPie = (data) => {
 
 export const drawPolarityOverAllTime = (chart1, data) => {
   const width = window.innerWidth, // Use the window's width
-  height =
-    document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR;
+    height = document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR;
 
   chart1.current = makeDistroChart({
     data: data.res,
@@ -231,7 +230,7 @@ export const drawPolarityOverAllTime = (chart1, data) => {
       bottom: 50,
       left: width / 5,
       right: width / 5,
-    }
+    },
   });
 
   chart1.current.renderBoxPlot();
@@ -243,45 +242,41 @@ export const drawPolarityOverAllTime = (chart1, data) => {
 export const drawAttentionWeights = (data) => {
   // credit to Patricia for this part's skeleton
 
-  const { post, trigramWeights, polarityScores, sentenceScores } = data;
+  const { raw_tweet, attention, tweetScore, processedTweet } = data;
 
-  const maxNumTokens = Math.max(...trigramWeights.map((x) => x.length));
+  const words = processedTweet.split(" ");
+  const maxNumTokens = attention.length;
 
-  let rows = `<div id="table-scroll"><table><tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
+  let rows = `<p>${raw_tweet}</p><div id="table-scroll"><table><tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
 
-  for (let k = 0; k < post.length; k++) {
-    // each line
-    // whole tweet's polarity score + tweet sentence
-    rows += "<tr>";
+  // whole tweet's polarity score + tweet sentence
+  rows += "<tr>";
 
-    const tokens = post[k];
+  var heat_text = `<td>${tweetScore}</td>`;
 
-    var heat_text = `<td>${sentenceScores[k]}</td>`;
-
-    for (let i = 0; i < tokens.length; i++) {
-      heat_text += `<td><span style='background-color:rgba(${ATTN_COLOR}, ${
-        trigramWeights[k][i] * 15
-      })'>${tokens[i]}</span></td>`;
-    }
-
-    rows += heat_text + "</tr><tr>";
-
-    // polarity scores line
-
-    heat_text = "<th>Polarity</th>";
-    for (let j = 0; j < polarityScores[k].length; j++) {
-      const score = polarityScores[k][j];
-      heat_text += `<td><span style='font-size:${
-        trigramWeights[k][j] * 100 < 7 ? "small" : "16"
-      }'>${score}</span></td>`;
-    }
-
-    for (let j = tokens.length; j < maxNumTokens; j++) {
-      heat_text += "<td />";
-    }
-
-    rows += heat_text + "</tr>";
+  for (let i = 0; i < words.length; i++) {
+    heat_text += `<td><span style='background-color:rgba(${ATTN_COLOR}, ${
+      attention[i] * 15
+    })'>${words[i]}</span></td>`;
   }
+
+  rows += heat_text + "</tr><tr>";
+
+  // polarity scores line
+  heat_text = "<th>Polarity</th>";
+  for (let j = 0; j < attention.length; j++) {
+    const score = attention[j];
+    heat_text += `<td><span style='font-size:${
+      attention[j] * 100 < 7 ? "small" : "16"
+    }'>${score}</span></td>`;
+  }
+
+  for (let j = words.length; j < maxNumTokens; j++) {
+    heat_text += "<td />";
+  }
+
+  rows += heat_text + "</tr>";
+
   rows += "</table></tbody></div>";
   document.getElementById("attention-weights").innerHTML = rows;
 };

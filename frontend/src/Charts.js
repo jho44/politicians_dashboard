@@ -30,10 +30,9 @@ export default function Charts({
                 that point in time.
               </p>
               <p>
-                The bluer it is, the more liberal-leaning
-                the posts there were. The redder it is, the more
-                conservative-leaning the posts there were. White signifies a
-                more neutral position.
+                The bluer it is, the more liberal-leaning the posts there were.
+                The redder it is, the more conservative-leaning the posts there
+                were. White signifies a more neutral position.
               </p>
             </div>
           </CarouselItem>
@@ -67,7 +66,9 @@ export default function Charts({
                 <button onClick={() => co.scatterPlot(chart1)}>
                   Scatter Plot
                 </button>
-                <button onClick={() => co.trendLines(chart1)}>Trend Lines</button>
+                <button onClick={() => co.trendLines(chart1)}>
+                  Trend Lines
+                </button>
               </div>
             </div>
           </CarouselItem>

@@ -63,12 +63,16 @@ const Timeline = ({
 
   const inst = useMemo(() => {
     const nodes = {};
+    let lastDay = 0;
+    let firstDay = Infinity;
 
     return d3
       .csv("http://localhost:5000/flask?type=whole")
       .then(function (rows) {
         rows.forEach((d) => {
-          const thisDay = Math.round(d.timestamp / COEFF) * COEFF;
+          const thisDay = Math.floor(d.timestamp / COEFF) * COEFF;
+          if (thisDay > lastDay) lastDay = thisDay;
+          if (thisDay < firstDay) firstDay = thisDay;
           nodes[`${d.account_id}.${thisDay}`] = {
             label: d.account_id,
             time: thisDay,
@@ -103,8 +107,8 @@ const Timeline = ({
       })
       .then(function () {
         const nodeVals = Object.values(nodes);
-        globalStartTime.current = new Date(nodeVals[nodeVals.length - 1].time);
-        globalEndTime.current = new Date(nodeVals[0].time);
+        globalStartTime.current = new Date(firstDay);
+        globalEndTime.current = new Date(lastDay);
         console.log("start: ", +globalStartTime.current);
         console.log("end: ", +globalEndTime.current);
         setDateRange({
@@ -345,7 +349,7 @@ const Timeline = ({
       var currentValue =
         ((+firstDate - startDate) / (endDate - startDate)) * width; // map startDate to 0, endDate to width
 
-      var playButton = d3.select("#play-button");
+      var playButton = d3.select("#play-button > div");
 
       var x = d3
         .scaleTime()
@@ -584,7 +588,12 @@ const Timeline = ({
 
   async function click(d) {
     if (d3.event.defaultPrevented) return; // ignore drag
-    handleNodeClick(d.label, trueStart.current, trueEnd.current);
+    handleNodeClick(
+      d.label,
+      trueStart.current,
+      trueEnd.current,
+      currTime.current
+    );
 
     const relation = d[propertyName.current];
     if (relation) {

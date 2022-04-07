@@ -1,4 +1,3 @@
-from ssl import ALERT_DESCRIPTION_ACCESS_DENIED
 import torch
 import torch.optim as optim
 
@@ -74,9 +73,9 @@ class TaskManager(object):
         self.load()
         self.model.eval()
 
-        print("Raw Tweet:", raw_tweet)
+        # print("Raw Tweet:", raw_tweet)
         tweet_content, _ = process_raw_tweet(raw_tweet)
-        print("Processed:", tweet_content)
+        # print("Processed:", tweet_content)
         f_tmp = "api/code_inference/tmp.txt"
 
         with open(f_tmp, "w") as f:
@@ -90,14 +89,12 @@ class TaskManager(object):
         attended_polarity = None
         if len(lines) > 0:
             user_data = self.data_loader.sample_lines(lines, entities)
-            print(user_data)
             if user_data:
                 attended_polarity, _, attn_flattened = self.model(user_data)
 
         if attended_polarity and len(attended_polarity):
-            print("Polarity :", attended_polarity[0]) # we only have 1 element
-            print("Attention:", attn_flattened[0,:])
             return {
+                "processed_tweet": tweet_content,
                 "polarity": attended_polarity[0],
                 "attention": attn_flattened[0,:]
             }
