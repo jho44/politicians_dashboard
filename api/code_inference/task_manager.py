@@ -90,13 +90,14 @@ class TaskManager(object):
         if len(lines) > 0:
             user_data = self.data_loader.sample_lines(lines, entities)
             if user_data:
-                attended_polarity, _, attn_flattened = self.model(user_data)
+                attended_polarity, _, attn_flattened, raw_polarity = self.model(user_data)
 
         if attended_polarity and len(attended_polarity):
             return {
                 "processed_tweet": tweet_content,
                 "polarity": attended_polarity[0],
-                "attention": attn_flattened[0,:]
+                "attention": attn_flattened[0,:],
+                "raw_polarity": raw_polarity[0,:],
             }
         else:
             return {}

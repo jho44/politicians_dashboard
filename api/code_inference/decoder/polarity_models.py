@@ -60,7 +60,7 @@ class AttendedPolarity(torch.nn.Module):
 
         if not self.training: # built-in function
             # in evaluation mode
-            return attended_polarity, labels, attn_flattened
+            return attended_polarity, labels, attn_flattened, raw_polarity
         loss = self.loss_fn(attended_polarity, labels) #+ self.loss_reg(encoder, sentences)
         return loss
 

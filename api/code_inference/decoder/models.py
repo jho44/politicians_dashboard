@@ -43,12 +43,14 @@ class MTLModel(nn.Module):
         if not self.training:
             # in evaluation mode
             if phase == "M":
-                attended_polarity, labels, attn_flattened = self.polarity_model(self.encoder, data_sentense)
+                attended_polarity, labels, attn_flattened, raw_polarity = self.polarity_model(self.encoder, data_sentense)
+                return np.nan_to_num(attended_polarity.cpu().detach().numpy()), labels.cpu().detach().numpy() if labels is not None else labels, \
+                    np.nan_to_num(attn_flattened.cpu().detach().numpy()), np.nan_to_num(raw_polarity.cpu().detach().numpy())
             else:
                 attended_polarity, labels, attn_flattened = self.discriminator(self.encoder, data_sentense)
             # return np.nan_to_num(attended_polarity.cpu().detach().numpy(), nan=0.), labels.cpu().detach().numpy() if labels is not None else labels
-            return np.nan_to_num(attended_polarity.cpu().detach().numpy()), labels.cpu().detach().numpy() if labels is not None else labels, \
-                    np.nan_to_num(attn_flattened.cpu().detach().numpy())
+                return np.nan_to_num(attended_polarity.cpu().detach().numpy()), labels.cpu().detach().numpy() if labels is not None else labels, \
+                        np.nan_to_num(attn_flattened.cpu().detach().numpy())
         # if in training mode
         if phase == "D":
             # training the discriminator

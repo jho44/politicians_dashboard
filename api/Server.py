@@ -27,21 +27,6 @@ class ModelArgs:
   gpu_id= 0
 
 print("This is not the most recent version of our code\nThe most recent version of our code is kept confidential until paper is accepted\nThanks for your understanding")
-# args = {
-#   "embedding_size": 200,
-#   "n_epoch": 3,
-#   "batch_size": 16,
-#   "window_size": 1,
-#   "learning_rate": 0.8,
-#   "basic_model": "skipgram",
-#   "test_name": "task3_withent",
-#   "lambda_D": 0.1,
-#   "fixed_seed": 1,
-#   "mode": 3,
-#   "mask_mode": "entities",
-#   "gpu_id": 0
-# }
-# print(args)
 
 args = ModelArgs()
 task_manager = create_task_manager(args)
@@ -153,6 +138,7 @@ class Server(Resource):
           if res:
             results.append({
               "raw_tweet": post,
+              "tokenPolarities": res["raw_polarity"].tolist(),
               "processedTweet": res["processed_tweet"],
               "tweetScore": 1.*np.float32(res["polarity"]),
               "attention": res["attention"].tolist(),

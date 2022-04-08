@@ -242,7 +242,8 @@ export const drawPolarityOverAllTime = (chart1, data) => {
 export const drawAttentionWeights = (data) => {
   // credit to Patricia for this part's skeleton
 
-  const { raw_tweet, attention, tweetScore, processedTweet } = data;
+  const { raw_tweet, attention, tweetScore, processedTweet, tokenPolarities } =
+    data;
 
   const words = processedTweet.split(" ");
   const maxNumTokens = attention.length;
@@ -264,10 +265,10 @@ export const drawAttentionWeights = (data) => {
 
   // polarity scores line
   heat_text = "<th>Polarity</th>";
-  for (let j = 0; j < attention.length; j++) {
-    const score = attention[j];
+  for (let j = 0; j < tokenPolarities.length; j++) {
+    const score = tokenPolarities[j];
     heat_text += `<td><span style='font-size:${
-      attention[j] * 100 < 7 ? "small" : "16"
+      tokenPolarities[j] * 100 < 7 ? "small" : "16"
     }'>${score}</span></td>`;
   }
 
