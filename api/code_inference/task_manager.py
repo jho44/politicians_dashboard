@@ -114,8 +114,6 @@ class TaskManager(object):
         directory = self.directory
         device_name = 'cuda:{}'.format(self.gpu_id) if self.cuda else 'cpu'
         device = torch.device(device_name)
-        print("loading...")
-        print("\tparameters")
         # model = torch.load(os.path.join(directory, model_file))
         checkpoint = torch.load(os.path.join(directory, model_file), map_location=torch.device(device_name))
         model = checkpoint["state_dict"]

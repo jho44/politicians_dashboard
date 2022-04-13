@@ -165,10 +165,14 @@ class Server(Resource):
     parser.add_argument('tweet', type=str)
     args = parser.parse_args()
     res = task_manager.single_line_test(args.tweet)
+
     if res:
       return jsonify({
-        "polarity": res["polarity"].tolist(),
-        "attention": res["attention"].tolist()
+        "rawTweet": args.tweet,
+        "tokenPolarities": res["raw_polarity"].tolist(),
+        "processedTweet": res["processed_tweet"],
+        "tweetScore": 1.*np.float32(res["polarity"]),
+        "attention": res["attention"].tolist(),
       })
     else:
-      return jsonify({})
+      return None
