@@ -13,9 +13,9 @@ import numpy as np
 import threading
 from threading import Thread
 import time
-import aiohttp
+from api.code_inference.task_manager import create_task_manager
 import asyncio
-import csv
+import datetime
 
 load_dotenv()
 
@@ -46,6 +46,24 @@ query_params = {
 data_lock = threading.Lock()
 likers_lock = threading.Lock()
 data = []
+actual_csv = pd.read_csv("./boop.csv", engine="python")
+
+class ModelArgs:
+  embedding_size = 200
+  n_epoch= 3
+  batch_size= 16
+  window_size= 1
+  learning_rate= 0.8
+  basic_model= "skipgram"
+  test_name= "task3_withent"
+  lambda_D= 0.1
+  fixed_seed= 1
+  mode= 3
+  mask_mode= "entities"
+  gpu_id= 0
+
+args = ModelArgs()
+task_manager = create_task_manager(args)
 
 # https://github.com/twitterdev/Twitter-API-v2-sample-code/blob/main/Recent-Search/recent_search.py
 def bearer_oauth(r, token):
@@ -56,60 +74,91 @@ def bearer_oauth(r, token):
     r.headers["User-Agent"] = "v2RecentSearchPython"
     return r
 
-def save_to_csv():
-    with open(r'boop.csv', 'a') as f:
-        writer = csv.writer(f)
+def save_to_csv(): # saves newest tweets to csv
+    global data
+    data_lock.acquire()
+    df = pd.DataFrame(data, columns = [
+        'timestamp',        # entry['created_at'],
+        'full_text',        # entry['text'],
+        'tweet_id',         # entry['id'],
+        'account_id',       # entry['author_id'],
+        'username',         # users_map[entry['author_id']],
+        'mention',          # mentions[0:-1] if len(mentions) else float('nan'),
+        'retweet_from',     # retweet_from[0:-1] if len(retweet_from) else float('nan'),
+        'liked_by',          # likers,
+        'polarity',         # x.json()['tweetScore'] if x.json() else 0,
+    ])
+    df['timestamp'] = pd.to_datetime(df['timestamp']).view(np.int64) // 10**9
+    df.to_csv('boop.csv', mode='a', index=False, header=False)
 
-        for row in data:
-            writer.writerow(row)
+    global actual_csv
+    actual_csv = pd.read_csv("./boop.csv", engine="python")
 
-        data = []
+    data = []
+    data_lock.release()
 
-def connect_to_endpoint(url, params, token):
+def get_first_null_polarity_row_index():
+    global actual_csv
+    for row in actual_csv.itertuples():
+        if row.polarity == 'a':
+            return row.Index
+
+    return None
+
+async def set_polarity(ind, row, start_index):
+    global actual_csv
+    if ind % 100 == 0:
+        ct = datetime.datetime.now()
+        print(start_index + ind, ct)
+    res = task_manager.single_line_test(row)
+
+    actual_csv.at[start_index + ind, 'polarity'] = 1.*np.float32(res["polarity"]) if res else float('nan')
+
+async def set_null_polarities():
+    global actual_csv
+    start_index = get_first_null_polarity_row_index()
+    print("start_index: ", start_index)
+
+    if start_index == None:
+        return
+
+    statements = [set_polarity(ind, row, start_index) for ind, row in enumerate(actual_csv['full_text'][start_index:start_index+1250])]
+    await asyncio.gather(*statements)
+
+    actual_csv.to_csv("./boop.csv", index=False)
+
+async def connect_to_endpoint(url, params, token):
     response = None
+    tries_ctr = 0
     while True:
         response = requests.get(url, auth=lambda r: bearer_oauth(r, token), params=params)
         if response.status_code == 429:
             print('waiting')
-            save_to_csv()
-            time.sleep(60 * 15) # wait 15 mins before trying again, to get around rate limit
-            print('done waiting')
+            t = WaitingThread()
+
+            if tries_ctr >= 2:
+                t.start() # wait 15 mins before trying again, to get around rate limit
+                save_to_csv()
+                await set_null_polarities()
+                t.join()
+                print('done waiting')
+            else:
+                time.sleep(2)
+                tries_ctr += 1
         elif response.status_code != 200:
             raise Exception(response.status_code, response.text)
         else:
             return response.json()
 
-def response_status_200(response):
-    if response.status == 429:
-        print('waiting')
-        save_to_csv()
-        time.sleep(60 * 15) # wait 15 mins before trying again, to get around rate limit
-        print('done waiting')
-        return 0
-    elif response.status != 200:
-        raise Exception(response.status, response.text)
-    else:
-        return 1 # Done
-
 def get_likers(users_set, tweet_id):
     likers = []
     query_params = {}
-    # headers =  {'User-Agent': 'v2RecentSearchPython','Authorization': f"Bearer {oauth_bearer_token}"}
-    # async with aiohttp.ClientSession() as session:
-    # while True: # break when run out of pages of results to go through
-    json_response = None
-    while True: # keep trying same request till it returns 200 response
-        # async with session.get(f'https://api.twitter.com/2/tweets/{tweet_id}/liking_users', headers=headers, params=query_params) as response:
-        json_response = connect_to_endpoint(f'https://api.twitter.com/2/tweets/{tweet_id}/liking_users', query_params, oauth_bearer_token)
-        # if response_status_200(response):
-            # json_response = await response.json()
-            # json_response = response.json()
-        break
+
+    json_response = connect_to_endpoint(f'https://api.twitter.com/2/tweets/{tweet_id}/liking_users', query_params, oauth_bearer_token)
 
     if 'data' not in json_response:
         print('no data')
         return float('nan')
-        # break
 
     for user in json_response['data']:
         if user['id'] in users_set:
@@ -117,18 +166,54 @@ def get_likers(users_set, tweet_id):
             likers.append(user['username'])
             if len(likers) > 5:
                 return ','.join(likers)
-                # likers_lock.release()
-                # break
-            # likers_lock.release()
-
-    # if 'next_token' not in json_response['meta'].keys():
-    #     break
-
-    # query_params['pagination_token'] = json_response['meta']['next_token']
 
     return ','.join(likers) if len(likers) else float('nan')
 
 # def rehydrate_db():
+
+async def process_entry(entry, relationship, users_map, users_set, retweets_map):
+    mentions = ""
+    if '-has:mentions' not in relationship: # if it has a mention
+        if 'entities' in entry.keys():
+            for mention in entry['entities']['mentions']:
+                if mention['id'] in users_map:
+                    mentions += users_map[mention['id']] + ','
+                else: # mentioned user's acc was prob suspended
+                    continue
+        else: # doesn't include a mention for some reason so just skip this for the -has:mentions query
+            return
+
+    retweet_from = ""
+    if '-is:retweet' not in relationship: # if it's a retweet
+        for ref_tweet in entry['referenced_tweets']:
+            if ref_tweet['type'] == 'retweeted' and ref_tweet['id'] in users_set:
+                retweet_from += retweets_map[ref_tweet['id']] + ','
+
+    # figure out who liked this tweet
+    likers = None
+    # likers = float('nan')
+    # if '-is:retweet' in relationship: # if it's not a retweet
+    #     likers = get_likers(users_set, entry['id'])
+
+    data_lock.acquire()
+    data.append([
+        entry['created_at'],
+        entry['text'],
+        entry['id'],
+        entry['author_id'],
+        users_map[entry['author_id']],
+        mentions[0:-1] if len(mentions) else float('nan'),
+        retweet_from[0:-1] if len(retweet_from) else float('nan'),
+        likers,
+        'a'
+    ])
+    data_lock.release()
+
+    return
+
+class WaitingThread(Thread):
+    def run(self):
+        time.sleep(60 * 15)
 
 class RehydrationThread(Thread):
     async def actual_work(self):
@@ -162,102 +247,41 @@ class RehydrationThread(Thread):
         all the query combinations:
         mentions, retweet
         '''
-        headers =  {'User-Agent': 'v2RecentSearchPython','Authorization': f"Bearer {bearer_token}"}
         for query in queries:
             for relationship in ['has:mentions is:retweet', 'has:mentions -is:retweet', '-has:mentions is:retweet']:
                 query_params['query'] = f'({query}) is:verified {relationship}'
                 print(query)
                 print(relationship)
 
-                async with aiohttp.ClientSession() as session:
-                    while True: # break when run out of pages of results to go through
-                        json_response = None
-                        while True: # keep trying same request till it returns 200 response
-                            async with session.get(search_url, headers=headers, params=query_params) as response:
-                                if response_status_200(response):
-                                    json_response = await response.json()
-                                    break
+                while True: # break when run out of pages of results to go through
+                    json_response = await connect_to_endpoint(search_url, query_params, bearer_token)
 
-                        if 'data' not in json_response:
-                            break
+                    if 'data' not in json_response:
+                        break
 
-                        users_map = {} # maps mentioned ID to mentioned username
-                        for user in json_response['includes']['users']:
-                            if user['id'] in users_set: # only want mentions of users we're interested in
-                                users_map[user['id']] = user['username']
+                    users_map = {} # maps mentioned ID to mentioned username
+                    for user in json_response['includes']['users']:
+                        if user['id'] in users_set: # only want mentions of users we're interested in
+                            users_map[user['id']] = user['username']
 
-                        retweets_map = {} # maps retweet ID to retweeted author ID
-                        if '-is:retweet' not in relationship: # if it's a retweet
-                            for retweet in json_response['includes']['tweets']:
-                                if retweet['author_id'] in users_set:
-                                    retweets_map[retweet['id']] = retweet['author_id']
+                    retweets_map = {} # maps retweet ID to retweeted author ID
+                    if '-is:retweet' not in relationship: # if it's a retweet
+                        for retweet in json_response['includes']['tweets']:
+                            if retweet['author_id'] in users_set:
+                                retweets_map[retweet['id']] = retweet['author_id']
 
-                        for entry in json_response['data']:
-                            mentions = ""
-                            if '-has:mentions' not in relationship: # if it has a mention
-                                if 'entities' in entry.keys():
-                                    for mention in entry['entities']['mentions']:
-                                        if mention['id'] in users_map:
-                                            mentions += users_map[mention['id']] + ','
-                                        else: # mentioned user's acc was prob suspended
-                                            continue
-                                else: # doesn't include a mention for some reason so just skip this for the -has:mentions query
-                                    continue
+                    statements = [process_entry(entry, relationship, users_map, users_set, retweets_map) for entry in json_response['data']]
+                    await asyncio.gather(*statements)
 
-                            retweet_from = ""
-                            if '-is:retweet' not in relationship: # if it's a retweet
-                                for ref_tweet in entry['referenced_tweets']:
-                                    if ref_tweet['type'] == 'retweeted' and ref_tweet['id'] in users_set:
-                                        retweet_from += retweets_map[ref_tweet['id']] + ','
+                    if 'next_token' not in json_response['meta'].keys():
+                        if 'next_token' in query_params:
+                            del query_params['next_token']
+                        break
 
-                            # figure out who liked this tweet
-                            likers = float('nan')
-                            if '-is:retweet' in relationship: # if it's not a retweet
-                                likers = get_likers(users_set, entry['id'])
+                    query_params['next_token'] = json_response['meta']['next_token']
+                    print("next_token: " + json_response['meta']['next_token'])
 
-                            # get whole-tweet polarity score
-                            i = 0
-                            async with session.post('http://localhost:5000/flask', json={"tweet": entry['text']}) as x:
-                                if not (i % 100):
-                                    print(i)
-                                # x = requests.post('http://localhost:5000/flask', data={"tweet": entry['text']})
-                                res = await x.json()
-                                data_lock.acquire()
-                                data.append([
-                                    entry['created_at'],
-                                    res['tweetScore'] if res else 0,
-                                    entry['text'],
-                                    entry['id'],
-                                    entry['author_id'],
-                                    users_map[entry['author_id']],
-                                    mentions[0:-1] if len(mentions) else float('nan'),
-                                    retweet_from[0:-1] if len(retweet_from) else float('nan'),
-                                    likers,
-                                ])
-                                data_lock.release()
-                                i += 1
-
-                        if 'next_token' not in json_response['meta'].keys():
-                            if 'next_token' in query_params:
-                                del query_params['next_token']
-                            break
-
-                        query_params['next_token'] = json_response['meta']['next_token']
-                        print("next_token: " + json_response['meta']['next_token'])
-
-        df = pd.DataFrame(data, columns = [
-            'timestamp',        # entry['created_at'],
-            'polarity',         # x.json()['tweetScore'] if x.json() else 0,
-            'full_text',        # entry['text'],
-            'tweet_id',         # entry['id'],
-            'account_id',       # entry['author_id'],
-            'username',         # users_map[entry['author_id']],
-            'mention',          # mentions[0:-1] if len(mentions) else float('nan'),
-            'retweet_from',     # retweet_from[0:-1] if len(retweet_from) else float('nan'),
-            'liked_by'          # likers,
-        ])
-        df['timestamp'] = pd.to_datetime(df['timestamp']).view(np.int64) // 10**9
-        df.to_csv("boop.csv", index=False)
+        save_to_csv()
         print('done')
 
     def run(self):
