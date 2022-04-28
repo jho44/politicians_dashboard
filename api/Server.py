@@ -1,9 +1,9 @@
-from flask import send_file, jsonify
+from flask import send_file, jsonify, request
 from flask_restful import Resource, reqparse
 import pandas as pd
 import numpy as np
 import math
-from api.code_inference.task_manager import create_task_manager
+from os import path
 
 '''
 watch -n0.1 nvidia-smi
@@ -12,24 +12,10 @@ python main.py -m 3 -t task3_withent
 
 '''
 
-class ModelArgs:
-  embedding_size = 200
-  n_epoch= 3
-  batch_size= 16
-  window_size= 1
-  learning_rate= 0.8
-  basic_model= "skipgram"
-  test_name= "task3_withent"
-  lambda_D= 0.1
-  fixed_seed= 1
-  mode= 3
-  mask_mode= "entities"
-  gpu_id= 0
-
 print("This is not the most recent version of our code\nThe most recent version of our code is kept confidential until paper is accepted\nThanks for your understanding")
 
-args = ModelArgs()
-task_manager = create_task_manager(args)
+TMP_CSV = 'api/tmp.csv'
+FINAL_CSV = 'api/final.csv'
 
 class Server(Resource):
   '''
@@ -42,30 +28,29 @@ class Server(Resource):
     input: relationship
   '''
 
-  def get(self):
-    parser = reqparse.RequestParser()
-    parser.add_argument('type', type=str)
-    parser.add_argument('account_id', type=int)
-    parser.add_argument('start_date', type=int, required=False)
-    parser.add_argument('end_date', type=int, required=False)
-    parser.add_argument('curr_time', type=int, required=False)
+  def __init__(self, task_manager):
+    self.task_manager = task_manager
 
-    args = parser.parse_args()
+  def get(self):
+    args = request.args
 
     arg_type = args['type']
 
+    desired_file = TMP_CSV if not path.exists(FINAL_CSV) and path.exists(TMP_CSV) else FINAL_CSV
+    # in case there's a req while file is being renamed after rehydration
     if arg_type == 'whole':
-      return send_file('api/politicians.csv')
+      return send_file(desired_file)
 
-    data = pd.read_csv('api/politicians.csv', dtype={'full_text': str, 'mention': object, 'liked_by': object, 'account_id': str})
+    desired_file = TMP_CSV if not path.exists(FINAL_CSV) and path.exists(TMP_CSV) else FINAL_CSV
+    data = pd.read_csv(desired_file, dtype={'full_text': str, 'mention': object, 'liked_by': object, 'username': str})
 
-    if arg_type == 'account_ids':
+    if arg_type == 'usernames':
       return jsonify({
-        'account_ids': data['account_id'].unique().tolist()
+        'usernames': data['username'].unique().tolist()
       })
     else :
-      data = data[data['account_id'] == str(args['account_id'])]
-      if args['start_date']:
+      data = data[data['username'] == args['username']]
+      if 'start_date' in args:
         data = data[(data['timestamp'] >= args['start_date']) & (data['timestamp'] <= args['end_date'])]
 
       if arg_type == 'num_posts_over_time':
@@ -127,13 +112,14 @@ class Server(Resource):
           'num_right': len(data) - num_left
         })
       elif arg_type == 'attn_weights':
-        data = data[(data['timestamp'] >= args['curr_time']) & (data['timestamp'] <= args['curr_time'] + 8.64e+7)]
+        curr_time = int(args['curr_time'])
+        data = data[(data['timestamp'] >= curr_time) & (data['timestamp'] <= curr_time + 8.64e+7)]
         # time step is 1 day in milliseconds
         posts = data['full_text'] #.str.split(r"[(.\")(?\")(!\")!?.]\s+").values # split into sentences
 
         results = []
         for post in posts:
-          res = task_manager.single_line_test(post)
+          res = self.task_manager.single_line_test(post)
 
           if res:
             results.append({
@@ -161,10 +147,8 @@ class Server(Resource):
         })
 
   def post(self):
-    parser = reqparse.RequestParser()
-    parser.add_argument('tweet', type=str)
-    args = parser.parse_args()
-    res = task_manager.single_line_test(args.tweet)
+    args = request.args
+    res = self.task_manager.single_line_test(args.tweet)
 
     if res:
       return jsonify({

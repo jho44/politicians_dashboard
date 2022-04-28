@@ -66,12 +66,12 @@ function App() {
    *
    *  (to come) attention weights of posts in this time step / user-specified time range
    */
-  const handleNodeClick = (accountId, start, end, currTime) => {
-    setAccId(accountId);
+  const handleNodeClick = (username, start, end, currTime) => {
+    setAccId(username);
     setOpenDrawer(true);
 
     fetch(
-      `http://localhost:5000/flask?type=attn_weights&account_id=${accountId}&curr_time=${currTime}`
+      `http://localhost:5000/flask?type=attn_weights&username=${username}&curr_time=${currTime}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -83,8 +83,8 @@ function App() {
 
     fetch(
       start && end
-        ? `http://localhost:5000/flask?type=num_posts_over_time&account_id=${accountId}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_posts_over_time&account_id=${accountId}`
+        ? `http://localhost:5000/flask?type=num_posts_over_time&username=${username}&start_date=${start}&end_date=${end}`
+        : `http://localhost:5000/flask?type=num_posts_over_time&username=${username}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -94,8 +94,8 @@ function App() {
 
     fetch(
       start && end
-        ? `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_left_right_posts&account_id=${accountId}`
+        ? `http://localhost:5000/flask?type=num_left_right_posts&username=${username}&start_date=${start}&end_date=${end}`
+        : `http://localhost:5000/flask?type=num_left_right_posts&username=${username}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -104,7 +104,7 @@ function App() {
       .catch((err) => console.error(err));
 
     fetch(
-      `http://localhost:5000/flask?type=post_polarity&account_id=${accountId}`
+      `http://localhost:5000/flask?type=post_polarity&username=${username}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -133,11 +133,11 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch("http://localhost:5000/flask?type=account_ids")
+    fetch("http://localhost:5000/flask?type=usernames")
       .then((response) => response.json())
       .then((res) => {
         setOptions(
-          res.account_ids.map((accId) => ({
+          res.usernames.map((accId) => ({
             value: accId,
             label: accId,
           }))

@@ -73,8 +73,8 @@ const Timeline = ({
           const thisDay = Math.floor(d.timestamp / COEFF) * COEFF;
           if (thisDay > lastDay) lastDay = thisDay;
           if (thisDay < firstDay) firstDay = thisDay;
-          nodes[`${d.account_id}.${thisDay}`] = {
-            label: d.account_id,
+          nodes[`${d.username}.${thisDay}`] = {
+            label: d.username,
             time: thisDay,
           };
 
@@ -99,8 +99,8 @@ const Timeline = ({
               return relation;
             });
 
-            nodes[`${d.account_id}.${thisDay}`].collapsed = true;
-            nodes[`${d.account_id}.${thisDay}`][propertyName.current] =
+            nodes[`${d.username}.${thisDay}`].collapsed = true;
+            nodes[`${d.username}.${thisDay}`][propertyName.current] =
               int_relations;
           }
         });
