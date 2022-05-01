@@ -38,7 +38,7 @@ ul.horizontal li a {
 #slider-section {
   min-width: 100%;
   height: 50vh;
-  background-color: #ededee;
+  background-color: var(--near-white-color);
   font-family: sans-serif;
 }
 

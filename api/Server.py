@@ -147,12 +147,12 @@ class Server(Resource):
         })
 
   def post(self):
-    args = request.args
-    res = self.task_manager.single_line_test(args.tweet)
+    tweet = request.json['tweet']
+    res = self.task_manager.single_line_test(tweet)
 
     if res:
       return jsonify({
-        "rawTweet": args.tweet,
+        "rawTweet": tweet,
         "tokenPolarities": res["raw_polarity"].tolist(),
         "processedTweet": res["processed_tweet"],
         "tweetScore": 1.*np.float32(res["polarity"]),

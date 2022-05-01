@@ -279,5 +279,5 @@ export const drawAttentionWeights = (data) => {
   rows += heat_text + "</tr>";
 
   rows += "</table></tbody></div>";
-  document.getElementById("attention-weights").innerHTML = rows;
+  return rows;
 };

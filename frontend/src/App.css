@@ -1,5 +1,5 @@
 body {
-  background-color: #ededee;
+  background-color: var(--near-white-color);
   color: #34495d;
 }
 
@@ -164,61 +164,51 @@ tr:nth-child(even) {
   box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 }
 
-.card {
-  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-  border: 0;
-  font-weight: 400;
+/* below are styles from Twitter */
+#new-post-polarity {
+  color: #8B98A5;
+  padding: 2rem;
+  z-index: 1;
+
+  flex-basis: auto;
+  flex-direction: column;
+  flex-shrink: 0;
+  margin: 2rem;
+  min-height: 0px;
+  min-width: 0px;
+  background-color: white;
+  width: 90%;
 }
 
-.center {
+#polarity-btn {
+  background-color: rgb(29, 155, 240);
+  margin-left: 12px;
+  min-width: 36px;
+  min-height: 36px;
+  outline-style: none;
+  transition-property: background-color, box-shadow;
+  transition-duration: 0.2s;
+  user-select: none;
+  padding-left: 16px;
+  padding-right: 16px;
+  border-color: rgba(0, 0, 0, 0);
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 9999px;
+  align-items: stretch;
+  border: 0 solid black;
+  box-sizing: border-box;
   display: flex;
+  flex-basis: auto;
+  flex-direction: column;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-size: 15px;
+
+  color: rgb(255, 255, 255);
+  font-weight: 700;
+  line-height: 20px;
   align-items: center;
   justify-content: center;
-}
-
-.css-b62m3t-container {
-  width: 100%;
-  margin: 5% 10%;
-}
-
-.input-range__track--active {
-  background-color: var(--main-color) !important;
-}
-
-.input-range--disabled .input-range__track {
-  background-color: var(--secondary-color) !important;
-  cursor: not-allowed;
-}
-
-.centered-column {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.btn {
-  padding: 1rem 2rem;
-  cursor: pointer;
-  background-color: var(--main-color);
-  color: #fff;
-  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
-    -webkit-box-shadow 0.15s ease-in-out;
-  margin: 0.375rem;
-  border: 0;
-  border-radius: 0.125rem;
-  text-transform: uppercase;
-  white-space: normal;
-  word-wrap: break-word;
-  width: 200px;
-}
-
-.btn:hover {
-  text-decoration: none;
-  outline: 0;
-  background-color: #0eaae6;
-  -webkit-box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18),
-    0 4px 15px 0 rgba(0, 0, 0, 0.15);
-  box-shadow: 0 5px 11px 0 rgba(0, 0, 0, 0.18), 0 4px 15px 0 rgba(0, 0, 0, 0.15);
 }

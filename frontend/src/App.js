@@ -16,6 +16,7 @@ import {
 } from "./drawerFuncs";
 import "./distrochart.css";
 import Timeline from "./Timeline";
+import { NewPostPolarity } from "./NewPostPolarity";
 import { RELATIONSHIPS, MAIN_COLOR } from "./constants";
 
 const RELATIONSHIP_OPTIONS = RELATIONSHIPS.map((x) => ({
@@ -76,7 +77,8 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         for (const post of res) {
-          drawAttentionWeights(post);
+          const rows = drawAttentionWeights(post);
+          document.getElementById("attention-weights").innerHTML = rows;
         }
       })
       .catch((err) => console.error(err));
@@ -157,6 +159,8 @@ function App() {
       <header className="App-header">
         <p>Politician Twitter Activity</p>
       </header>
+      <NewPostPolarity />
+
       {dateRange.start ? (
         <>
           <div style={{ display: "flex", width: "100%" }}>
