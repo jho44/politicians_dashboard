@@ -1,16 +1,10 @@
-import React, {
-  useEffect,
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useCallback, useMemo, useRef } from "react";
 import ReactDOMServer from "react-dom/server";
 import ReactLoading from "react-loading";
 import classNames from "classnames";
 import { PauseCircleOutline, PlayCircleOutline } from "@mui/icons-material";
 import "./Timeline.css";
-import { RELATIONSHIPS, COEFF, MAIN_COLOR } from "./constants";
+import { RELATIONSHIPS, COEFF } from "./constants";
 
 const d3 = window.d3;
 const playIconHtml = ReactDOMServer.renderToString(
@@ -32,6 +26,8 @@ const Timeline = ({
   setDateRange,
   timelineAux,
   currGraphTime,
+  loading,
+  setLoading,
 }) => {
   const width = window.innerWidth;
   const height = window.innerHeight / 2;
@@ -58,8 +54,6 @@ const Timeline = ({
   const parentNodes = useRef([]);
   const parentLabels = useRef(new Set());
   const currTime = useRef(0);
-
-  const [loading, setLoading] = useState(true);
 
   const inst = useMemo(() => {
     const nodes = {};
@@ -115,7 +109,6 @@ const Timeline = ({
           start: globalStartTime.current,
           end: globalEndTime.current,
         });
-        setLoading(false);
         return { nodes: nodeVals, nodeKeys: Object.keys(nodes) };
       });
   }, [timelineAux, setDateRange]);
@@ -256,6 +249,7 @@ const Timeline = ({
       async function createInstance() {
         const instance1 = await inst;
         const { nodes } = instance1;
+        setLoading(false);
         return new Adaptor(nodes);
       }
 
@@ -695,8 +689,8 @@ const Timeline = ({
     <>
       {loading && (
         <ReactLoading
-          type={"bubbles"}
-          color={MAIN_COLOR}
+          type={"cylon"}
+          color={"#0eb0e6"}
           height={"20%"}
           width={"20%"}
         />

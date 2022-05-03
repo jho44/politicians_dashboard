@@ -242,13 +242,13 @@ export const drawPolarityOverAllTime = (chart1, data) => {
 export const drawAttentionWeights = (data) => {
   // credit to Patricia for this part's skeleton
 
-  const { raw_tweet, attention, tweetScore, processedTweet, tokenPolarities } =
+  const { rawTweet, attention, tweetScore, processedTweet, tokenPolarities } =
     data;
 
   const words = processedTweet.split(" ");
   const maxNumTokens = attention.length;
 
-  let rows = `<p>${raw_tweet}</p><div id="table-scroll"><table><tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
+  let rows = `<div class="centered-column">${rawTweet}</div><div id="table-scroll"><table><tbody><tr style='background-color:#dddddd'><th>Tweet<br />Score</th><th colspan=${maxNumTokens}>Attention Weight</th></tr></tbody><tbody>`;
 
   // whole tweet's polarity score + tweet sentence
   rows += "<tr>";

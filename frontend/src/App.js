@@ -51,6 +51,13 @@ function App() {
     setOpenDrawer(false);
   };
 
+  const [attnWeightsChartLoading, setAttnWeightsChartLoading] = useState(true);
+  const [numPostsOverTimeLoading, setNumPostsOverTimeLoading] = useState(true);
+  const [leftRightPostsLoading, setLeftRightPostsLoading] = useState(true);
+  const [postPolarityChartLoading, setPostPolarityChartLoading] =
+    useState(true);
+  const [timelineLoading, setTimelineLoading] = useState(true);
+
   /**
    * want function that enables Timeline node click to set both
    * drawer open and drawer's contents
@@ -70,6 +77,10 @@ function App() {
   const handleNodeClick = (username, start, end, currTime) => {
     setAccId(username);
     setOpenDrawer(true);
+    setAttnWeightsChartLoading(true);
+    setNumPostsOverTimeLoading(true);
+    setLeftRightPostsLoading(true);
+    setPostPolarityChartLoading(true);
 
     fetch(
       `http://localhost:5000/flask?type=attn_weights&username=${username}&curr_time=${currTime}`
@@ -80,6 +91,7 @@ function App() {
           const rows = drawAttentionWeights(post);
           document.getElementById("attention-weights").innerHTML = rows;
         }
+        setAttnWeightsChartLoading(false);
       })
       .catch((err) => console.error(err));
 
@@ -91,6 +103,7 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         drawNumPostsOverTime(res, setCurrGraphTime);
+        setNumPostsOverTimeLoading(false);
       })
       .catch((err) => console.error(err));
 
@@ -102,15 +115,15 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         drawLeftRightPie(res);
+        setLeftRightPostsLoading(false);
       })
       .catch((err) => console.error(err));
 
-    fetch(
-      `http://localhost:5000/flask?type=post_polarity&username=${username}`
-    )
+    fetch(`http://localhost:5000/flask?type=post_polarity&username=${username}`)
       .then((res) => res.json())
       .then((res) => {
         drawPolarityOverAllTime(chart1, res);
+        setPostPolarityChartLoading(false);
       })
       .catch((err) => console.error(err));
   };
@@ -203,7 +216,6 @@ function App() {
                 value={timelineRelation}
                 options={RELATIONSHIP_OPTIONS}
                 onChange={(newSelectedOptions) => {
-                  console.log(newSelectedOptions.value);
                   setTimelineRelation(newSelectedOptions);
                 }}
                 styles={selectStyles}
@@ -224,7 +236,7 @@ function App() {
                       dates[0].endDate.getFullYear() ||
                     dates[0].startDate.getMonth() !==
                       dates[0].endDate.getMonth() ||
-                    dates[0].startDate.getDay() != dates[0].endDate.getDay()
+                    dates[0].startDate.getDate() !== dates[0].endDate.getDate()
                   }
                   format={24}
                   maxValue={"23:59"}
@@ -239,8 +251,12 @@ function App() {
           </div>
           <button
             className="btn"
-            style={{ marginTop: "2rem", marginBottom: "1rem" }}
+            style={{
+              opacity: timelineLoading ? 0.5 : 1,
+              cursor: timelineLoading ? "not-allowed" : "pointer",
+            }}
             onClick={() => {
+              setTimelineLoading(true);
               setTimelineAux((prevState) => {
                 const latestUsers = new Set(
                   selectedOptions.map((x) => x.label)
@@ -283,6 +299,7 @@ function App() {
                 return prevState;
               });
             }}
+            disabled={timelineLoading}
           >
             <div className="centered-column">
               <CheckCircleOutlineIcon
@@ -297,17 +314,25 @@ function App() {
             accId={accId}
             chart1={chart1}
             handleCloseClick={handleCloseClick}
+            loading={
+              attnWeightsChartLoading ||
+              numPostsOverTimeLoading ||
+              leftRightPostsLoading ||
+              postPolarityChartLoading
+            }
           />
         </>
       ) : (
         <ReactLoading
-          type={"bubbles"}
+          type={"cylon"}
           color={MAIN_COLOR}
           height={"20%"}
           width={"20%"}
         />
       )}
       <Timeline
+        loading={timelineLoading}
+        setLoading={setTimelineLoading}
         currGraphTime={currGraphTime}
         timelineAux={timelineAux}
         setDateRange={setDateRange}

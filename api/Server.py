@@ -1,9 +1,10 @@
 from flask import send_file, jsonify, request
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 import pandas as pd
 import numpy as np
 import math
 from os import path
+import requests
 
 '''
 watch -n0.1 nvidia-smi
@@ -51,7 +52,8 @@ class Server(Resource):
     else :
       data = data[data['username'] == args['username']]
       if 'start_date' in args:
-        data = data[(data['timestamp'] >= args['start_date']) & (data['timestamp'] <= args['end_date'])]
+        data = data[(data['timestamp'] >= int(args['start_date'])) &
+                (data['timestamp'] <= int(args['end_date']))]
 
       if arg_type == 'num_posts_over_time':
         data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms', utc=True)
@@ -115,19 +117,21 @@ class Server(Resource):
         curr_time = int(args['curr_time'])
         data = data[(data['timestamp'] >= curr_time) & (data['timestamp'] <= curr_time + 8.64e+7)]
         # time step is 1 day in milliseconds
-        posts = data['full_text'] #.str.split(r"[(.\")(?\")(!\")!?.]\s+").values # split into sentences
+        posts = data[['full_text', 'tweet_id' ]]
 
         results = []
-        for post in posts:
-          res = self.task_manager.single_line_test(post)
+        for idx, post in posts.iterrows():
+          res = self.task_manager.single_line_test(post['full_text'])
+          response = requests.get('https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/' + str(post['tweet_id']))
 
           if res:
             results.append({
-              "raw_tweet": post,
+              "rawTweet": response.json()['html'],
               "tokenPolarities": res["raw_polarity"].tolist(),
               "processedTweet": res["processed_tweet"],
               "tweetScore": 1.*np.float32(res["polarity"]),
               "attention": res["attention"].tolist(),
+              "tweetId": post['tweet_id'],
             })
           else:
             results.append(None)

@@ -131,13 +131,56 @@ div.tooltip {
   min-width: 200px;
   font-size: 13px;
   font-family: sans-serif;
+
+  display: flex;
+  flex-wrap: wrap;
+  width: 90%;
+  justify-content: center;
+  align-items: center;
 }
-.chart-options button {
-  margin: 3px;
-  padding: 3px;
-  font-size: 12px;
+
+/* ripple effect: https://css-tricks.com/how-to-recreate-the-ripple-effect-of-material-design-buttons/ */
+/* dashboard buttons: https://mdbootstrap.com/previews/free-templates/react-admin-dashboard/? */
+.chart-options > button {
+  cursor: pointer;
+  padding: 0.75rem 1.6rem;
+  font-size: 1rem;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  background-color: #4285f4;
+  color: #fff !important;
+  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
+  transition: background 0.15s ease-in-out, box-shadow 0.15s ease-in-out,
+    -webkit-box-shadow 0.15s ease-in-out;
+  margin: 0.375rem;
+  border: 0;
+  border-radius: 0.125rem;
+  text-transform: uppercase;
+  white-space: normal;
+  word-wrap: break-word;
+  display: inline-block;
+  font-weight: 400;
+  text-align: center;
+  user-select: none;
+
+  background-position: center;
 }
+
+.chart-options > button:hover {
+  background: #47a7f5 radial-gradient(circle, transparent 1%, #47a7f5 1%)
+    center/15000%;
+  box-shadow: 0 5px 11px 0 rgb(0 0 0 / 18%), 0 4px 15px 0 rgb(0 0 0 / 15%);
+}
+
+.chart-options > button:active {
+  background-color: #4285f4;
+  background-size: 100%;
+  transition: background 0.15s;
+}
+
 .chart-options p {
+  font-size: 1rem;
   display: inline;
 }
 @media (max-width: 500px) {
