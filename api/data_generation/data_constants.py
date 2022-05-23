@@ -10,11 +10,7 @@ POLARITY_WAIT_TIME = 100
 GET_POLARITIES = True
 REHYDRATE_FACTOR = 100
 
-######### Rehydrate dataset with Twitter API #########
-OAUTH_BEARER_TOKEN = os.getenv('OAUTH_BEARER_TOKEN')
-######################################################
-
-######### Generate dataset with Twitter API #########
+######### Generate/Rehydrate dataset with Twitter API #########
 BEARER_TOKEN = os.getenv('BEARER_TOKEN')
 SEARCH_URL = 'https://api.twitter.com/2/tweets/search/all'
 QUERY_PARAMS = {

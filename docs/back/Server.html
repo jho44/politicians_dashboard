@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>Server API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>Server</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from flask import send_file, jsonify, request
+from flask_restful import Resource
+import pandas as pd
+import numpy as np
+import math
+from os import path
+import requests
+
+from api.data_generation.data_constants import TMP_CSV, OUTPUT_CSV
+
+&#39;&#39;&#39;
+watch -n0.1 nvidia-smi
+
+python main.py -m 3 -t task3_withent
+
+&#39;&#39;&#39;
+
+print(&#34;This is not the most recent version of our code\nThe most recent version of our code is kept confidential until paper is accepted\nThanks for your understanding&#34;)
+
+tmp_csv = path.join(&#39;api&#39;, TMP_CSV)
+final_csv = path.join(&#39;api&#39;, OUTPUT_CSV)
+
+class Server(Resource):
+  &#39;&#39;&#39;
+  Functions for fulfilling HTTP requests from frontend to `/flask` endpoint
+  &#39;&#39;&#39;
+
+  def __init__(self, task_manager):
+    self.task_manager = task_manager
+
+  def get(self):
+    &#39;&#39;&#39;
+    GET must handle requests asking for different things, as specified by the `type` query parameter:
+
+      `type` = &#39;usernames&#39;:
+
+        Return all usernames in dataset
+
+        input: none
+
+      `type` = &#39;num_posts_over_time&#39;:
+
+        For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
+        The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = &#39;num_left_right_posts&#39;:
+
+        Return number of posts with negative and positive polarity scores for a given user.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = &#39;attn_weights&#39;:
+
+        Return attention weights and token polarity scores for tweets from a given user on a given day.
+
+        input:
+          - username: Twitter username of desired user
+          - curr_time: the start of the day for tweets for which we&#39;d like the polarity scores of
+
+        output: attention weights in list/arr ordered by tokens in input statement
+
+      `type` = &#39;post_polarity&#39;:
+
+        Return polarity scores for all tweets of given user, grouped by year&#39;s quarters.
+
+        input:
+          - username: Twitter username of desired user
+    &#39;&#39;&#39;
+
+    args = request.args
+
+    arg_type = args[&#39;type&#39;]
+
+    desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+    # in case there&#39;s a req while file is being renamed after rehydration
+    if arg_type == &#39;whole&#39;:
+      return send_file(desired_file)
+
+    desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+    data = pd.read_csv(desired_file, dtype={&#39;full_text&#39;: str, &#39;mention&#39;: object, &#39;liked_by&#39;: object, &#39;username&#39;: str})
+
+    if arg_type == &#39;usernames&#39;:
+      return jsonify({
+        &#39;usernames&#39;: data[&#39;username&#39;].unique().tolist()
+      })
+    elif arg_type == &#39;post_polarity&#39;:
+      data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+      data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;)
+      data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+      data = data[[&#34;polarity&#34;, &#34;datetime&#34;]]
+      data[&#39;qtr&#39;] = data[&#39;datetime&#39;].map(lambda x: &#34;Q&#34; + str((x.month-1)//3 + 1))
+      data.drop(&#39;datetime&#39;, axis=1, inplace=True)
+      res = data.to_dict(&#39;records&#39;)
+
+      return jsonify({
+        &#39;res&#39;: res
+      })
+    else:
+      data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+      if &#39;start_date&#39; in args:
+        data = data[(data[&#39;timestamp&#39;] &gt;= int(args[&#39;start_date&#39;])) &amp;
+                (data[&#39;timestamp&#39;] &lt;= int(args[&#39;end_date&#39;]))]
+
+      if arg_type == &#39;num_posts_over_time&#39;:
+        data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;, utc=True)
+        data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+        grps = data.groupby(pd.Grouper(key=&#39;datetime&#39;, freq=&#39;D&#39;, origin=&#39;epoch&#39;))
+        # since we&#39;re grouping by day, the chart will have an time-axis ending on the start of the last selected day
+        grp_sizes = grps.size()
+
+        try:
+          min_range = int(grp_sizes.values.min())
+          max_range = int(grp_sizes.values.max())
+        except ValueError:
+          min_range = 0
+          max_range = 10
+
+        # get left_right color at each stop
+        # since each stop may have multiple posts (and therefore multiple polarities)
+        # will need to get average of these posts&#39; polarities to determine color
+        mean_polarities = grps.mean()[&#34;polarity&#34;].reset_index(drop=True)
+        mean_polarities = mean_polarities[mean_polarities.notnull()]
+
+        # liberal leaning,      B (0, 0, 255)       -- lambda = -13
+        # neutral leaning,      W (255, 255, 255)   -- lambda = 0
+        # conservative leaning, R (255, 0, 0)       -- lambda = 13
+
+        def get_color(polarity):
+          # y = 255 * e ^ (-x^2 / 12)
+          RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip(&#34;0x&#34;)
+          if polarity &gt; 0:
+            # white FFFFFF -&gt; red FF0000 interpolation
+            # (0, 255), (13, 0)
+            return f&#39;#FF{RGB_comp}{RGB_comp}&#39;
+          else:
+            # blue 0000FF -&gt; white FFFFFF interpolation
+            # (-13, 0), (0, 255)
+            return f&#39;#{RGB_comp}{RGB_comp}FF&#39;
+        # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
+        colors = mean_polarities.apply(get_color).tolist()
+
+        not_null_indices = mean_polarities.index
+        if not_null_indices[-1] == 0:
+            stops = [100]
+        else:
+          stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
+
+        return jsonify({
+          &#39;times&#39;: grp_sizes.index.strftime(&#39;%m/%d/%Y, %H:%M:%S&#39;).tolist(),
+          &#39;sizes&#39;: grp_sizes.values.tolist(),
+          &#39;range&#39;: [min_range, max_range],
+          &#39;colors&#39;: colors,
+          &#39;stops&#39;: stops
+        })
+      elif arg_type == &#39;num_left_right_posts&#39;:
+        num_left = len(data[data[&#39;polarity&#39;] &lt; 0]) # number of posts that were overall liberal-leaning
+        num_right = len(data[data[&#39;polarity&#39;] &gt; 0]) # number of posts that were overall conservative-leaning
+        return jsonify({
+          &#39;num_left&#39;: num_left,
+          &#39;num_right&#39;: num_right,
+        })
+      else: # arg_type == &#39;attn_weights&#39;
+        curr_time = int(args[&#39;curr_time&#39;])
+        data = data[(data[&#39;timestamp&#39;] &gt;= curr_time) &amp; (data[&#39;timestamp&#39;] &lt;= curr_time + 8.64e+7)]
+        # time step is 1 day in milliseconds
+        posts = data[[&#39;full_text&#39;, &#39;tweet_id&#39; ]]
+
+        results = []
+        for idx, post in posts.iterrows():
+          # get the polarity score from Patricia&#39;s model
+          res = self.task_manager.single_line_test(post[&#39;full_text&#39;])
+          # get the html from Twitter for the pretty tweet
+          response = requests.get(&#39;https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/&#39; + str(post[&#39;tweet_id&#39;]))
+
+          if res:
+            results.append({
+              &#34;rawTweet&#34;: response.json()[&#39;html&#39;],
+              &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+              &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+              &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+              &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+              &#34;tweetId&#34;: post[&#39;tweet_id&#39;],
+            })
+          else:
+            results.append(None)
+
+          return results
+
+  def post(self):
+    &#39;&#39;&#39;
+    POST just needs to return token polarity scores and attention weights for a given string.
+
+    Query Parameters:
+
+      - `tweet` (`str`): string representing a tweet
+    &#39;&#39;&#39;
+    tweet = request.json[&#39;tweet&#39;]
+    res = self.task_manager.single_line_test(tweet)
+
+    if res:
+      return jsonify({
+        &#34;rawTweet&#34;: tweet,
+        &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+        &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+        &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+        &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+      })
+    else:
+      return None</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="Server.Server"><code class="flex name class">
+<span>class <span class="ident">Server</span></span>
+<span>(</span><span>task_manager)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Functions for fulfilling HTTP requests from frontend to <code>/flask</code> endpoint</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Server(Resource):
+  &#39;&#39;&#39;
+  Functions for fulfilling HTTP requests from frontend to `/flask` endpoint
+  &#39;&#39;&#39;
+
+  def __init__(self, task_manager):
+    self.task_manager = task_manager
+
+  def get(self):
+    &#39;&#39;&#39;
+    GET must handle requests asking for different things, as specified by the `type` query parameter:
+
+      `type` = &#39;usernames&#39;:
+
+        Return all usernames in dataset
+
+        input: none
+
+      `type` = &#39;num_posts_over_time&#39;:
+
+        For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
+        The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = &#39;num_left_right_posts&#39;:
+
+        Return number of posts with negative and positive polarity scores for a given user.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = &#39;attn_weights&#39;:
+
+        Return attention weights and token polarity scores for tweets from a given user on a given day.
+
+        input:
+          - username: Twitter username of desired user
+          - curr_time: the start of the day for tweets for which we&#39;d like the polarity scores of
+
+        output: attention weights in list/arr ordered by tokens in input statement
+
+      `type` = &#39;post_polarity&#39;:
+
+        Return polarity scores for all tweets of given user, grouped by year&#39;s quarters.
+
+        input:
+          - username: Twitter username of desired user
+    &#39;&#39;&#39;
+
+    args = request.args
+
+    arg_type = args[&#39;type&#39;]
+
+    desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+    # in case there&#39;s a req while file is being renamed after rehydration
+    if arg_type == &#39;whole&#39;:
+      return send_file(desired_file)
+
+    desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+    data = pd.read_csv(desired_file, dtype={&#39;full_text&#39;: str, &#39;mention&#39;: object, &#39;liked_by&#39;: object, &#39;username&#39;: str})
+
+    if arg_type == &#39;usernames&#39;:
+      return jsonify({
+        &#39;usernames&#39;: data[&#39;username&#39;].unique().tolist()
+      })
+    elif arg_type == &#39;post_polarity&#39;:
+      data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+      data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;)
+      data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+      data = data[[&#34;polarity&#34;, &#34;datetime&#34;]]
+      data[&#39;qtr&#39;] = data[&#39;datetime&#39;].map(lambda x: &#34;Q&#34; + str((x.month-1)//3 + 1))
+      data.drop(&#39;datetime&#39;, axis=1, inplace=True)
+      res = data.to_dict(&#39;records&#39;)
+
+      return jsonify({
+        &#39;res&#39;: res
+      })
+    else:
+      data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+      if &#39;start_date&#39; in args:
+        data = data[(data[&#39;timestamp&#39;] &gt;= int(args[&#39;start_date&#39;])) &amp;
+                (data[&#39;timestamp&#39;] &lt;= int(args[&#39;end_date&#39;]))]
+
+      if arg_type == &#39;num_posts_over_time&#39;:
+        data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;, utc=True)
+        data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+        grps = data.groupby(pd.Grouper(key=&#39;datetime&#39;, freq=&#39;D&#39;, origin=&#39;epoch&#39;))
+        # since we&#39;re grouping by day, the chart will have an time-axis ending on the start of the last selected day
+        grp_sizes = grps.size()
+
+        try:
+          min_range = int(grp_sizes.values.min())
+          max_range = int(grp_sizes.values.max())
+        except ValueError:
+          min_range = 0
+          max_range = 10
+
+        # get left_right color at each stop
+        # since each stop may have multiple posts (and therefore multiple polarities)
+        # will need to get average of these posts&#39; polarities to determine color
+        mean_polarities = grps.mean()[&#34;polarity&#34;].reset_index(drop=True)
+        mean_polarities = mean_polarities[mean_polarities.notnull()]
+
+        # liberal leaning,      B (0, 0, 255)       -- lambda = -13
+        # neutral leaning,      W (255, 255, 255)   -- lambda = 0
+        # conservative leaning, R (255, 0, 0)       -- lambda = 13
+
+        def get_color(polarity):
+          # y = 255 * e ^ (-x^2 / 12)
+          RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip(&#34;0x&#34;)
+          if polarity &gt; 0:
+            # white FFFFFF -&gt; red FF0000 interpolation
+            # (0, 255), (13, 0)
+            return f&#39;#FF{RGB_comp}{RGB_comp}&#39;
+          else:
+            # blue 0000FF -&gt; white FFFFFF interpolation
+            # (-13, 0), (0, 255)
+            return f&#39;#{RGB_comp}{RGB_comp}FF&#39;
+        # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
+        colors = mean_polarities.apply(get_color).tolist()
+
+        not_null_indices = mean_polarities.index
+        if not_null_indices[-1] == 0:
+            stops = [100]
+        else:
+          stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
+
+        return jsonify({
+          &#39;times&#39;: grp_sizes.index.strftime(&#39;%m/%d/%Y, %H:%M:%S&#39;).tolist(),
+          &#39;sizes&#39;: grp_sizes.values.tolist(),
+          &#39;range&#39;: [min_range, max_range],
+          &#39;colors&#39;: colors,
+          &#39;stops&#39;: stops
+        })
+      elif arg_type == &#39;num_left_right_posts&#39;:
+        num_left = len(data[data[&#39;polarity&#39;] &lt; 0]) # number of posts that were overall liberal-leaning
+        num_right = len(data[data[&#39;polarity&#39;] &gt; 0]) # number of posts that were overall conservative-leaning
+        return jsonify({
+          &#39;num_left&#39;: num_left,
+          &#39;num_right&#39;: num_right,
+        })
+      else: # arg_type == &#39;attn_weights&#39;
+        curr_time = int(args[&#39;curr_time&#39;])
+        data = data[(data[&#39;timestamp&#39;] &gt;= curr_time) &amp; (data[&#39;timestamp&#39;] &lt;= curr_time + 8.64e+7)]
+        # time step is 1 day in milliseconds
+        posts = data[[&#39;full_text&#39;, &#39;tweet_id&#39; ]]
+
+        results = []
+        for idx, post in posts.iterrows():
+          # get the polarity score from Patricia&#39;s model
+          res = self.task_manager.single_line_test(post[&#39;full_text&#39;])
+          # get the html from Twitter for the pretty tweet
+          response = requests.get(&#39;https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/&#39; + str(post[&#39;tweet_id&#39;]))
+
+          if res:
+            results.append({
+              &#34;rawTweet&#34;: response.json()[&#39;html&#39;],
+              &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+              &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+              &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+              &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+              &#34;tweetId&#34;: post[&#39;tweet_id&#39;],
+            })
+          else:
+            results.append(None)
+
+          return results
+
+  def post(self):
+    &#39;&#39;&#39;
+    POST just needs to return token polarity scores and attention weights for a given string.
+
+    Query Parameters:
+
+      - `tweet` (`str`): string representing a tweet
+    &#39;&#39;&#39;
+    tweet = request.json[&#39;tweet&#39;]
+    res = self.task_manager.single_line_test(tweet)
+
+    if res:
+      return jsonify({
+        &#34;rawTweet&#34;: tweet,
+        &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+        &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+        &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+        &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+      })
+    else:
+      return None</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>flask_restful.Resource</li>
+<li>flask.views.MethodView</li>
+<li>flask.views.View</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="Server.Server.decorators"><code class="name">var <span class="ident">decorators</span> : List[Callable]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="Server.Server.methods"><code class="name">var <span class="ident">methods</span> : Optional[List[str]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="Server.Server.provide_automatic_options"><code class="name">var <span class="ident">provide_automatic_options</span> : Optional[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="Server.Server.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>GET must handle requests asking for different things, as specified by the <code>type</code> query parameter:</p>
+<p><code>type</code> = 'usernames':</p>
+<pre><code>Return all usernames in dataset
+
+input: none
+</code></pre>
+<p><code>type</code> = 'num_posts_over_time':</p>
+<pre><code>For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
+The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
+
+input:
+  - username: Twitter username of desired user
+  - start_date (optional): the start of the desired time frame
+  - end_date (optional): the end of the desired time frame
+</code></pre>
+<p><code>type</code> = 'num_left_right_posts':</p>
+<pre><code>Return number of posts with negative and positive polarity scores for a given user.
+
+input:
+  - username: Twitter username of desired user
+  - start_date (optional): the start of the desired time frame
+  - end_date (optional): the end of the desired time frame
+</code></pre>
+<p><code>type</code> = 'attn_weights':</p>
+<pre><code>Return attention weights and token polarity scores for tweets from a given user on a given day.
+
+input:
+  - username: Twitter username of desired user
+  - curr_time: the start of the day for tweets for which we'd like the polarity scores of
+
+output: attention weights in list/arr ordered by tokens in input statement
+</code></pre>
+<p><code>type</code> = 'post_polarity':</p>
+<pre><code>Return polarity scores for all tweets of given user, grouped by year's quarters.
+
+input:
+  - username: Twitter username of desired user
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self):
+  &#39;&#39;&#39;
+  GET must handle requests asking for different things, as specified by the `type` query parameter:
+
+    `type` = &#39;usernames&#39;:
+
+      Return all usernames in dataset
+
+      input: none
+
+    `type` = &#39;num_posts_over_time&#39;:
+
+      For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
+      The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
+
+      input:
+        - username: Twitter username of desired user
+        - start_date (optional): the start of the desired time frame
+        - end_date (optional): the end of the desired time frame
+
+    `type` = &#39;num_left_right_posts&#39;:
+
+      Return number of posts with negative and positive polarity scores for a given user.
+
+      input:
+        - username: Twitter username of desired user
+        - start_date (optional): the start of the desired time frame
+        - end_date (optional): the end of the desired time frame
+
+    `type` = &#39;attn_weights&#39;:
+
+      Return attention weights and token polarity scores for tweets from a given user on a given day.
+
+      input:
+        - username: Twitter username of desired user
+        - curr_time: the start of the day for tweets for which we&#39;d like the polarity scores of
+
+      output: attention weights in list/arr ordered by tokens in input statement
+
+    `type` = &#39;post_polarity&#39;:
+
+      Return polarity scores for all tweets of given user, grouped by year&#39;s quarters.
+
+      input:
+        - username: Twitter username of desired user
+  &#39;&#39;&#39;
+
+  args = request.args
+
+  arg_type = args[&#39;type&#39;]
+
+  desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+  # in case there&#39;s a req while file is being renamed after rehydration
+  if arg_type == &#39;whole&#39;:
+    return send_file(desired_file)
+
+  desired_file = tmp_csv if not path.exists(final_csv) and path.exists(tmp_csv) else final_csv
+  data = pd.read_csv(desired_file, dtype={&#39;full_text&#39;: str, &#39;mention&#39;: object, &#39;liked_by&#39;: object, &#39;username&#39;: str})
+
+  if arg_type == &#39;usernames&#39;:
+    return jsonify({
+      &#39;usernames&#39;: data[&#39;username&#39;].unique().tolist()
+    })
+  elif arg_type == &#39;post_polarity&#39;:
+    data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+    data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;)
+    data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+    data = data[[&#34;polarity&#34;, &#34;datetime&#34;]]
+    data[&#39;qtr&#39;] = data[&#39;datetime&#39;].map(lambda x: &#34;Q&#34; + str((x.month-1)//3 + 1))
+    data.drop(&#39;datetime&#39;, axis=1, inplace=True)
+    res = data.to_dict(&#39;records&#39;)
+
+    return jsonify({
+      &#39;res&#39;: res
+    })
+  else:
+    data = data[data[&#39;username&#39;] == args[&#39;username&#39;]]
+    if &#39;start_date&#39; in args:
+      data = data[(data[&#39;timestamp&#39;] &gt;= int(args[&#39;start_date&#39;])) &amp;
+              (data[&#39;timestamp&#39;] &lt;= int(args[&#39;end_date&#39;]))]
+
+    if arg_type == &#39;num_posts_over_time&#39;:
+      data[&#39;datetime&#39;] = pd.to_datetime(data[&#39;timestamp&#39;], unit=&#39;ms&#39;, utc=True)
+      data.drop(&#39;timestamp&#39;, axis=1, inplace=True)
+
+      grps = data.groupby(pd.Grouper(key=&#39;datetime&#39;, freq=&#39;D&#39;, origin=&#39;epoch&#39;))
+      # since we&#39;re grouping by day, the chart will have an time-axis ending on the start of the last selected day
+      grp_sizes = grps.size()
+
+      try:
+        min_range = int(grp_sizes.values.min())
+        max_range = int(grp_sizes.values.max())
+      except ValueError:
+        min_range = 0
+        max_range = 10
+
+      # get left_right color at each stop
+      # since each stop may have multiple posts (and therefore multiple polarities)
+      # will need to get average of these posts&#39; polarities to determine color
+      mean_polarities = grps.mean()[&#34;polarity&#34;].reset_index(drop=True)
+      mean_polarities = mean_polarities[mean_polarities.notnull()]
+
+      # liberal leaning,      B (0, 0, 255)       -- lambda = -13
+      # neutral leaning,      W (255, 255, 255)   -- lambda = 0
+      # conservative leaning, R (255, 0, 0)       -- lambda = 13
+
+      def get_color(polarity):
+        # y = 255 * e ^ (-x^2 / 12)
+        RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip(&#34;0x&#34;)
+        if polarity &gt; 0:
+          # white FFFFFF -&gt; red FF0000 interpolation
+          # (0, 255), (13, 0)
+          return f&#39;#FF{RGB_comp}{RGB_comp}&#39;
+        else:
+          # blue 0000FF -&gt; white FFFFFF interpolation
+          # (-13, 0), (0, 255)
+          return f&#39;#{RGB_comp}{RGB_comp}FF&#39;
+      # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
+      colors = mean_polarities.apply(get_color).tolist()
+
+      not_null_indices = mean_polarities.index
+      if not_null_indices[-1] == 0:
+          stops = [100]
+      else:
+        stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
+
+      return jsonify({
+        &#39;times&#39;: grp_sizes.index.strftime(&#39;%m/%d/%Y, %H:%M:%S&#39;).tolist(),
+        &#39;sizes&#39;: grp_sizes.values.tolist(),
+        &#39;range&#39;: [min_range, max_range],
+        &#39;colors&#39;: colors,
+        &#39;stops&#39;: stops
+      })
+    elif arg_type == &#39;num_left_right_posts&#39;:
+      num_left = len(data[data[&#39;polarity&#39;] &lt; 0]) # number of posts that were overall liberal-leaning
+      num_right = len(data[data[&#39;polarity&#39;] &gt; 0]) # number of posts that were overall conservative-leaning
+      return jsonify({
+        &#39;num_left&#39;: num_left,
+        &#39;num_right&#39;: num_right,
+      })
+    else: # arg_type == &#39;attn_weights&#39;
+      curr_time = int(args[&#39;curr_time&#39;])
+      data = data[(data[&#39;timestamp&#39;] &gt;= curr_time) &amp; (data[&#39;timestamp&#39;] &lt;= curr_time + 8.64e+7)]
+      # time step is 1 day in milliseconds
+      posts = data[[&#39;full_text&#39;, &#39;tweet_id&#39; ]]
+
+      results = []
+      for idx, post in posts.iterrows():
+        # get the polarity score from Patricia&#39;s model
+        res = self.task_manager.single_line_test(post[&#39;full_text&#39;])
+        # get the html from Twitter for the pretty tweet
+        response = requests.get(&#39;https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/&#39; + str(post[&#39;tweet_id&#39;]))
+
+        if res:
+          results.append({
+            &#34;rawTweet&#34;: response.json()[&#39;html&#39;],
+            &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+            &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+            &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+            &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+            &#34;tweetId&#34;: post[&#39;tweet_id&#39;],
+          })
+        else:
+          results.append(None)
+
+        return results</code></pre>
+</details>
+</dd>
+<dt id="Server.Server.post"><code class="name flex">
+<span>def <span class="ident">post</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>POST just needs to return token polarity scores and attention weights for a given string.</p>
+<p>Query Parameters:</p>
+<ul>
+<li><code>tweet</code> (<code>str</code>): string representing a tweet</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def post(self):
+  &#39;&#39;&#39;
+  POST just needs to return token polarity scores and attention weights for a given string.
+
+  Query Parameters:
+
+    - `tweet` (`str`): string representing a tweet
+  &#39;&#39;&#39;
+  tweet = request.json[&#39;tweet&#39;]
+  res = self.task_manager.single_line_test(tweet)
+
+  if res:
+    return jsonify({
+      &#34;rawTweet&#34;: tweet,
+      &#34;tokenPolarities&#34;: res[&#34;raw_polarity&#34;].tolist(),
+      &#34;processedTweet&#34;: res[&#34;processed_tweet&#34;],
+      &#34;tweetScore&#34;: 1.*np.float32(res[&#34;polarity&#34;]),
+      &#34;attention&#34;: res[&#34;attention&#34;].tolist(),
+    })
+  else:
+    return None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="Server.Server" href="#Server.Server">Server</a></code></h4>
+<ul class="">
+<li><code><a title="Server.Server.decorators" href="#Server.Server.decorators">decorators</a></code></li>
+<li><code><a title="Server.Server.get" href="#Server.Server.get">get</a></code></li>
+<li><code><a title="Server.Server.methods" href="#Server.Server.methods">methods</a></code></li>
+<li><code><a title="Server.Server.post" href="#Server.Server.post">post</a></code></li>
+<li><code><a title="Server.Server.provide_automatic_options" href="#Server.Server.provide_automatic_options">provide_automatic_options</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

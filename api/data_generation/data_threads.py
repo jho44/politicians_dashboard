@@ -7,7 +7,7 @@ import os
 import schedule
 
 from api.data_generation.data_utils import connect_to_endpoint, save_to_csv, set_null_polarities, process_entry
-from api.data_generation.data_constants import TMP_CSV, OUTPUT_CSV, REHYDRATE_FACTOR, OAUTH_BEARER_TOKEN, QUERY_PARAMS, SEARCH_URL, BEARER_TOKEN
+from api.data_generation.data_constants import TMP_CSV, OUTPUT_CSV, REHYDRATE_FACTOR, QUERY_PARAMS, SEARCH_URL, BEARER_TOKEN
 
 tmp_csv = os.path.join('api', TMP_CSV)
 output_csv = os.path.join('api', OUTPUT_CSV)
@@ -15,7 +15,7 @@ output_csv = os.path.join('api', OUTPUT_CSV)
 class RehydrationThread(Thread):
     async def search_tweets(self, first_row_idx, raw_tweet_ids, csv_obj, task_manager):
         tweet_ids = ','.join([str(tweet_id) for tweet_id in raw_tweet_ids.to_list()])
-        json_response = await connect_to_endpoint(f"https://api.twitter.com/2/tweets?ids={tweet_ids}", {}, OAUTH_BEARER_TOKEN, csv_obj, None)
+        json_response = await connect_to_endpoint(f"https://api.twitter.com/2/tweets?ids={tweet_ids}", {}, BEARER_TOKEN, csv_obj, None)
 
         # no worries that altering csv across threads(?) will lead to inconsistency
         # because drops don't change dataframe indices

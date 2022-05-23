@@ -111,7 +111,7 @@ async def get_likers(users_set, tweet_id, ind, start_index, csv_obj):
     likers = []
     QUERY_PARAMS = {}
 
-    json_response = await connect_to_endpoint(f'https://api.twitter.com/2/tweets/{tweet_id}/liking_users', QUERY_PARAMS, OAUTH_BEARER_TOKEN, csv_obj)
+    json_response = await connect_to_endpoint(f'https://api.twitter.com/2/tweets/{tweet_id}/liking_users', QUERY_PARAMS, BEARER_TOKEN, csv_obj)
 
     if 'data' not in json_response:
         print('no data')

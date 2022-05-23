@@ -21,43 +21,60 @@ tmp_csv = path.join('api', TMP_CSV)
 final_csv = path.join('api', OUTPUT_CSV)
 
 class Server(Resource):
+  '''
+  Functions for fulfilling HTTP requests from frontend to `/flask` endpoint
+  '''
+
   def __init__(self, task_manager):
     self.task_manager = task_manager
 
-  '''
-  GET must handle requests asking for different things, as specified by the 'type' query parameter:
-    'type' = 'usernames'
-      Return all usernames in dataset
-      input: none
-
-    'type' = 'num_posts_over_time'
-      For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
-      The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
-      input:
-        - username: Twitter username of desired user
-        - start_date (optional): the start of the desired time frame
-        - end_date (optional): the end of the desired time frame
-
-    'type' = 'num_left_right_posts'
-      Return number of posts with negative and positive polarity scores for a given user.
-      input:
-        - username: Twitter username of desired user
-        - start_date (optional): the start of the desired time frame
-        - end_date (optional): the end of the desired time frame
-
-    'type' = 'attn_weights'
-      Return attention weights and token polarity scores for tweets from a given user on a given day.
-      input:
-        - username: Twitter username of desired user
-        - curr_time: the start of the day for tweets for which we'd like the polarity scores of
-      output: attention weights in list/arr ordered by tokens in input statement
-
-    'type' = 'post_polarity'
-      Return polarity scores for all tweets of given user, grouped by year's quarters.
-      input:
-        - username: Twitter username of desired user
-  '''
   def get(self):
+    '''
+    GET must handle requests asking for different things, as specified by the `type` query parameter:
+
+      `type` = 'usernames':
+
+        Return all usernames in dataset
+
+        input: none
+
+      `type` = 'num_posts_over_time':
+
+        For a given user, return the number of posts per day within a desired time frame along with colors representing the mean polarity of posts for each day.
+        The colors, returned in strings representing RGB values, should be blue for very negative polarity scores and red for very positive polarity scores.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = 'num_left_right_posts':
+
+        Return number of posts with negative and positive polarity scores for a given user.
+
+        input:
+          - username: Twitter username of desired user
+          - start_date (optional): the start of the desired time frame
+          - end_date (optional): the end of the desired time frame
+
+      `type` = 'attn_weights':
+
+        Return attention weights and token polarity scores for tweets from a given user on a given day.
+
+        input:
+          - username: Twitter username of desired user
+          - curr_time: the start of the day for tweets for which we'd like the polarity scores of
+
+        output: attention weights in list/arr ordered by tokens in input statement
+
+      `type` = 'post_polarity':
+
+        Return polarity scores for all tweets of given user, grouped by year's quarters.
+
+        input:
+          - username: Twitter username of desired user
+    '''
+
     args = request.args
 
     arg_type = args['type']
@@ -179,11 +196,14 @@ class Server(Resource):
 
           return results
 
-  '''
-  POST just needs to return token polarity scores and attention weights for a given string.
-  input: string representing a tweet
-  '''
   def post(self):
+    '''
+    POST just needs to return token polarity scores and attention weights for a given string.
+
+    Query Parameters:
+
+      - `tweet` (`str`): string representing a tweet
+    '''
     tweet = request.json['tweet']
     res = self.task_manager.single_line_test(tweet)
 
