@@ -1,12 +1,28 @@
 import makeDistroChart from "./distrochart";
-import { ATTN_COLOR } from "./constants";
+import { ATTN_COLOR } from "../constants";
 const d3 = window.d3;
 
 const DRAWER_HEIGHT_FACTOR = 2;
 
+/**
+ * Functions for rendering stats charts in drawer.
+ * @module
+ */
+
+/**
+ * Draws line chart for number of Tweets the selected/clicked user has postde over the default or user-specified date range.
+ * Code skeleton from [here](https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89).
+ * Creating labels for the pie segments came from [here](https://observablehq.com/@d3/pie-chart).
+ * @function
+ * @param {Object} data
+ * @param {Array} data.colors Each element looks like '#7878FF'. Each color depends on the average overall Tweet polarity scores within a time step for a certain user. Blue corresponds to very liberal-leaning posts and red corresponds to very conservative-leaning posts.
+ * @param {Array} data.range: A 2-element array that consists of [Least number of tweets posted within a day by a certain user, Greatest number of tweets posted within a day by a certain user].
+ * @param {Array} data.sizes Radii of each point on the line chart, each corresponding to how many posts a user tweets within a single time step.
+ * @param {Array} data.stops Real numbers from 0 to 100 that mark what percentages of the x-axis the color of the line chart should change at. E.g., [0, 11.2, 45.6, 100]
+ * @param {Array} data.times Datetime strings of the form 'MM/DD/YYYY, hh:mm:ss' that each correspond to a point on the line chart.
+ * @param {Function} setCurrGraphTime When user clicks on a point in the line chart, this function moves the `Timeline` to the time instance corresponding to that point on the line chart.
+ */
 export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
-  // grouped by minute by server
-  // https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89
   var margin = { top: 50, right: 100, bottom: 150, left: 100 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
@@ -137,8 +153,15 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
     });
 };
 
+/**
+ * Draws pie chart for number of Tweets that're liberal-leaning vs conservative-leaning for a selected/clicked user (over the default or user-specified date range).
+ * Code skeleton from [here](https://www.d3-graph-gallery.com/graph/pie_basic.html).
+ * @function
+ * @param {Object} data
+ * @param {Number} data.num_left The number of tweets by a user that were deemed liberal-leaning by Patricia's model (within the default/user-specified date range).
+ * @param {Number} data.num_right The number of tweets by a user that were deemed conservative-leaning by Patricia's model (within the default/user-specified date range).
+ */
 export const drawLeftRightPie = (data) => {
-  // https://www.d3-graph-gallery.com/graph/pie_basic.html
   var margin = { top: 50, right: 0, bottom: 0, left: 50 },
     width = window.innerWidth - margin.left - margin.right, // Use the window's width
     height =
@@ -213,11 +236,21 @@ export const drawLeftRightPie = (data) => {
     .text((d) => d);
 };
 
-export const drawPolarityOverAllTime = (chart1, data) => {
+/**
+ * Draws distrochart for selected/clicked user's Tweet over all time of the default or user-specified date range.
+ * Check out the `util/distrochart.js` file for more details.
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @param {Object} data The polarity and quarter data of a certain user's Tweets over the whole dataset's date range.
+ * @param {Array} data.res
+ * @param {Float} data.res.polarity The political polarity that a tweet is classified to have by Patricia's model.
+ * @param {("Q1"|"Q2"|"Q3"|"Q4")} data.res.qtr What quarter of the year that a tweet was posted.
+ */
+export const drawPolarityOverAllTime = (distrochartRef, data) => {
   const width = window.innerWidth, // Use the window's width
     height = document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR;
 
-  chart1.current = makeDistroChart({
+  distrochartRef.current = makeDistroChart({
     data: data.res,
     xName: "qtr",
     yName: "polarity",
@@ -233,15 +266,25 @@ export const drawPolarityOverAllTime = (chart1, data) => {
     },
   });
 
-  chart1.current.renderBoxPlot();
-  chart1.current.renderDataPlots();
-  chart1.current.renderNotchBoxes({ showNotchBox: false });
-  chart1.current.renderViolinPlot({ showViolinPlot: false });
+  distrochartRef.current.renderBoxPlot();
+  distrochartRef.current.renderDataPlots();
+  distrochartRef.current.renderNotchBoxes({ showNotchBox: false });
+  distrochartRef.current.renderViolinPlot({ showViolinPlot: false });
 };
 
+/**
+ * Renders, in tabular form, the polarity scores for a Tweet's tokens and for the Tweet as a whole.
+ * Code skeleton provided by Patricia.
+ * @function
+ * @param {Object} data
+ * @param {Array} data.attention The weights of each token in a certain Tweet.
+ * @param {String} data.processedTweet How the Tweet has been preprocessed by Patricia's model.
+ * @param {String} data.rawTweet The styled HTML string of the original Tweet. Generated the HTML string by following [this article](https://developer.twitter.com/en/docs/twitter-for-websites/embedded-tweets/overview).
+ * @param {Array} data.tokenPolarities The political polarity score of each token in a certain Tweet.
+ * @param {Number} data.tweetId The Tweet's ID.
+ * @param {Number} data.tweetScore The overall Tweet's political polarity score.
+ */
 export const drawAttentionWeights = (data) => {
-  // credit to Patricia for this part's skeleton
-
   const { rawTweet, attention, tweetScore, processedTweet, tokenPolarities } =
     data;
 

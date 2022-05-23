@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/ApplySettingsBtn.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/ApplySettingsBtn.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import "../styles/App.css";
+
+/**
+ * Clicking on this rerenders the Timeline component such that it shows the info that the user constrains in the Control Panel.
+ * @function
+ * @param {Function} setTimelineLoading Displays loading bar as timeline rerenders with new data.
+ * @param {Function} setTimelineAux Sets state for new user-specified dashbaord settings.
+ * @param {Array} dates What default or user-defined date range is currently being imposed on displayed dataset.
+ * @param {Array} selectedUsers What default or user-defined list of Twitter users is currently being imposed on displayed dataset.
+ * @param {("MENTIONS"|"RETWEET FROM")} timelineRelation What edge type is currently being imposed on displayed dataset.
+ * @param {String} selectedTime If `dates` spans over just one day, then this is the time range within that day that is imposed on displayed dataset. E.g. "12:34".
+ * @param {Boolean} timelineLoading Whether the `Timeline` is loading. If it's loading, then this button is disabled.
+ * @returns {Component} "Apply Settings" button component
+ */
+export const ApplySettingsBtn = ({ setTimelineLoading, setTimelineAux, dates, selectedUsers, timelineRelation, selectedTime, timelineLoading }) => {
+  function handleClick() {
+    setTimelineLoading(true);
+    setTimelineAux((prevState) => {
+      const latestUsers = new Set(
+        selectedUsers.map((x) => x.label)
+      );
+      if (
+        prevState.selectedDateTimes[0].startDate !==
+          dates[0].startDate ||
+        prevState.selectedDateTimes[0].endDate !== dates[0].endDate ||
+        prevState.timelineRelation !== timelineRelation.value ||
+        prevState.users.size !== latestUsers.size
+      ) {
+        console.log("diff detected");
+        const startDate = new Date(dates[0].startDate);
+        const endDate = new Date(dates[0].endDate);
+        // if TimeRangeSlider enabled
+        if (
+          dates[0].startDate &amp;&amp;
+          dates[0].endDate &amp;&amp;
+          dates[0].startDate.getFullYear() ===
+            dates[0].endDate.getFullYear() &amp;&amp;
+          dates[0].startDate.getMonth() ===
+            dates[0].endDate.getMonth() &amp;&amp;
+          dates[0].startDate.getDay() === dates[0].endDate.getDay()
+        ) {
+          const startTime = selectedTime.start.split(":");
+          startDate.setUTCHours(startTime[0]);
+          startDate.setUTCMinutes(startTime[1]);
+
+          const endTime = selectedTime.end.split(":");
+          endDate.setUTCHours(endTime[0]);
+          endDate.setUTCMinutes(endTime[1]);
+        }
+        return {
+          selectedDateTimes: [{ startDate, endDate }],
+          timelineRelation: timelineRelation.value,
+          users: latestUsers,
+        };
+      }
+      console.log("no diff");
+      return prevState;
+    });
+  }
+
+  return (
+    &lt;button
+      className="btn"
+      style={{
+        opacity: timelineLoading ? 0.5 : 1,
+        cursor: timelineLoading ? "not-allowed" : "pointer",
+      }}
+      onClick={handleClick}
+      disabled={timelineLoading}
+    >
+      &lt;div className="centered-column">
+        &lt;CheckCircleOutlineIcon
+          fontSize="large"
+          style={{ marginBottom: "0.5rem" }}
+        />
+        APPLY SETTINGS
+      &lt;/div>
+    &lt;/button>
+  );
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: util/chartOptions.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: util/chartOptions.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Util functions for the Posts' Polarity over All Time graph in the drawer. Majority of code from [here](http://bl.ocks.org/asielen/92929960988a8935d907e39e60ea8417).
+ * @module
+ */
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function boxPlot(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.hide();
+  distrochartRef.current.boxPlots.show({ reset: true });
+  distrochartRef.current.notchBoxes.hide();
+  distrochartRef.current.dataPlots.change({ showPlot: false, showBeanLines: false });
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function notchedBoxPlot(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.hide();
+  distrochartRef.current.notchBoxes.show({ reset: true });
+  distrochartRef.current.boxPlots.show({
+    reset: true,
+    showBox: false,
+    showOutliers: true,
+    boxWidth: 20,
+    scatterOutliers: true,
+  });
+  distrochartRef.current.dataPlots.change({ showPlot: false, showBeanLines: false });
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function violinPlotUnbound(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.show({ reset: true, clamp: 0 });
+  distrochartRef.current.boxPlots.show({
+    reset: true,
+    showWhiskers: false,
+    showOutliers: false,
+    boxWidth: 10,
+    lineWidth: 15,
+    colors: ["#555"],
+  });
+  distrochartRef.current.notchBoxes.hide();
+  distrochartRef.current.dataPlots.change({ showPlot: false, showBeanLines: false });
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function violinPlotClamp(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.show({ reset: true, clamp: 1 });
+  distrochartRef.current.boxPlots.show({
+    reset: true,
+    showWhiskers: false,
+    showOutliers: false,
+    boxWidth: 10,
+    lineWidth: 15,
+    colors: ["#555"],
+  });
+  distrochartRef.current.notchBoxes.hide();
+  distrochartRef.current.dataPlots.change({ showPlot: false, showBeanLines: false });
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function beanPlot(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.show({
+    reset: true,
+    width: 75,
+    clamp: 0,
+    resolution: 30,
+    bandwidth: 50,
+  });
+  distrochartRef.current.dataPlots.show({
+    showBeanLines: true,
+    beanWidth: 15,
+    showPlot: false,
+    colors: ["#555"],
+  });
+  distrochartRef.current.boxPlots.hide();
+  distrochartRef.current.notchBoxes.hide();
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function beeswarmPlot(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.hide();
+  distrochartRef.current.dataPlots.show({
+    showPlot: true,
+    plotType: "beeswarm",
+    showBeanLines: false,
+    colors: null,
+  });
+  distrochartRef.current.notchBoxes.hide();
+  distrochartRef.current.boxPlots.hide();
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function scatterPlot(distrochartRef) {
+  if (!distrochartRef.current) return;
+  distrochartRef.current.violinPlots.hide();
+  distrochartRef.current.dataPlots.show({
+    showPlot: true,
+    plotType: 40,
+    showBeanLines: false,
+    colors: null,
+  });
+  distrochartRef.current.notchBoxes.hide();
+  distrochartRef.current.boxPlots.hide();
+}
+
+/**
+ * @function
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @returns {void}
+ */
+function trendLines(distrochartRef) {
+  if (!distrochartRef.current) return;
+  if (distrochartRef.current.dataPlots.options.showLines) {
+    distrochartRef.current.dataPlots.change({ showLines: false });
+  } else {
+    distrochartRef.current.dataPlots.change({
+      showLines: ["median", "quartile1", "quartile3"],
+    });
+  }
+}
+
+export {
+  boxPlot,
+  notchedBoxPlot,
+  violinPlotUnbound,
+  violinPlotClamp,
+  beanPlot,
+  beeswarmPlot,
+  scatterPlot,
+  trendLines,
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

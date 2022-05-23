@@ -1,25 +1,69 @@
-import React, { useEffect, useCallback, useMemo, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Timeline.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Timeline.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useEffect, useCallback, useMemo, useRef } from "react";
 import ReactDOMServer from "react-dom/server";
 import ReactLoading from "react-loading";
 import classNames from "classnames";
 import { PauseCircleOutline, PlayCircleOutline } from "@mui/icons-material";
-import "./Timeline.css";
-import { RELATIONSHIPS, COEFF } from "./constants";
+import "../styles/Timeline.css";
+import { RELATIONSHIPS, COEFF } from "../constants";
 
 const d3 = window.d3;
 const playIconHtml = ReactDOMServer.renderToString(
-  <>
-    <PlayCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
+  &lt;>
+    &lt;PlayCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
     PLAY
-  </>
+  &lt;/>
 );
 const pauseIconHtml = ReactDOMServer.renderToString(
-  <>
-    <PauseCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
+  &lt;>
+    &lt;PauseCircleOutline fontSize="large" style={{ marginBottom: "0.5rem" }} />
     PAUSE
-  </>
+  &lt;/>
 );
 
+/**
+ * The chart showing the nodes and edges of the Politicians Tweets graph.
+ * Code skeleton for arrows on edges between nodes from [here](http://bl.ocks.org/d3noob/5141278).
+ * @function
+ * @param {Boolean} openDrawer Whether the drawer is open.
+ * @param {Function} handleNodeClick Handles opening the drawer and displaying the proper stats charts.
+ * @param {Function} setDateRange Sets the date range the (potentially filtered and reloaded) dataset after it's been loaded in the Singleton.
+ * @param {Object} timelineAux Contains auxiliary data for the `Timeline`.
+ * @param {Array} timelineAux.selectedDateTimes What date range of the dataset should be displayed.
+ * @param {("MENTION"|"RETWEET FROM")} timelineAux.timelineRelation What edge type `Timeline` chart should display.
+ * @param {Set} timelineAux.users What users `Timeline` chart should display.
+ * @param {Number} currGraphTime If user clicks on point on the Number of Posts over Time chart, the `Timeline` chart should also display the correseponding time instance.
+ * @param {Boolean} loading If the dataset is in the process of being reloaded (e.g., a filter was being applied from the `ControlPanel`), `loading` is true and the `Timeline` chart is replaced by a loading icon.
+ * @param {Function} setLoading Sets `loading` to false once the dataset is done being reloaded in the Singleton.
+ * @returns {Component}
+ */
 const Timeline = ({
   openDrawer,
   handleNodeClick,
@@ -66,7 +110,7 @@ const Timeline = ({
         rows.forEach((d) => {
           const thisDay = Math.floor(d.timestamp / COEFF) * COEFF;
           if (thisDay > lastDay) lastDay = thisDay;
-          if (thisDay < firstDay) firstDay = thisDay;
+          if (thisDay &lt; firstDay) firstDay = thisDay;
           nodes[`${d.username}.${thisDay}`] = {
             label: d.username,
             time: thisDay,
@@ -150,11 +194,11 @@ const Timeline = ({
 
         this.parentNodes = instance.nodes.filter(function (d) {
           const relation = d[propertyName.current];
-          const currNodesWithRelation = d.time == nearestDay && relation; // only show nodes that have a relationship
+          const currNodesWithRelation = d.time === nearestDay &amp;&amp; relation; // only show nodes that have a relationship
 
           if (localUsers.current.size) {
             // filter localUsers
-            return currNodesWithRelation && localUsers.current.has(d.label);
+            return currNodesWithRelation &amp;&amp; localUsers.current.has(d.label);
           } else return currNodesWithRelation;
         });
 
@@ -177,7 +221,7 @@ const Timeline = ({
         console.log(d.label, relation);
 
         relation.forEach((childId) => {
-          if (d.label == childId) {
+          if (d.label === childId) {
             const newLink = {
               source: d,
               target: d,
@@ -280,7 +324,6 @@ const Timeline = ({
         .force("center", d3.forceCenter(chartWidth / 2, chartHeight / 2))
         .on("tick", ticked);
 
-      // http://bl.ocks.org/d3noob/5141278
       // build the arrow.
       d3.select(".chart")
         .append("svg:defs")
@@ -331,7 +374,7 @@ const Timeline = ({
       var targetValue = width;
       let startDate, endDate;
 
-      if (dates && dates.trueEnd) {
+      if (dates &amp;&amp; dates.trueEnd) {
         startDate = trueStart.current;
         endDate = trueEnd.current;
       } else {
@@ -448,7 +491,7 @@ const Timeline = ({
       );
 
       function step() {
-        if (currentValue < 0) currentValue = 0;
+        if (currentValue &lt; 0) currentValue = 0;
         update(x.invert(currentValue));
         currentValue = currentValue + targetValue / 151;
         if (currentValue > targetValue) {
@@ -516,7 +559,7 @@ const Timeline = ({
       .append("g")
       .attr("class", "nodes")
       .on("mouseover", function (d) {
-        if (labels["_groups"][0][d.index]["label"] == d.label)
+        if (labels["_groups"][0][d.index]["label"] === d.label)
           d3.select(labels["_groups"][0][d.index]).style(
             "visibility",
             "visible"
@@ -524,7 +567,7 @@ const Timeline = ({
         else {
           let desiredIndex;
           Array.from(labels["_groups"][0], function (x, ind) {
-            if (x.__data__.label == d.label) desiredIndex = ind;
+            if (x.__data__.label === d.label) desiredIndex = ind;
           });
           d3.select(labels["_groups"][0][desiredIndex]).style(
             "visibility",
@@ -533,7 +576,7 @@ const Timeline = ({
         }
       })
       .on("mouseout", function (d) {
-        if (labels["_groups"][0][d.index]["label"] == d.label)
+        if (labels["_groups"][0][d.index]["label"] === d.label)
           d3.select(labels["_groups"][0][d.index]).style(
             "visibility",
             "hidden"
@@ -541,7 +584,7 @@ const Timeline = ({
         else {
           let desiredIndex;
           Array.from(labels["_groups"][0], function (x, ind) {
-            if (x.__data__.label == d.label) desiredIndex = ind;
+            if (x.__data__.label === d.label) desiredIndex = ind;
           });
           d3.select(labels["_groups"][0][desiredIndex]).style(
             "visibility",
@@ -615,20 +658,20 @@ const Timeline = ({
 
     const { startDate, endDate } = selectedDateTimes[0];
     if (
-      relation != propertyName.current ||
-      users.size != localUsers.current.size ||
-      innerDateRange.current.startDate != startDate ||
-      innerDateRange.current.endDate != endDate
+      relation !== propertyName.current ||
+      users.size !== localUsers.current.size ||
+      innerDateRange.current.startDate !== startDate ||
+      innerDateRange.current.endDate !== endDate
     ) {
       propertyName.current = relation;
       localUsers.current = users;
       innerDateRange.current = selectedDateTimes[0];
 
       // special case when user selects just one day
-      if (+endDate - +startDate <= 8.64e7) {
+      if (+endDate - +startDate &lt;= 8.64e7) {
         trueStart.current = Math.max(+globalStartTime.current, +startDate);
         let dayEnd = endDate;
-        if (startDate == endDate) {
+        if (startDate === endDate) {
           // only set this if user didn't specify hours
           dayEnd = new Date(trueStart.current);
           dayEnd.setUTCHours(23, 59, 59, 59);
@@ -637,14 +680,14 @@ const Timeline = ({
       } else {
         // checking for endDate b/c it's initialized to null, which indicates the user hasn't set their own date range yet
         trueStart.current =
-          endDate && +globalStartTime.current < +startDate
+          endDate &amp;&amp; +globalStartTime.current &lt; +startDate
             ? +startDate
             : +globalStartTime.current;
 
         if (endDate) endDate.setUTCHours(23, 59, 59, 59);
 
         trueEnd.current =
-          endDate && +endDate < +globalEndTime.current
+          endDate &amp;&amp; +endDate &lt; +globalEndTime.current
             ? +endDate
             : +globalEndTime.current;
       }
@@ -661,7 +704,7 @@ const Timeline = ({
           );
           drawChart(nodes, links);
         });
-    } else if (currGraphTime && +currGraphTime != currTime.current) {
+    } else if (currGraphTime &amp;&amp; +currGraphTime !== currTime.current) {
       // from clicking on node in num_posts_over_time chart
       currTime.current = +currGraphTime;
       GlobalAdaptor.current
@@ -686,50 +729,73 @@ const Timeline = ({
   }, [drawSlider, drawChart, timelineAux, currGraphTime]); // Redraw chart if data changes
 
   return (
-    <>
-      {loading && (
-        <ReactLoading
+    &lt;>
+      {loading &amp;&amp; (
+        &lt;ReactLoading
           type={"cylon"}
           color={"#0eb0e6"}
           height={"20%"}
           width={"20%"}
         />
       )}
-      <div
+      &lt;div
         id="graph"
         className={classNames(
           "timeline",
-          openDrawer && "moveup",
-          loading && "invisible"
+          openDrawer &amp;&amp; "moveup",
+          loading &amp;&amp; "invisible"
         )}
       >
-        <div id="btn-section">
-          <button id="play-button" className="btn">
-            <div className="centered-column">
-              <PlayCircleOutline
+        &lt;div id="btn-section">
+          &lt;button id="play-button" className="btn">
+            &lt;div className="centered-column">
+              &lt;PlayCircleOutline
                 fontSize="large"
                 style={{ marginBottom: "0.5rem" }}
               />
               PLAY
-            </div>
-          </button>
-        </div>
-        <svg
+            &lt;/div>
+          &lt;/button>
+        &lt;/div>
+        &lt;svg
           id="slider-section"
           preserveAspectRatio="xMinYMin meet"
           viewBox={`0 0 ${width} ${height}`}
-        ></svg>
+        >&lt;/svg>
 
-        <div className="chart-container" id="container">
-          <svg
+        &lt;div className="chart-container" id="container">
+          &lt;svg
             className="chart card"
             preserveAspectRatio="xMinYMin meet"
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-          ></svg>
-        </div>
-      </div>
-    </>
+          >&lt;/svg>
+        &lt;/div>
+      &lt;/div>
+    &lt;/>
   );
 };
 
 export default Timeline;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

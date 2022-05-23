@@ -1,23 +1,22 @@
-// https://github.com/asielen/D3_Reusable_Charts/blob/master/distro_chart/distrochart.js
 /**
- * @fileOverview A D3 based distribution chart system. Supports: Box plots, Violin plots, Notched box plots, trend lines, beeswarm plot
- * @version 3.0
- */
-
-/**
- * Creates a box plot, violin plot, and or notched box plot
+ * Majority of code from [here](https://github.com/asielen/D3_Reusable_Charts/blob/master/distro_chart/distrochart.js).
+ *
+ * A D3 based distribution chart system. Supports: Box plots, Violin plots, Notched box plots, trend lines, beeswarm plot.
+ * Util functiions for the Posts' Polarity over All Time stats chart.
+ *
+ * @module
  * @param settings Configuration options for the base plot
  * @param settings.data The data for the plot
  * @param settings.xName The name of the column that should be used for the x groups
  * @param settings.yName The name of the column used for the y values
- * @param {string} settings.selector The selector string for the main chart div
- * @param [settings.axisLabels={}] Defaults to the xName and yName
- * @param [settings.yTicks = 1] 1 = default ticks. 2 =  double, 0.5 = half
- * @param [settings.scale='linear'] 'linear' or 'log' - y scale of the chart
- * @param [settings.chartSize={width:800, height:400}] The height and width of the chart itself (doesn't include the container)
- * @param [settings.margin={top: 15, right: 40, bottom: 40, left: 50}] The margins around the chart (inside the main div)
- * @param [settings.constrainExtremes=false] Should the y scale include outliers?
- * @returns {object} chart A chart object
+ * @param {String} settings.selector The selector string for the main chart div
+ * @param {Object} settings.axisLabels Defaults to the xName and yName
+ * @param {Number} [settings.yTicks=1] 1 = default ticks. 2 =  double, 0.5 = half
+ * @param {String} [settings.scale='linear'] 'linear' or 'log' - y scale of the chart
+ * @param {Object} [settings.chartSize={width:800, height:400}] The height and width of the chart itself (doesn't include the container)
+ * @param {Object} [settings.margin={top: 15, right: 40, bottom: 40, left: 50}] The margins around the chart (inside the main div)
+ * @param {Boolean} [settings.constrainExtremes=false] Should the y scale include outliers?
+ * @returns {Object} A chart object
  */
 const d3 = window.d3;
 
@@ -72,8 +71,8 @@ export default function makeDistroChart(settings) {
 
   /**
    * Takes an array, function, or object mapping and created a color function from it
-   * @param {function|[]|object} colorOptions
-   * @returns {function} Function to be used to determine chart colors
+   * @param {Function|Array|Object} colorOptions
+   * @returns {Function} Function to be used to determine chart colors
    */
   function getColorFunct(colorOptions) {
     if (typeof colorOptions == "function") {
@@ -1206,7 +1205,7 @@ export default function makeDistroChart(settings) {
      * Makes the svg path string for a notched box
      * @param cNotch Current notch box object
      * @param notchBounds objBound object
-     * @returns {string} A string in the proper format for a svg polygon
+     * @returns {String} A string in the proper format for a svg polygon
      */
     function makeNotchBox(cNotch, notchBounds) {
       var scaledValues = [];

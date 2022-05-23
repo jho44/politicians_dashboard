@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: components/Charts.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: components/Charts.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import * as co from "../util/chartOptions";
+import classNames from "classnames";
+import Carousel, { CarouselItem } from "./Carousel";
+import ReactLoading from "react-loading";
+import { MAIN_COLOR } from "../constants";
+
+/**
+ * The stats charts for a given user/Tweet.
+ * | Chart Description | Chart Type |
+ * | ----------- | ----------- |
+ * | number of and polarity score of posts over time | line chart |
+ * | left vs right posts | pie chart |
+ * | post polarity of tweets over time, grouped by quarter of the year | box plots, violin charts, bean plots |
+ *
+ * @function
+ * @param {Boolean} openDrawer Whether the drawer is open.
+ * @param {String} accId The selected/clicked user's Twitter ID.
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @param {Function} handleCloseClick Closes the drawer when clicked.
+ * @param {Boolean} loading If the stats charts are in the process of being rendered, `loading` is true and the stats charts are replaced by a loading icon.
+ * @returns {Component}
+ */
+function Charts({
+  openDrawer,
+  accId,
+  distrochartRef,
+  handleCloseClick,
+  loading,
+}) {
+  return (
+    &lt;div className={classNames("drawer-wrapper", openDrawer &amp;&amp; "open")}>
+      &lt;div className={classNames("drawer", openDrawer &amp;&amp; "open")}>
+        &lt;div style={{ width: "95vw", textAlign: "right" }}>
+          &lt;img
+            src={"/blackCloseIcon.png"}
+            onClick={handleCloseClick}
+            style={{ width: "1.5rem", cursor: "pointer" }}
+          />
+        &lt;/div>
+        {loading &amp;&amp; (
+          &lt;div
+            style={{ display: "flex", justifyContent: "center", width: "100%" }}
+          >
+            &lt;ReactLoading
+              type={"cylon"}
+              color={MAIN_COLOR}
+              height={"20%"}
+              width={"20%"}
+            />
+          &lt;/div>
+        )}
+        &lt;div style={{ visibility: loading ? "hidden" : "visible" }}>
+          &lt;h2 style={{ marginTop: 0 }}>
+            {accId}'s Summarized Twitter Activity
+          &lt;/h2>
+          &lt;Carousel>
+            &lt;CarouselItem>
+              &lt;div id="num-posts">
+                &lt;h3>Number of Tweets over Specified Time Frame&lt;/h3>
+                &lt;p>
+                  The color of the line corresponds to the polarity of posts at
+                  that point in time.
+                &lt;/p>
+                &lt;p>
+                  The bluer it is, the more liberal-leaning the posts there
+                  were. The redder it is, the more conservative-leaning the
+                  posts there were. White signifies a more neutral position.
+                &lt;/p>
+              &lt;/div>
+            &lt;/CarouselItem>
+            &lt;CarouselItem>
+              &lt;div id="num-left-right-posts">
+                &lt;h3>
+                  Number of Left vs Right Tweets over Specified Time Frame
+                &lt;/h3>
+              &lt;/div>
+            &lt;/CarouselItem>
+            &lt;CarouselItem
+              styles={{ flexDirection: "column", alignItems: "flex-start" }}
+            >
+              &lt;div>
+                &lt;h3>Posts' Polarity over All Time&lt;/h3>
+                &lt;div id="polarity-over-all-time" />
+                &lt;div className="chart-options">
+                  &lt;p>Show: &lt;/p>
+                  &lt;button onClick={() => co.boxPlot(distrochartRef)}>Box Plot&lt;/button>
+                  &lt;button onClick={() => co.notchedBoxPlot(distrochartRef)}>
+                    Notched Box Plot
+                  &lt;/button>
+                  &lt;button onClick={() => co.violinPlotUnbound(distrochartRef)}>
+                    Violin Plot Unbound
+                  &lt;/button>
+                  &lt;button onClick={() => co.violinPlotClamp(distrochartRef)}>
+                    Violin Plot Clamp to Data
+                  &lt;/button>
+                  &lt;button onClick={() => co.beanPlot(distrochartRef)}>Bean Plot&lt;/button>
+                  &lt;button onClick={() => co.beeswarmPlot(distrochartRef)}>
+                    Beeswarm Plot
+                  &lt;/button>
+                  &lt;button onClick={() => co.scatterPlot(distrochartRef)}>
+                    Scatter Plot
+                  &lt;/button>
+                  &lt;button onClick={() => co.trendLines(distrochartRef)}>
+                    Trend Lines
+                  &lt;/button>
+                &lt;/div>
+              &lt;/div>
+            &lt;/CarouselItem>
+          &lt;/Carousel>
+          &lt;div id="attention-weights" />
+        &lt;/div>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default Charts;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

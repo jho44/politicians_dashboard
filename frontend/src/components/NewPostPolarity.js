@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import { drawAttentionWeights } from "./drawerFuncs";
-import "./App.css";
+import { drawAttentionWeights } from "../util/drawerFuncs";
+import "../styles/App.css";
 
+/**
+ * Section where user can input some text to be run through Patricia's
+ * TIMME model and classify the polarity of each token and the whole tweet.
+ * @function
+ * @returns {Component}
+ */
 export const NewPostPolarity = () => {
   const [newTweet, setNewTweet] = useState("");
   function handleChange(e) {
@@ -18,9 +24,15 @@ export const NewPostPolarity = () => {
     })
       .then((response) => response.json())
       .then((res) => {
-        res["rawTweet"] = newTweet;
-        const rows = drawAttentionWeights(res);
-        document.getElementById("new-attention-weights").innerHTML = rows;
+        if (res) {
+          res["rawTweet"] = newTweet;
+          const rows = drawAttentionWeights(res);
+          document.getElementById("new-attention-weights").innerHTML = rows;
+        } else {
+          document.getElementById(
+            "new-attention-weights"
+          ).innerHTML = `<div class="centered-column"><div style="padding-bottom: 1rem">${newTweet}</div><div>Unfortunately, the model couldn't figure out a classification for your tweet. Try another?</div></div>`;
+        }
       })
       .catch((error) => {
         console.log(error);

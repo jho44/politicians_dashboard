@@ -1,15 +1,30 @@
 import React from "react";
-import * as co from "./chartOptions";
+import * as co from "../util/chartOptions";
 import classNames from "classnames";
 import Carousel, { CarouselItem } from "./Carousel";
-import closeIcon from "./blackCloseIcon.png";
 import ReactLoading from "react-loading";
-import { MAIN_COLOR } from "./constants";
+import { MAIN_COLOR } from "../constants";
 
-export default function Charts({
+/**
+ * The stats charts for a given user/Tweet.
+ * | Chart Description | Chart Type |
+ * | ----------- | ----------- |
+ * | number of and polarity score of posts over time | line chart |
+ * | left vs right posts | pie chart |
+ * | post polarity of tweets over time, grouped by quarter of the year | box plots, violin charts, bean plots |
+ *
+ * @function
+ * @param {Boolean} openDrawer Whether the drawer is open.
+ * @param {String} accId The selected/clicked user's Twitter ID.
+ * @param {Ref} distrochartRef State of the Posts' Polarity over All Time chart.
+ * @param {Function} handleCloseClick Closes the drawer when clicked.
+ * @param {Boolean} loading If the stats charts are in the process of being rendered, `loading` is true and the stats charts are replaced by a loading icon.
+ * @returns {Component}
+ */
+function Charts({
   openDrawer,
   accId,
-  chart1,
+  distrochartRef,
   handleCloseClick,
   loading,
 }) {
@@ -18,7 +33,7 @@ export default function Charts({
       <div className={classNames("drawer", openDrawer && "open")}>
         <div style={{ width: "95vw", textAlign: "right" }}>
           <img
-            src={closeIcon}
+            src={"/blackCloseIcon.png"}
             onClick={handleCloseClick}
             style={{ width: "1.5rem", cursor: "pointer" }}
           />
@@ -69,24 +84,28 @@ export default function Charts({
                 <div id="polarity-over-all-time" />
                 <div className="chart-options">
                   <p>Show: </p>
-                  <button onClick={() => co.boxPlot(chart1)}>Box Plot</button>
-                  <button onClick={() => co.notchedBoxPlot(chart1)}>
+                  <button onClick={() => co.boxPlot(distrochartRef)}>
+                    Box Plot
+                  </button>
+                  <button onClick={() => co.notchedBoxPlot(distrochartRef)}>
                     Notched Box Plot
                   </button>
-                  <button onClick={() => co.violinPlotUnbound(chart1)}>
+                  <button onClick={() => co.violinPlotUnbound(distrochartRef)}>
                     Violin Plot Unbound
                   </button>
-                  <button onClick={() => co.violinPlotClamp(chart1)}>
+                  <button onClick={() => co.violinPlotClamp(distrochartRef)}>
                     Violin Plot Clamp to Data
                   </button>
-                  <button onClick={() => co.beanPlot(chart1)}>Bean Plot</button>
-                  <button onClick={() => co.beeswarmPlot(chart1)}>
+                  <button onClick={() => co.beanPlot(distrochartRef)}>
+                    Bean Plot
+                  </button>
+                  <button onClick={() => co.beeswarmPlot(distrochartRef)}>
                     Beeswarm Plot
                   </button>
-                  <button onClick={() => co.scatterPlot(chart1)}>
+                  <button onClick={() => co.scatterPlot(distrochartRef)}>
                     Scatter Plot
                   </button>
-                  <button onClick={() => co.trendLines(chart1)}>
+                  <button onClick={() => co.trendLines(distrochartRef)}>
                     Trend Lines
                   </button>
                 </div>
@@ -99,3 +118,5 @@ export default function Charts({
     </div>
   );
 }
+
+export default Charts;

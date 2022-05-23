@@ -1,4 +1,32 @@
-import "./styles/App.css";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: App.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: App.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import "./styles/App.css";
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import Charts from "./components/Charts";
 import ReactLoading from "react-loading";
@@ -77,15 +105,14 @@ function App() {
     setPostPolarityChartLoading(true);
 
     fetch(
-      `http://localhost:5000/flask?type=attn_weights&username=${username}&curr_time=${currTime}`
+      `http://localhost:5000/flask?type=attn_weights&amp;username=${username}&amp;curr_time=${currTime}`
     )
       .then((res) => res.json())
       .then((res) => {
         if (!res) {
-          document.getElementById("attention-weights").innerHTML =
-            "<h3>A tweet was not associated with the node you just clicked.</h3>";
+          document.getElementById("attention-weights").innerHTML = "&lt;h3>A tweet was not associated with the node you just clicked.&lt;/h3>"
         } else {
-          let allPostsHTML = "";
+          let allPostsHTML = ""
           for (const post of res) {
             const rows = drawAttentionWeights(post);
             allPostsHTML += rows;
@@ -97,9 +124,9 @@ function App() {
       .catch((err) => console.error(err));
 
     fetch(
-      start && end
-        ? `http://localhost:5000/flask?type=num_posts_over_time&username=${username}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_posts_over_time&username=${username}`
+      start &amp;&amp; end
+        ? `http://localhost:5000/flask?type=num_posts_over_time&amp;username=${username}&amp;start_date=${start}&amp;end_date=${end}`
+        : `http://localhost:5000/flask?type=num_posts_over_time&amp;username=${username}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -109,9 +136,9 @@ function App() {
       .catch((err) => console.error(err));
 
     fetch(
-      start && end
-        ? `http://localhost:5000/flask?type=num_left_right_posts&username=${username}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_left_right_posts&username=${username}`
+      start &amp;&amp; end
+        ? `http://localhost:5000/flask?type=num_left_right_posts&amp;username=${username}&amp;start_date=${start}&amp;end_date=${end}`
+        : `http://localhost:5000/flask?type=num_left_right_posts&amp;username=${username}`
     )
       .then((res) => res.json())
       .then((res) => {
@@ -120,7 +147,7 @@ function App() {
       })
       .catch((err) => console.error(err));
 
-    fetch(`http://localhost:5000/flask?type=post_polarity&username=${username}`)
+    fetch(`http://localhost:5000/flask?type=post_polarity&amp;username=${username}`)
       .then((res) => res.json())
       .then((res) => {
         drawPolarityOverAllTime(distrochartRef, res);
@@ -169,15 +196,15 @@ function App() {
   };
 
   return (
-    <div className="App centered-column">
-      <header className="App-header">
-        <p>Politician Twitter Activity</p>
-      </header>
-      <NewPostPolarity />
+    &lt;div className="App centered-column">
+      &lt;header className="App-header">
+        &lt;p>Politician Twitter Activity&lt;/p>
+      &lt;/header>
+      &lt;NewPostPolarity />
 
       {dateRange.start ? (
-        <>
-          <ControlPanel
+        &lt;>
+          &lt;ControlPanel
             timelineRelation={timelineRelation}
             setTimelineRelation={setTimelineRelation}
             dateRange={dateRange}
@@ -190,7 +217,7 @@ function App() {
             usersList={usersList}
             selectedUsers={selectedUsers}
           />
-          <ApplySettingsBtn
+          &lt;ApplySettingsBtn
             setTimelineLoading={setTimelineLoading}
             setTimelineAux={setTimelineAux}
             dates={dates}
@@ -199,7 +226,7 @@ function App() {
             selectedTime={selectedTime}
             timelineLoading={timelineLoading}
           />
-          <Charts
+          &lt;Charts
             openDrawer={openDrawer}
             accId={accId}
             distrochartRef={distrochartRef}
@@ -211,16 +238,16 @@ function App() {
               postPolarityChartLoading
             }
           />
-        </>
+        &lt;/>
       ) : (
-        <ReactLoading
+        &lt;ReactLoading
           type={"cylon"}
           color={MAIN_COLOR}
           height={"20%"}
           width={"20%"}
         />
       )}
-      <Timeline
+      &lt;Timeline
         loading={timelineLoading}
         setLoading={setTimelineLoading}
         currGraphTime={currGraphTime}
@@ -229,8 +256,31 @@ function App() {
         openDrawer={openDrawer}
         handleNodeClick={handleNodeClick}
       />
-    </div>
+    &lt;/div>
   );
 }
 
 export default App;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

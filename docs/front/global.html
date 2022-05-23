@@ -1,0 +1,1747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Global</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Global</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        <h2></h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+
+        
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="ApplySettingsBtn"><span class="type-signature"></span>ApplySettingsBtn<span class="signature">(setTimelineLoading, setTimelineAux, dates, selectedUsers, timelineRelation, selectedTime, timelineLoading)</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Clicking on this rerenders the Timeline component such that it shows the info that the user constrains in the Control Panel.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>setTimelineLoading</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Displays loading bar as timeline rerenders with new data.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setTimelineAux</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets state for new user-specified dashbaord settings.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What default or user-defined date range is currently being imposed on displayed dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedUsers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What default or user-defined list of Twitter users is currently being imposed on displayed dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timelineRelation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">"MENTIONS"</span>
+|
+
+<span class="param-type">"RETWEET FROM"</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What edge type is currently being imposed on displayed dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If <code>dates</code> spans over just one day, then this is the time range within that day that is imposed on displayed dataset. E.g. &quot;12:34&quot;.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timelineLoading</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Whether the <code>Timeline</code> is loading. If it's loading, then this button is disabled.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_ApplySettingsBtn.js.html">components/ApplySettingsBtn.js</a>, <a href="components_ApplySettingsBtn.js.html#line17">line 17</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>&quot;Apply Settings&quot; button component</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="Carousel"><span class="type-signature"></span>Carousel<span class="signature">(children)</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The carousel that flips through the different charts in the drawer.
+Code skeleton from <a href="https://medium.com/tinyso/how-to-create-the-responsive-and-swipeable-carousel-slider-component-in-react-99f433364aa0">here</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>children</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>HTML components for Tweet's stats graphs.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_Carousel.js.html">components/Carousel.js</a>, <a href="components_Carousel.js.html#line19">line 19</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="Charts"><span class="type-signature"></span>Charts<span class="signature">(openDrawer, accId, distrochartRef, handleCloseClick, loading)</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The stats charts for a given user/Tweet.</p>
+<table>
+<thead>
+<tr>
+<th>Chart Description</th>
+<th>Chart Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>number of and polarity score of posts over time</td>
+<td>line chart</td>
+</tr>
+<tr>
+<td>left vs right posts</td>
+<td>pie chart</td>
+</tr>
+<tr>
+<td>post polarity of tweets over time, grouped by quarter of the year</td>
+<td>box plots, violin charts, bean plots</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>openDrawer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Whether the drawer is open.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>accId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The selected/clicked user's Twitter ID.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>distrochartRef</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Ref</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>State of the Posts' Polarity over All Time chart.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleCloseClick</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Closes the drawer when clicked.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>loading</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If the stats charts are in the process of being rendered, <code>loading</code> is true and the stats charts are replaced by a loading icon.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_Charts.js.html">components/Charts.js</a>, <a href="components_Charts.js.html#line24">line 24</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="ControlPanel"><span class="type-signature"></span>ControlPanel<span class="signature">(timelineRelation, setTimelineRelation, dateRange, dates, setSelectedUsers, setDates, selectStyles, selectedTime, handleTimeChange, usersList, selectedUsers)</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Consists of the settings/filters users can impose on the displayed dataset:</p>
+<ul>
+<li>date range</li>
+<li>interested users</li>
+<li>interested relation/edge type</li>
+<li>time range within a day</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>timelineRelation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">"MENTION"</span>
+|
+
+<span class="param-type">"RETWEET FROM"</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What edge type <code>Timeline</code> chart should display.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setTimelineRelation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets the edge type that the <code>Timeline</code> chart should display.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dateRange</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The date range of the whole dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What date range of the dataset should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setSelectedUsers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets the Twitter users that should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setDates</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets the date range of the dataset that should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectStyles</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>An Object for the <code>Select</code> components' styles.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The time range within a day of the dataset that should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleTimeChange</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Callback</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets the start and end times of the desired time range within a day of thee dataset that should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>usersList</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>All users in the dataset.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedUsers</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Set</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The Twitter users that the user is interested in seeing data about.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_ControlPanel.js.html">components/ControlPanel.js</a>, <a href="components_ControlPanel.js.html#line34">line 34</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="NewPostPolarity"><span class="type-signature"></span>NewPostPolarity<span class="signature">()</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Section where user can input some text to be run through Patricia's
+TIMME model and classify the polarity of each token and the whole tweet.</p>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_NewPostPolarity.js.html">components/NewPostPolarity.js</a>, <a href="components_NewPostPolarity.js.html#line11">line 11</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="Timeline"><span class="type-signature"></span>Timeline<span class="signature">(openDrawer, handleNodeClick, setDateRange, timelineAux, currGraphTime, loading, setLoading)</span><span class="type-signature"> &rarr; {Component}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>The chart showing the nodes and edges of the Politicians Tweets graph.
+Code skeleton for arrows on edges between nodes from <a href="http://bl.ocks.org/d3noob/5141278">here</a>.</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>openDrawer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Whether the drawer is open.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>handleNodeClick</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Handles opening the drawer and displaying the proper stats charts.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setDateRange</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets the date range the (potentially filtered and reloaded) dataset after it's been loaded in the Singleton.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timelineAux</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Contains auxiliary data for the <code>Timeline</code>.</p>
+                <h6>Properties</h6>
+                
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>selectedDateTimes</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What date range of the dataset should be displayed.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>timelineRelation</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">"MENTION"</span>
+|
+
+<span class="param-type">"RETWEET FROM"</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What edge type <code>Timeline</code> chart should display.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>users</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Set</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>What users <code>Timeline</code> chart should display.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>currGraphTime</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If user clicks on point on the Number of Posts over Time chart, the <code>Timeline</code> chart should also display the correseponding time instance.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>loading</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Boolean</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>If the dataset is in the process of being reloaded (e.g., a filter was being applied from the <code>ControlPanel</code>), <code>loading</code> is true and the <code>Timeline</code> chart is replaced by a loading icon.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>setLoading</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Sets <code>loading</code> to false once the dataset is done being reloaded in the Singleton.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="components_Timeline.js.html">components/Timeline.js</a>, <a href="components_Timeline.js.html#line39">line 39</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Component</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-util_chartOptions.html">util/chartOptions</a></li><li><a href="module-util_distrochart.html">util/distrochart</a></li><li><a href="module-util_drawerFuncs.html">util/drawerFuncs</a></li></ul><h3>Classes</h3><ul><li><a href="App.html">App</a></li></ul><h3>Global</h3><ul><li><a href="global.html#ApplySettingsBtn">ApplySettingsBtn</a></li><li><a href="global.html#Carousel">Carousel</a></li><li><a href="global.html#Charts">Charts</a></li><li><a href="global.html#ControlPanel">ControlPanel</a></li><li><a href="global.html#NewPostPolarity">NewPostPolarity</a></li><li><a href="global.html#Timeline">Timeline</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sun May 22 2022 21:38:01 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

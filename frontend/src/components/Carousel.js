@@ -1,6 +1,5 @@
-// https://medium.com/tinyso/how-to-create-the-responsive-and-swipeable-carousel-slider-component-in-react-99f433364aa0
 import React, { useEffect, useState } from "react";
-import "./Carousel.css";
+import "../styles/Carousel.css";
 
 export const CarouselItem = ({ children, width, styles }) => {
   return (
@@ -10,6 +9,13 @@ export const CarouselItem = ({ children, width, styles }) => {
   );
 };
 
+/**
+ * The carousel that flips through the different charts in the drawer.
+ * Code skeleton from [here](https://medium.com/tinyso/how-to-create-the-responsive-and-swipeable-carousel-slider-component-in-react-99f433364aa0).
+ * @function
+ * @param {Array} children HTML components for Tweet's stats graphs.
+ * @returns {Component}
+ */
 const Carousel = ({ children }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);

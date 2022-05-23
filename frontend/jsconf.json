@@ -1,0 +1,17 @@
+{
+  "plugins": ["plugins/markdown"],
+  "source": {
+    "include": [
+      "src/App.js",
+      "src/components/ApplySettingsBtn.js",
+      "src/components/Carousel.js",
+      "src/components/Charts.js",
+      "src/components/ControlPanel.js",
+      "src/components/NewPostPolarity.js",
+      "src/components/Timeline.js",
+      "src/util/chartOptions.js",
+      "src/util/distrochart.js",
+      "src/util/drawerFuncs.js"
+    ]
+  }
+}
