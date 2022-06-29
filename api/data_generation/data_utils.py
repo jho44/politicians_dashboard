@@ -133,7 +133,8 @@ async def process_entry(entry, relationship, users_map, users_set, retweets_map,
     if '-has:mentions' not in relationship: # if it has a mention
         if 'entities' in entry.keys():
             for mention in entry['entities']['mentions']:
-                if mention['id'] in users_map and mention['id'] in users_set:
+                # if mention['id'] in users_map and mention['id'] in users_set:
+                if mention['id'] in users_map:
                     mentions += users_map[mention['id']] + ','
                 else: # mentioned user's acc was prob suspended
                     continue

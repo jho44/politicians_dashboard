@@ -86,9 +86,13 @@ function App() {
             "<h3>A tweet was not associated with the node you just clicked.</h3>";
         } else {
           let allPostsHTML = "";
-          for (const post of res) {
-            const rows = drawAttentionWeights(post);
-            allPostsHTML += rows;
+          for (const relationship of RELATIONSHIPS) {
+            let html = `<h3>${relationship}</h3>`;
+            for (const post of res[relationship]) {
+              const rows = drawAttentionWeights(post);
+              html += rows;
+            }
+            allPostsHTML += html;
           }
           document.getElementById("attention-weights").innerHTML = allPostsHTML;
         }

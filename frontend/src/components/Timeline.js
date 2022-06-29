@@ -56,7 +56,7 @@ const Timeline = ({
   let simulation, node, link, labels;
 
   const GlobalAdaptor = useRef();
-  const propertyName = useRef("retweet_from");
+  const propertyName = useRef();
   const localUsers = useRef(new Set());
   const innerDateRange = useRef(timelineAux.selectedDateTimes[0]);
   const globalStartTime = useRef(); // of all the data
@@ -100,18 +100,16 @@ const Timeline = ({
              * and others are strings meant to rep lists of ints
              * doing this mapping to int_relations just standardizes everything
              */
-            const int_relations = relations.map((relator) => {
-              const relation = relator.split(".")[0];
+            relations.forEach((relation) => {
               nodes[`${relation}.${thisDay}`] = {
                 label: relation,
                 time: thisDay,
               };
-              return relation;
             });
 
             nodes[`${d.username}.${thisDay}`].collapsed = true;
             nodes[`${d.username}.${thisDay}`][propertyName.current] =
-              int_relations;
+              relations;
           }
         });
       })

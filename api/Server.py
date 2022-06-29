@@ -173,28 +173,32 @@ class Server(Resource):
         curr_time = int(args['curr_time'])
         data = data[(data['timestamp'] >= curr_time) & (data['timestamp'] <= curr_time + 8.64e+7)]
         # time step is 1 day in milliseconds
-        posts = data[['full_text', 'tweet_id' ]]
+        posts = data[['full_text', 'tweet_id', 'mention', 'retweet_from']]
 
-        results = []
+        mentions, retweets = [], []
         for idx, post in posts.iterrows():
           # get the polarity score from Patricia's model
           res = self.task_manager.single_line_test(post['full_text'])
           # get the html from Twitter for the pretty tweet
           response = requests.get('https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/' + str(post['tweet_id']))
 
+          obj = None
           if res:
-            results.append({
+            obj = {
               "rawTweet": response.json()['html'],
               "tokenPolarities": res["raw_polarity"].tolist(),
               "processedTweet": res["processed_tweet"],
               "tweetScore": 1.*np.float32(res["polarity"]),
               "attention": res["attention"].tolist(),
               "tweetId": post['tweet_id'],
-            })
-          else:
-            results.append(None)
+            }
 
-          return results
+          if type(post['retweet_from']) == str:
+            retweets.append(obj)
+          elif type(post['mention']) == str:
+            mentions.append(obj)
+
+        return {"MENTIONS": mentions, "RETWEET FROM": retweets}
 
   def post(self):
     '''
