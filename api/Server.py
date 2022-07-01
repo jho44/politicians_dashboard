@@ -28,6 +28,58 @@ class Server(Resource):
   def __init__(self, task_manager):
     self.task_manager = task_manager
 
+  def num_posts_over_time_helper(self, data):
+    grps = data.groupby(pd.Grouper(key='datetime', freq='D', origin='epoch'))
+    # since we're grouping by day, the chart will have an time-axis ending on the start of the last selected day
+    grp_sizes = grps.size()
+
+    try:
+      min_range = int(grp_sizes.values.min())
+      max_range = int(grp_sizes.values.max())
+    except ValueError:
+      min_range = 0
+      max_range = 10
+
+    # get left_right color at each stop
+    # since each stop may have multiple posts (and therefore multiple polarities)
+    # will need to get average of these posts' polarities to determine color
+    mean_polarities = grps.mean()["polarity"].reset_index(drop=True)
+    mean_polarities = mean_polarities[mean_polarities.notnull()]
+
+    # liberal leaning,      B (0, 0, 255)       -- lambda = -13
+    # neutral leaning,      W (255, 255, 255)   -- lambda = 0
+    # conservative leaning, R (255, 0, 0)       -- lambda = 13
+
+    def get_color(polarity):
+      # y = 255 * e ^ (-x^2 / 12)
+      RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip("0x")
+      if polarity > 0:
+        # white FFFFFF -> red FF0000 interpolation
+        # (0, 255), (13, 0)
+        return f'#FF{RGB_comp}{RGB_comp}'
+      else:
+        # blue 0000FF -> white FFFFFF interpolation
+        # (-13, 0), (0, 255)
+        return f'#{RGB_comp}{RGB_comp}FF'
+    # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
+    colors = mean_polarities.apply(get_color).tolist()
+
+    not_null_indices = mean_polarities.index
+    if len(not_null_indices) == 0:
+      stops = []
+    elif not_null_indices[-1] == 0:
+        stops = [100]
+    else:
+      stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
+
+    return {
+      'times': grp_sizes.index.strftime('%m/%d/%Y, %H:%M:%S').tolist(),
+      'sizes': grp_sizes.values.tolist(),
+      'range': [min_range, max_range],
+      'colors': colors,
+      'stops': stops
+    }
+
   def get(self):
     '''
     GET must handle requests asking for different things, as specified by the `type` query parameter:
@@ -114,54 +166,24 @@ class Server(Resource):
         data['datetime'] = pd.to_datetime(data['timestamp'], unit='ms', utc=True)
         data.drop('timestamp', axis=1, inplace=True)
 
-        grps = data.groupby(pd.Grouper(key='datetime', freq='D', origin='epoch'))
-        # since we're grouping by day, the chart will have an time-axis ending on the start of the last selected day
-        grp_sizes = grps.size()
+        mentions = data[(data['mention'].notnull()) & (data['retweet_from'].isnull())]
+        retweets = data[(data['retweet_from'].notnull()) & (data['mention'].isnull())]
 
-        try:
-          min_range = int(grp_sizes.values.min())
-          max_range = int(grp_sizes.values.max())
-        except ValueError:
-          min_range = 0
-          max_range = 10
+        relations = [{
+          'name': 'allPosts',
+          'data': data
+        }, {
+          'name': 'mentions',
+          'data': mentions
+        }, {
+          'name': 'retweets',
+          'data': retweets
+        }]
+        results = {}
+        for relation in relations:
+          results[relation['name']] = self.num_posts_over_time_helper(relation['data'])
 
-        # get left_right color at each stop
-        # since each stop may have multiple posts (and therefore multiple polarities)
-        # will need to get average of these posts' polarities to determine color
-        mean_polarities = grps.mean()["polarity"].reset_index(drop=True)
-        mean_polarities = mean_polarities[mean_polarities.notnull()]
-
-        # liberal leaning,      B (0, 0, 255)       -- lambda = -13
-        # neutral leaning,      W (255, 255, 255)   -- lambda = 0
-        # conservative leaning, R (255, 0, 0)       -- lambda = 13
-
-        def get_color(polarity):
-          # y = 255 * e ^ (-x^2 / 12)
-          RGB_comp = hex(round(255 * math.exp(- polarity ** 2 / 4))).lstrip("0x")
-          if polarity > 0:
-            # white FFFFFF -> red FF0000 interpolation
-            # (0, 255), (13, 0)
-            return f'#FF{RGB_comp}{RGB_comp}'
-          else:
-            # blue 0000FF -> white FFFFFF interpolation
-            # (-13, 0), (0, 255)
-            return f'#{RGB_comp}{RGB_comp}FF'
-        # note: could parallelize with http://blog.adeel.io/2016/11/06/parallelize-pandas-map-or-apply/
-        colors = mean_polarities.apply(get_color).tolist()
-
-        not_null_indices = mean_polarities.index
-        if not_null_indices[-1] == 0:
-            stops = [100]
-        else:
-          stops = (not_null_indices / not_null_indices[-1] * 100).tolist()
-
-        return jsonify({
-          'times': grp_sizes.index.strftime('%m/%d/%Y, %H:%M:%S').tolist(),
-          'sizes': grp_sizes.values.tolist(),
-          'range': [min_range, max_range],
-          'colors': colors,
-          'stops': stops
-        })
+        return jsonify(results)
       elif arg_type == 'num_left_right_posts':
         num_left = len(data[data['polarity'] < 0]) # number of posts that were overall liberal-leaning
         num_right = len(data[data['polarity'] > 0]) # number of posts that were overall conservative-leaning
@@ -182,7 +204,6 @@ class Server(Resource):
           # get the html from Twitter for the pretty tweet
           response = requests.get('https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/' + str(post['tweet_id']))
 
-          obj = None
           if res:
             obj = {
               "rawTweet": response.json()['html'],
@@ -191,6 +212,10 @@ class Server(Resource):
               "tweetScore": 1.*np.float32(res["polarity"]),
               "attention": res["attention"].tolist(),
               "tweetId": post['tweet_id'],
+            }
+          else:
+            obj = {
+              "rawTweet": response.json()['html']
             }
 
           if type(post['retweet_from']) == str:

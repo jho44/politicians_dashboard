@@ -9,52 +9,17 @@ const DRAWER_HEIGHT_FACTOR = 2;
  * @module
  */
 
-/**
- * Draws line chart for number of Tweets the selected/clicked user has postde over the default or user-specified date range.
- * Code skeleton from [here](https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89).
- * Creating labels for the pie segments came from [here](https://observablehq.com/@d3/pie-chart).
- * @function
- * @param {Object} data
- * @param {Array} data.colors Each element looks like '#7878FF'. Each color depends on the average overall Tweet polarity scores within a time step for a certain user. Blue corresponds to very liberal-leaning posts and red corresponds to very conservative-leaning posts.
- * @param {Array} data.range: A 2-element array that consists of [Least number of tweets posted within a day by a certain user, Greatest number of tweets posted within a day by a certain user].
- * @param {Array} data.sizes Radii of each point on the line chart, each corresponding to how many posts a user tweets within a single time step.
- * @param {Array} data.stops Real numbers from 0 to 100 that mark what percentages of the x-axis the color of the line chart should change at. E.g., [0, 11.2, 45.6, 100]
- * @param {Array} data.times Datetime strings of the form 'MM/DD/YYYY, hh:mm:ss' that each correspond to a point on the line chart.
- * @param {Function} setCurrGraphTime When user clicks on a point in the line chart, this function moves the `Timeline` to the time instance corresponding to that point on the line chart.
- */
-export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
-  var margin = { top: 50, right: 100, bottom: 150, left: 100 },
-    width = window.innerWidth - margin.left - margin.right, // Use the window's width
-    height =
-      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
-      margin.top -
-      margin.bottom; // Use the window's height
+const helperForDrawNumPostsOverTime = (
+  relationType,
+  data,
+  setCurrGraphTime,
+  svg,
+  line,
+  style,
+  xScale,
+  yScale
+) => {
   var parseTime = d3.utcParse("%m/%d/%Y, %H:%M:%S");
-
-  // 5. X scale will use the timestamps of our data
-  var xScale = d3
-    .scaleTime()
-    .domain([
-      parseTime(data.times[0]),
-      parseTime(data.times[data.times.length - 1]),
-    ]) // input
-    .range([0, width]);
-
-  // 6. Y scale will use the randomly generate number
-  var yScale = d3
-    .scaleLinear()
-    .domain([data.range[0], data.range[1]]) // input
-    .range([height, 0]); // output
-
-  // 7. d3's line generator
-  var line = d3
-    .line()
-    .x(function (d, i) {
-      return xScale(d.x);
-    }) // set the x values for the line generator
-    .y(function (d, i) {
-      return yScale(d.y);
-    }); // set the y values for the line generator
 
   // 8.
   var dataset = data.times.map(function (d, i) {
@@ -63,34 +28,6 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
       y: data.sizes[i],
     };
   });
-
-  // 1. Add the SVG to the page and employ #2
-  const existing_svg = d3.select("#num-posts").select("svg");
-  if (existing_svg["_groups"][0][0]) existing_svg.remove();
-
-  var svg = d3
-    .select("#num-posts")
-    .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-    .style("overflow", "visible")
-    .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  // 3. Call the x axis in a group tag
-  svg
-    .append("g")
-    .attr("class", "x-axis")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(xScale).tickFormat(d3.utcFormat("%m/%d/%Y, %H:%M")))
-    .selectAll(".x-axis text") // https://bl.ocks.org/d3noob/ecf9e1ddeb48d0c4fbb29d03c08660bb
-    .style("text-anchor", "end")
-    .attr("dx", "-.8em")
-    .attr("dy", ".15em")
-    .attr("transform", "rotate(-65)"); // Create an axis component with d3.axisBottom
-
-  // 4. Call the y axis in a group tag
-  svg.append("g").attr("class", "y axis").call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
 
   const stops = data.stops.map((stop, ind) => ({
     offset: `${stop}%`,
@@ -118,12 +55,24 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
     });
 
   // 9. Append the path, bind the data, and call the line generator
-  svg
-    .append("path")
-    .datum(dataset) // 10. Binds data to the line
-    .attr("stroke", "url(#line-gradient)")
-    .attr("class", "line") // Assign a class for styling
-    .attr("d", line); // 11. Calls the line generator
+  if (style === "SOLID_LINE") {
+    svg
+      .append("path")
+      .datum(dataset) // 10. Binds data to the line
+      .attr("stroke", "url(#line-gradient)")
+      .attr("class", "line") // Assign a class for styling
+      .attr("d", line) // 11. Calls the line generator
+      .attr("id", `${relationType}-line`);
+  } else {
+    svg
+      .append("path")
+      .datum(dataset)
+      .attr("stroke", style["color"])
+      .attr("class", "line")
+      .style("stroke-dasharray", style["lineType"]) // for dashed lines
+      .attr("d", line)
+      .attr("id", `${relationType}-line`);
+  }
 
   // 12. Appends a circle for each datapoint
   svg
@@ -131,9 +80,9 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
     .data(dataset)
     .enter()
     .append("circle") // Uses the enter().append() method
-    .attr("class", "dot") // Assign a class for styling
+    .attr("class", `dot dot-${relationType}`) // Assign a class for styling
     .attr("id", function (d, i) {
-      return `dot-${i}`;
+      return `dot-${relationType}-${i}`;
     })
     .attr("cx", function (d) {
       return xScale(d.x);
@@ -146,11 +95,150 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
       setCurrGraphTime(d.x);
     })
     .on("mouseover", function (d, i) {
-      d3.select(`#dot-${i}`).attr("class", "focus");
+      d3.select(`.dot-${relationType}-${i}`).attr("class", "focus");
     })
     .on("mouseout", function (d, i) {
-      d3.select(`#dot-${i}`).classed("focus", false).attr("class", "dot");
+      d3.select(`.dot-${relationType}-${i}`)
+        .classed("focus", false)
+        .attr("class", "dot");
     });
+};
+
+/**
+ * Draws line chart for number of Tweets the selected/clicked user has postde over the default or user-specified date range.
+ * Code skeleton from [here](https://bl.ocks.org/gordlea/27370d1eea8464b04538e6d8ced39e89).
+ * Creating labels for the pie segments came from [here](https://observablehq.com/@d3/pie-chart).
+ * @function
+ * @param {Object} data
+ * @param {Array} data.colors Each element looks like '#7878FF'. Each color depends on the average overall Tweet polarity scores within a time step for a certain user. Blue corresponds to very liberal-leaning posts and red corresponds to very conservative-leaning posts.
+ * @param {Array} data.range: A 2-element array that consists of [Least number of tweets posted within a day by a certain user, Greatest number of tweets posted within a day by a certain user].
+ * @param {Array} data.sizes Radii of each point on the line chart, each corresponding to how many posts a user tweets within a single time step.
+ * @param {Array} data.stops Real numbers from 0 to 100 that mark what percentages of the x-axis the color of the line chart should change at. E.g., [0, 11.2, 45.6, 100]
+ * @param {Array} data.times Datetime strings of the form 'MM/DD/YYYY, hh:mm:ss' that each correspond to a point on the line chart.
+ * @param {Function} setCurrGraphTime When user clicks on a point in the line chart, this function moves the `Timeline` to the time instance corresponding to that point on the line chart.
+ */
+export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
+  // 1. Add the SVG to the page and employ #2
+  const existing_svg = d3.select("#num-posts").select("svg");
+  if (existing_svg["_groups"][0][0]) existing_svg.remove();
+
+  for (const relationType in data) {
+    const existing_checkboxes = d3.select(`.checkboxes-${relationType}`);
+    if (existing_checkboxes["_groups"][0][0]) existing_checkboxes.remove();
+  }
+
+  var margin = { top: 50, right: 100, bottom: 150, left: 100 },
+    width = window.innerWidth - margin.left - margin.right, // Use the window's width
+    height =
+      document.documentElement.clientHeight / DRAWER_HEIGHT_FACTOR -
+      margin.top -
+      margin.bottom; // Use the window's height
+  var parseTime = d3.utcParse("%m/%d/%Y, %H:%M:%S");
+
+  // 5. X scale will use the timestamps of our data
+  var xScale = d3
+    .scaleTime()
+    .domain([
+      parseTime(data["allPosts"].times[0]),
+      parseTime(data["allPosts"].times[data["allPosts"].times.length - 1]),
+    ]) // input
+    .range([0, width]);
+
+  // 6. Y scale will use the randomly generate number
+  var yScale = d3
+    .scaleLinear()
+    .domain([data["allPosts"].range[0], data["allPosts"].range[1]]) // input
+    .range([height, 0]); // output
+
+  // turn num posts lines on/off
+  for (const relationType in data) {
+    d3.select("#num-posts")
+      .append("div")
+      .attr("class", `checkboxes-${relationType}`);
+    d3.select(`.checkboxes-${relationType}`)
+      .append("input")
+      .attr("type", "checkbox")
+      .attr("checked", true)
+      .attr("value", `${relationType}-line`)
+      .on("change", function () {
+        d3.select(`#${this.value}.line`).style(
+          "visibility",
+          d3.select(`.checkboxes-${relationType} > input`).property("checked")
+            ? "visible"
+            : "hidden"
+        );
+
+        d3.selectAll(`.dot-${relationType}`).style(
+          "visibility",
+          d3.select(`.checkboxes-${relationType} > input`).property("checked")
+            ? "visible"
+            : "hidden"
+        );
+      });
+    d3.select(`.checkboxes-${relationType}`).append("label").text(relationType);
+    // d3.select("#num-posts").append("br");
+  }
+
+  var svg = d3
+    .select("#num-posts")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .style("overflow", "visible")
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  // 3. Call the x axis in a group tag
+  svg
+    .append("g")
+    .attr("class", "x-axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(xScale).tickFormat(d3.utcFormat("%m/%d/%Y, %H:%M")))
+    .selectAll(".x-axis text") // https://bl.ocks.org/d3noob/ecf9e1ddeb48d0c4fbb29d03c08660bb
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-65)"); // Create an axis component with d3.axisBottom
+
+  // 4. Call the y axis in a group tag
+  svg.append("g").attr("class", "y axis").call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+
+  // 7. d3's line generator
+  var line = d3
+    .line()
+    .x(function (d, i) {
+      return xScale(d.x);
+    }) // set the x values for the line generator
+    .y(function (d, i) {
+      return yScale(d.y);
+    }); // set the y values for the line generator
+
+  for (const relationType in data) {
+    let style;
+    if (relationType === "allPosts") {
+      style = "SOLID_LINE";
+    } else if (relationType === "mentions") {
+      style = {
+        lineType: "3, 3",
+        color: "purple",
+      };
+    } else {
+      style = {
+        lineType: "5, 5, 5, 5, 5, 5, 10, 5, 10, 5, 10, 5",
+        color: "green",
+      };
+    }
+    helperForDrawNumPostsOverTime(
+      relationType,
+      data[relationType],
+      setCurrGraphTime,
+      svg,
+      line,
+      style,
+      xScale,
+      yScale
+    );
+  }
 };
 
 /**
@@ -285,6 +373,9 @@ export const drawPolarityOverAllTime = (distrochartRef, data) => {
  * @param {Number} data.tweetScore The overall Tweet's political polarity score.
  */
 export const drawAttentionWeights = (data) => {
+  if (!data["attention"])
+    return `<div class="centered-column"><div style="padding-bottom: 1rem">${data["rawTweet"]}</div><div>Unfortunately, the model couldn't figure out a classification for this tweet.</div></div>`;
+
   const { rawTweet, attention, tweetScore, processedTweet, tokenPolarities } =
     data;
 

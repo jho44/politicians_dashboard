@@ -108,8 +108,7 @@ const Timeline = ({
             });
 
             nodes[`${d.username}.${thisDay}`].collapsed = true;
-            nodes[`${d.username}.${thisDay}`][propertyName.current] =
-              relations;
+            nodes[`${d.username}.${thisDay}`][propertyName.current] = relations;
           }
         });
       })

@@ -23,6 +23,10 @@
   width: var(--charts-width);
 }
 
+.carousel-item input {
+  margin: 0.5rem 1rem;
+}
+
 .indicators {
   display: flex;
   justify-content: center;
