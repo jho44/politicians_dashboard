@@ -68,23 +68,60 @@ function App() {
    * @param {Number} end The end of the default or user-specified date range on the dataset that should be displayed.
    * @param {Number} currTime The time corresponding to the clicked node (Tweet).
    */
-  const handleNodeClick = (username, start, end, currTime) => {
-    setAccId(username);
-    setOpenDrawer(true);
-    setAttnWeightsChartLoading(true);
-    setNumPostsOverTimeLoading(true);
-    setLeftRightPostsLoading(true);
-    setPostPolarityChartLoading(true);
+  const handleNodeClick = useCallback(
+    (username, start, end, currTime) => {
+      let rerenderAll = true;
+      setAccId((prevAccId) => {
+        if (prevAccId == username) rerenderAll = false;
+        return username;
+      });
+      setOpenDrawer(true);
+      setAttnWeightsChartLoading(true);
 
-    fetch(
-      `http://localhost:5000/flask?type=attn_weights&username=${username}&curr_time=${currTime}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        if (!res) {
-          document.getElementById("attention-weights").innerHTML =
-            "<h3>A tweet was not associated with the node you just clicked.</h3>";
-        } else {
+      if (rerenderAll) {
+        setNumPostsOverTimeLoading(true);
+        setLeftRightPostsLoading(true);
+        setPostPolarityChartLoading(true);
+        fetch(
+          start && end
+            ? `http://localhost:5000/flask?type=num_posts_over_time&username=${username}&start_date=${start}&end_date=${end}`
+            : `http://localhost:5000/flask?type=num_posts_over_time&username=${username}`
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            drawNumPostsOverTime(res, setCurrGraphTime);
+            setNumPostsOverTimeLoading(false);
+          })
+          .catch((err) => console.error(err));
+
+        fetch(
+          start && end
+            ? `http://localhost:5000/flask?type=num_left_right_posts&username=${username}&start_date=${start}&end_date=${end}`
+            : `http://localhost:5000/flask?type=num_left_right_posts&username=${username}`
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            drawLeftRightPie(res);
+            setLeftRightPostsLoading(false);
+          })
+          .catch((err) => console.error(err));
+
+        fetch(
+          `http://localhost:5000/flask?type=post_polarity&username=${username}`
+        )
+          .then((res) => res.json())
+          .then((res) => {
+            drawPolarityOverAllTime(distrochartRef, res);
+            setPostPolarityChartLoading(false);
+          })
+          .catch((err) => console.error(err));
+      }
+
+      fetch(
+        `http://localhost:5000/flask?type=attn_weights&username=${username}&curr_time=${currTime}`
+      )
+        .then((res) => res.json())
+        .then((res) => {
           let allPostsHTML = "";
           for (const relationship of RELATIONSHIPS) {
             let html = `<h3>${relationship}</h3>`;
@@ -95,43 +132,12 @@ function App() {
             allPostsHTML += html;
           }
           document.getElementById("attention-weights").innerHTML = allPostsHTML;
-        }
-        setAttnWeightsChartLoading(false);
-      })
-      .catch((err) => console.error(err));
-
-    fetch(
-      start && end
-        ? `http://localhost:5000/flask?type=num_posts_over_time&username=${username}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_posts_over_time&username=${username}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        drawNumPostsOverTime(res, setCurrGraphTime);
-        setNumPostsOverTimeLoading(false);
-      })
-      .catch((err) => console.error(err));
-
-    fetch(
-      start && end
-        ? `http://localhost:5000/flask?type=num_left_right_posts&username=${username}&start_date=${start}&end_date=${end}`
-        : `http://localhost:5000/flask?type=num_left_right_posts&username=${username}`
-    )
-      .then((res) => res.json())
-      .then((res) => {
-        drawLeftRightPie(res);
-        setLeftRightPostsLoading(false);
-      })
-      .catch((err) => console.error(err));
-
-    fetch(`http://localhost:5000/flask?type=post_polarity&username=${username}`)
-      .then((res) => res.json())
-      .then((res) => {
-        drawPolarityOverAllTime(distrochartRef, res);
-        setPostPolarityChartLoading(false);
-      })
-      .catch((err) => console.error(err));
-  };
+          setAttnWeightsChartLoading(false);
+        })
+        .catch((err) => console.error(err));
+    },
+    [accId, setAccId]
+  );
 
   const [usersList, setUsersList] = useState([]);
 

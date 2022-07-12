@@ -65,31 +65,38 @@ class RehydrationThread(Thread):
 
         print("Done rehydrating!")
 
+'''
+iterates through list of politicians' Twitter IDs
+for each politician, query Tweets that mention or retweet from or mention AND retweet from this politician in 2020
+
+Since querying each politician individually would make us hit Twitter API's rate limit more frequently (some number of requests per 15 min interval for each endpoint), batch the politicians in one request using the OR query operator. It should be noted that many pages of results are returned for each query. Once results are retrieved, a simple processing method filters out entries that involve non-politician users.
+
+Rather than generating polarity scores for each entry right after it's returned (for which each prediction takes about 1s to complete), save that for the 15 minute cooling period when we hit a rate limit. (It should be noted that the code tries a failed rate limited request a few times, each after 2s long sleeps, before finally succumbing to the 15 min cooling period.) This is accomplished by creating a new thread which just sleeps for 15 mins. Meanwhile, the primary thread will call a subroutine which generates polarity scores and save batches of thereby completed entries to a temporary csv. (Saving batches to the csv rather than individual entries should diminish the number of file ops.) This temporary csv will replace the csv that the server uses after a simple renaming. This way, there's little chance of anyone experiencing downtime when the data set changes.
+
+Formulating the data pipeline as such, the main bottleneck is in generating polarity scores for each Tweet, which takes a few days to complete on a Macbook Pro 2017 with an Intel processor.
+'''
 class GenerationThread(Thread):
     async def actual_work(self):
         queries = []
-        users_set = None
 
-        with open('./api/data_generation/users.txt') as f:
-            line = f.read()
-            users = line.split('\n')
+        users = pd.read_csv("./api/data_generation/dict.csv", engine="python", sep="\t")
+        users_set = set(users['twitter_id'])
 
-            users_set = set(users)
-            query_len = 0
-            query = ''
+        query_len = 0
+        query = ''
 
-            for user in users:
-                tmp = 'from:' + user + ' OR '
-                if query_len + len(tmp) > 986:
-                    # add query to queries
-                    queries.append(query[0:-4])
-                    query = tmp
-                    query_len = len(tmp)
-                else:
-                    query += tmp
-                    query_len += len(tmp)
+        for user in users_set:
+            tmp = 'from:' + user + ' OR '
+            if query_len + len(tmp) > 986:
+                # add query to queries
+                queries.append(query[0:-4])
+                query = tmp
+                query_len = len(tmp)
+            else:
+                query += tmp
+                query_len += len(tmp)
 
-            queries.append(query[0:-4])
+        queries.append(query[0:-4])
 
         local_tweets = type('', (), {})()
         local_tweets.data = []

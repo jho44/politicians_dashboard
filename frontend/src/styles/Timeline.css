@@ -52,7 +52,7 @@ ul.horizontal li a {
 }
 
 .node {
-  fill: var(--main-color);
+  /* fill: var(--main-color); */
   fill-opacity: 0.5;
   stroke: #fff;
   stroke-width: 1.5px;

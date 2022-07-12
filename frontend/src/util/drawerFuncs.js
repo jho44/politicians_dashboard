@@ -176,7 +176,6 @@ export const drawNumPostsOverTime = (data, setCurrGraphTime) => {
         );
       });
     d3.select(`.checkboxes-${relationType}`).append("label").text(relationType);
-    // d3.select("#num-posts").append("br");
   }
 
   var svg = d3
@@ -373,6 +372,9 @@ export const drawPolarityOverAllTime = (distrochartRef, data) => {
  * @param {Number} data.tweetScore The overall Tweet's political polarity score.
  */
 export const drawAttentionWeights = (data) => {
+  if (typeof data == "boolean")
+    return "<div class='centered-column'><h3>The original Tweet was deleted. The associated node in this dashboard should be deleted once the data is rehydrated again.</h3></div>";
+
   if (!data["attention"])
     return `<div class="centered-column"><div style="padding-bottom: 1rem">${data["rawTweet"]}</div><div>Unfortunately, the model couldn't figure out a classification for this tweet.</div></div>`;
 

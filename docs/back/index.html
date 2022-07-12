@@ -24,7 +24,7 @@
             The data generation process:
             <ol>
               <li>
-                Group together the users we're interested in (specified in <span class="code">api/data_generation/users.txt</span>) to fit within 1000 characters (the max query length accepted by the Twitter API).
+                Group together the users we're interested in (specified in <span class="code">api/data_generation/dict.csv</span>) to fit within 1000 characters (the max query length accepted by the Twitter API).
               </li>
               <li>
                 For each of those groups, go through the different permutations of relationships. Here, we only consider <span class="code">mentions</span> and <span class="code">retweets_from</span> so there's only 4 permutations, including their negations. I ignore the <span class="code">not mentions and not retweet</span> relationship because that'd yield too many results.

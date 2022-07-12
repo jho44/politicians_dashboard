@@ -75,10 +75,17 @@ const Timeline = ({
     const nodes = {};
     let lastDay = 0;
     let firstDay = Infinity;
+    const userToPartyPromise = fetch(
+      `http://localhost:5000/flask?type=user_to_party`
+    )
+      .then((res) => res.json())
+      .catch((err) => console.error(err));
 
-    return d3
-      .csv("http://localhost:5000/flask?type=whole")
-      .then(function (rows) {
+    const rowsPromise = d3.csv("http://localhost:5000/flask?type=whole");
+    return Promise.all([userToPartyPromise, rowsPromise])
+      .then(function (stuff) {
+        const userToParty = stuff[0];
+        const rows = stuff[1];
         rows.forEach((d) => {
           const thisDay = Math.floor(d.timestamp / COEFF) * COEFF;
           if (thisDay > lastDay) lastDay = thisDay;
@@ -86,6 +93,7 @@ const Timeline = ({
           nodes[`${d.username}.${thisDay}`] = {
             label: d.username,
             time: thisDay,
+            color: userToParty[d.username],
           };
 
           // link with whom they have a certain relationship with
@@ -94,17 +102,16 @@ const Timeline = ({
           if (relationship) {
             const relations = relationship.split(",");
 
-            /**
-             * different csvs have different dtypes for the same columns
-             * specifically, some are ints while others are floats that look like xxxx.0
-             * and others are strings meant to rep lists of ints
-             * doing this mapping to int_relations just standardizes everything
-             */
             relations.forEach((relation) => {
-              nodes[`${relation}.${thisDay}`] = {
+              const tmpNode = {
                 label: relation,
                 time: thisDay,
               };
+              if (relation in userToParty) {
+                tmpNode["color"] = userToParty[relation];
+              }
+
+              nodes[`${relation}.${thisDay}`] = tmpNode;
             });
 
             nodes[`${d.username}.${thisDay}`].collapsed = true;
@@ -572,6 +579,7 @@ const Timeline = ({
     nodeEnter
       .append("circle")
       .attr("r", 10)
+      .attr("fill", (d) => d.color)
       .attr("class", "node")
       .on("click", click);
 

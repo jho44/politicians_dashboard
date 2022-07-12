@@ -1,3 +1,4 @@
+from ast import excepthandler
 from flask import send_file, jsonify, request
 from flask_restful import Resource
 import pandas as pd
@@ -156,6 +157,9 @@ class Server(Resource):
       return jsonify({
         'res': res
       })
+    elif arg_type == 'user_to_party':
+        users = pd.read_csv("./api/data_generation/dict.csv", engine="python", sep="\t")
+        return jsonify(pd.Series(users['party'].values,index=users['twitter_name']).to_dict())
     else:
       data = data[data['username'] == args['username']]
       if 'start_date' in args:
@@ -205,18 +209,24 @@ class Server(Resource):
           response = requests.get('https://publish.twitter.com/oembed?url=https://twitter.com/Interior/status/' + str(post['tweet_id']))
 
           if res:
-            obj = {
-              "rawTweet": response.json()['html'],
-              "tokenPolarities": res["raw_polarity"].tolist(),
-              "processedTweet": res["processed_tweet"],
-              "tweetScore": 1.*np.float32(res["polarity"]),
-              "attention": res["attention"].tolist(),
-              "tweetId": post['tweet_id'],
-            }
+            try:
+              obj = {
+                "rawTweet": response.json()['html'],
+                "tokenPolarities": res["raw_polarity"].tolist(),
+                "processedTweet": res["processed_tweet"],
+                "tweetScore": 1.*np.float32(res["polarity"]),
+                "attention": res["attention"].tolist(),
+                "tweetId": post['tweet_id'],
+              }
+            except:
+              obj = False
           else:
-            obj = {
-              "rawTweet": response.json()['html']
-            }
+            try:
+              obj = {
+                "rawTweet": response.json()['html']
+              }
+            except:
+              obj = False
 
           if type(post['retweet_from']) == str:
             retweets.append(obj)
